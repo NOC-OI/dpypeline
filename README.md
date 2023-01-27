@@ -1,6 +1,6 @@
+# Object Store Project
 
-
-## Credentials to access the object store (.json file)
+### Credentials to access the object store (.json file)
 
 From inside JASMIN:
 
