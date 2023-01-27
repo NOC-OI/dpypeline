@@ -111,7 +111,7 @@ class CFChecker:
         CF_NAMES:
         Attempts to set standard names equal to long names and vice-versa, if one of them is missing and the other is CF-compliant.
         Otherwise, attempts to set standard/long names to the correspondent names in the provided mapping.
-        If no mapping was provided and there is no CF-complacency, set one equal to the other.
+        If no mapping was provided and there is no CF-complacency, sets one equal to the other.
         Warns if the final standard name is not CF-compliant.
 
         CF_UNITS:
