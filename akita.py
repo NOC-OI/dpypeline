@@ -9,8 +9,8 @@ class FileHandler(PatternMatchingEventHandler):
     Watchdog that sniffs and guards a filesystem.
     """
 
-    def __init__(self, patterns: str | list[str] = ["*.nc"], ignore_patterns: str | list[str] | None = None,
-                 ignore_directories: bool = True, case_sensitive: bool = True):
+    def __init__(self, patterns: str | list[str] = None, ignore_patterns: str | list[str] | None = None,
+                 ignore_directories: bool = False, case_sensitive: bool = True):
 
         super().__init__(patterns=patterns,
                          ignore_patterns=ignore_patterns,
