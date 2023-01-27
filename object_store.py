@@ -9,7 +9,9 @@ class ObjectStoreS3(s3fs.S3FileSystem):
     """
     TODO: write docstrings
     """
-    def __init__(self, anon=False, store_credentials_json=None, secret=None, key=None, endpoint_url=None,
+
+    def __init__(self, anon: bool = False, store_credentials_json: str | None = None,
+                 secret: str | None = None, key: str | None = None, endpoint_url: str | None = None,
                  *fs_args, **fs_kwargs):
         self._anon = anon
 
@@ -32,18 +34,18 @@ class ObjectStoreS3(s3fs.S3FileSystem):
                          **fs_kwargs)
 
     @staticmethod
-    def load_store_credentials(path):
+    def load_store_credentials(path: str) -> dict:
         """
         Set the credentials of the object store from a JSON file.
 
         Parameters
         ----------
-        path: str
+        path
             Absolute or relative filepath to the JSON file containing the object store credentials.
 
         Returns
         -------
-        store_credentials: dict
+        store_credentials
             Dictionary containing the values of the `token`, `secret` and `endpoint_url` keys used
             to access the object store.
         """
@@ -59,13 +61,18 @@ class ObjectStoreS3(s3fs.S3FileSystem):
 
         return store_credentials
 
-    def get_remote_options(self, override=False):
+    def get_remote_options(self, override: bool = False) -> dict:
         """
         Get the remote options of the object store.
 
+        Parameters
+        ----------
+        override
+            Flag to create remote_options from scratch (True) or to simply retrieve the current dict (False).
+
         Returns
         -------
-        remote_options: dict
+        remote_options
             Dictionary containing the remote options of the object store.
 
         """
@@ -77,22 +84,22 @@ class ObjectStoreS3(s3fs.S3FileSystem):
 
         return self._remote_options
 
-    def get_mapper(self, bucket, prefix="s3://", **get_mapper_kwargs):
+    def get_mapper(self, bucket: str, prefix: str = "s3://", **get_mapper_kwargs) -> fsspec.mapping.FSMap:
         """
         Make a MutableMaping interface to the desired bucket.
 
         Parameters
         ----------
-        bucket: str
+        bucket
             Name of the bucket to place the file in.
         prefix: str, default "s3://"
             Protocol prefix
-        **get_mapper_kwargs: dict
+        **get_mapper_kwargs
             Kwargs for get_mapper. See: https://filesystem-spec.readthedocs.io/en/latest/api.html#fsspec.get_mapper.
 
         Returns
         -------
-        mapper: `fsspec.mapping.FSMap` instance
+        mapper
             Dict-like key-value store.
         """
         mapper = fsspec.get_mapper(prefix + bucket,
@@ -101,26 +108,26 @@ class ObjectStoreS3(s3fs.S3FileSystem):
 
         return mapper
 
-    def get_bucket_list(self):
+    def get_bucket_list(self) -> list[str]:
         """
         Get the list of buckets in the object store.
 
         Returns
         -------
-        bucket_list: list of str
+        bucket_list
             List of the object store buckets.
         """
         return self.ls("/")
 
-    def write_file_to_bucket(self, path, bucket):
+    def write_file_to_bucket(self, path: str, bucket: str) -> None:
         """
         Write file from the local filesystem to a bucket of the object store.
 
         Parameters
         ----------
-        path: str
+        path
             Absolute or relative filepath of the file to be written to the object store.
-        bucket: str
+        bucket
             Name of the bucket to place the file in.
         """
         assert bucket in self.get_bucket_list(), f"Bucket \"{bucket}\" does not exist."
