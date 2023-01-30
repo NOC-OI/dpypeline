@@ -2,19 +2,34 @@ from typing import Callable
 from .actions import subscribe_action, Action
 
 
-def load_to_server(event, data, mapper, engine: str = "file", *args, **kwargs):
+def load_to_server(event, data, mapper, load_option: str = "file", engine: str = "netcdf4",  *args, **kwargs):
+    """
+    Loads a file to a server.
+
+    Parameters
+    ----------
+    event
+    data
+    mapper
+    load_option
+    engine
+    args
+    kwargs
+
+    Returns
+    -------
+
+    """
     # Send to server
-    if engine.lower() == "file":
+    if load_option.lower() == "file":
         with mapper.fs.open(f"{mapper.root}/{event.src_path.rsplit('/', 1)[-1]}", mode="wb") as fa:
             with open(event.src_path, mode="rb") as fb:
                 fa.write(fb.read())
-
-    elif engine.lower() == "zarr":
+    elif load_option.lower() == "zarr":
         import xarray as xr
-        ds = xr.open_dataset(event.src_path).chunk("auto")
+        ds = xr.open_dataset(event.src_path, engine=engine).chunk("auto")
         tasks = ds.to_zarr(mapper, mode="a", compute=False, *args, **kwargs)
         tasks.compute()
-
     else:
         raise NotImplementedError(f"Engine '{engine}' is not implemented.")
 
