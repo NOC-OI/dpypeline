@@ -10,7 +10,7 @@ class CFChecker:
     https://cfconventions.org/vocabularies.html
     """
 
-    def __init__(self, cf_dict: dict or None = None):
+    def __init__(self, cf_dict: dict or None = None) -> None:
         self._cf_dict = cf_dict
 
     @staticmethod

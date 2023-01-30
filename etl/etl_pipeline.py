@@ -92,7 +92,7 @@ class ETLPipeline(ETLBase):
         Parameters
         ----------
         daemon
-            If true, runs the thread as a daemon.
+            If `True`, runs the thread as a daemon; otherwise thread is not created as a daemon.
 
         Returns
         -------

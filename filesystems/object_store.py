@@ -12,7 +12,7 @@ class ObjectStoreS3(s3fs.S3FileSystem):
 
     def __init__(self, anon: bool = False, store_credentials_json: str | None = None,
                  secret: str | None = None, key: str | None = None, endpoint_url: str | None = None,
-                 *fs_args, **fs_kwargs):
+                 *fs_args, **fs_kwargs) -> None:
         self._anon = anon
 
         if store_credentials_json is None:
