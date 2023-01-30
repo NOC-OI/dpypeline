@@ -36,11 +36,10 @@ def subscribe_action(act: Action, action_func: Callable, actions_args: tuple = (
         Dictionary containing mapping actions to functions.
     """
     if act not in actions:
-        actions[act] = {}
+        actions[act] = []
 
-    actions[act]["function"] = action_func
-    actions[act]["args"] = actions_args
-    actions[act]["kwargs"] = actions_kwargs
+    act_dict = {"function": action_func, "args": actions_args, "kwargs": actions_kwargs}
+    actions[act].append(act_dict)
 
     return actions
 
@@ -61,4 +60,4 @@ def post_action(act: Action, data: Any) -> None:
         return
 
     for proc in actions[act]:
-        proc["func"](data, *proc["args"], **proc["kwargs"])
+        proc["function"](data, *proc["args"], **proc["kwargs"])
