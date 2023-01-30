@@ -26,7 +26,7 @@ class Akita:
                  observer: Observer | PollingObserver = PollingObserver(),
                  queue: Queue = Queue(),
                  run_init: bool = False,
-                 create_event_handler_kwargs: dict = None) -> None:
+                 create_event_handler_kwargs: dict = {}) -> None:
         """
         Parameters
         ----------
