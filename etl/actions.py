@@ -15,7 +15,7 @@ class Action(Enum):
     LOAD = auto()
 
 
-def subscribe_action(act: Action, action_func: Callable) -> dict:
+def subscribe_action(act: Action, action_func: Callable, actions_args: tuple = (), actions_kwargs: dict = {}) -> dict:
     """
     Subscribe an action to the actions' dictionary.
 
@@ -25,6 +25,10 @@ def subscribe_action(act: Action, action_func: Callable) -> dict:
         Action to subscribe to (Action.EXTRACT, Action.TRANSFORM, Action.LOAD).
     action_func
         Function associated with the action.
+    actions_args
+        Arguments to be passed to the function.
+    actions_kwargs
+        Keyword arguments to be passed to the function.
 
     Returns
     -------
@@ -32,9 +36,11 @@ def subscribe_action(act: Action, action_func: Callable) -> dict:
         Dictionary containing mapping actions to functions.
     """
     if act not in actions:
-        actions[act] = []
+        actions[act] = {}
 
-    actions[act].append(action_func)
+    actions[act]["function"] = action_func
+    actions[act]["args"] = actions_args
+    actions[act]["kwargs"] = actions_kwargs
 
     return actions
 
@@ -54,5 +60,5 @@ def post_action(act: Action, data: Any) -> None:
         logging.info(f"Action {act} is not in the actions dictionary.")
         return
 
-    for func in actions[act]:
-        func(data)
+    for proc in actions[act]:
+        proc["func"](data, *proc["args"], **proc["kwargs"])
