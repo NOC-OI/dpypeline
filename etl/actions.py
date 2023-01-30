@@ -44,7 +44,7 @@ def subscribe_action(act: Action, action_func: Callable, actions_args: tuple = (
     return actions
 
 
-def post_action(act: Action, data: Any) -> None:
+def post_action(act: Action, event, data: Any = None) -> Any:
     """
     Execute the functions associated with a given action.
 
@@ -52,12 +52,23 @@ def post_action(act: Action, data: Any) -> None:
     ----------
     act
         Action type to perform (e.g., Action.EXTRACT, Action.TRANSFORM, Action.LOAD)
+    event
+        Event representing file or directory creation.
     data
-        Data to pass to the functions associated with action_type.
+        Data passed between functions.
+
+    Returns
+    -------
+    actions
+        Data to be passed to the next stage.
     """
     if act not in actions:
-        logging.info(f"Action {act} is not in the actions dictionary.")
+        logging.info(f"{act} is not in the actions dictionary.")
         return
 
     for proc in actions[act]:
-        proc["function"](data, *proc["args"], **proc["kwargs"])
+        logging.info(f"{act}: calling {proc['function'].__name__} function | Event: {event}")
+        data = proc["function"](event, data, *proc["args"], **proc["kwargs"])
+        logging.info(f"{act}: finished {proc['function'].__name__} function | Event: {event}")
+
+    return data

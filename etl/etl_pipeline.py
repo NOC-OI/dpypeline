@@ -1,4 +1,5 @@
 import time
+from typing import Any
 from threading import Thread
 from .etl_base import ETLBase
 from .actions import post_action, Action
@@ -33,36 +34,57 @@ class ETLPipeline(ETLBase):
         self._watchdog = watchdog
         self._worker = worker
 
-    def _extract(self, event) -> None:
+    def _extract(self, event) -> Any:
         """
         Extracts the data from target sources.
 
         Parameters
         ----------
         event
-        """
-        post_action(Action.EXTRACT, event)
+            Event representing file or directory creation, deletion, modification or moving.
 
-    def _transform(self, event) -> None:
+        Returns
+        -------
+        data_extract
+            Data to be passed down on the pipeline to the transform stage.
+        """
+        data_extract = post_action(Action.EXTRACT, event)
+
+        return data_extract
+
+    def _transform(self, event, data_extract) -> Any:
         """
         Transforms the raw data extracted from the sources into a final desired format.
 
         Parameters
         ----------
         event
-        """
-        post_action(Action.TRANSFORM, event)
+            Event representing file or directory creation, deletion, modification or moving.
+        data extract
+            Data from the extract stage.
 
-    def _load(self, event) -> None:
+        Returns
+        -------
+        data_transform
+            Data to be passed down on the pipeline to the load stage.
+        """
+        data_transform = post_action(Action.TRANSFORM, event, data_extract)
+
+        return data_transform
+
+    def _load(self, event, data_transform) -> None:
         """
         Writes the transformed data from a staging area to a target destination.
+
 
         Parameters
         ----------
         event
+            Event representing file or directory creation, deletion, modification or moving.
+        data_transform
+            Data from the transform stage.
         """
-
-        post_action(Action.LOAD, event)
+        post_action(Action.LOAD, event, data_transform)
 
     def _run_worker(self, sleep_time: int = 1) -> None:
         """
@@ -78,9 +100,9 @@ class ETLPipeline(ETLBase):
             if self._watchdog.get_number_events() > 0:
                 # Trigger the ETL pipeline
                 event = self._watchdog.get_event()
-                self._extract(event)
-                self._transform(event)
-                self._load(event)
+                data_extract = self._extract(event)
+                data_transform = self._transform(event, data_extract)
+                self._load(event, data_transform)
 
             else:
                 time.sleep(sleep_time)
@@ -117,7 +139,6 @@ class ETLPipeline(ETLBase):
                 self._create_worker()
 
             self._worker.start()
-
             self._watchdog.run()
         except Exception as error:
             self._worker.join()

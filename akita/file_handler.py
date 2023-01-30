@@ -104,6 +104,8 @@ class FileHandler(PatternMatchingEventHandler):
         event
         """
         self._logging_message(event)
+        self._process_event(event)
+
         return event
 
     def on_deleted(self, event: FileDeletedEvent | DirDeletedEvent) -> FileDeletedEvent | DirDeletedEvent:
@@ -120,6 +122,7 @@ class FileHandler(PatternMatchingEventHandler):
         event
         """
         self._logging_message(event)
+
         return event
 
     def on_modified(self, event: FileModifiedEvent | DirModifiedEvent) -> FileModifiedEvent | DirModifiedEvent:
@@ -136,7 +139,6 @@ class FileHandler(PatternMatchingEventHandler):
         event
         """
         self._logging_message(event)
-        self._process_event(event)
 
         return event
 
