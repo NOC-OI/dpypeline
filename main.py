@@ -17,7 +17,7 @@ if __name__ == "__main__":
                                                   "msm_project/jasmin_object_store_credentials.json")
 
     # Set up the actions (the order of the actions matters)
-    setup_load_action(load_to_server, engine="zarr", mapper=jasmin.get_mapper("etl"))
+    setup_load_action(load_to_server, load_option="zarr", engine="netcdf4", mapper=jasmin.get_mapper("testmorado"))
 
     # Setup Akita and run the ETL pipeline
     akita = Akita(path="/home/joaomorado/Desktop/workspace/test_dir")

@@ -25,4 +25,3 @@ def setup_extract_action(extract_func: Callable, *args, **kwargs) -> None:
         Keyword arguments to be passed to the function that executes the extract action.
     """
     subscribe_action(Action.EXTRACT, extract_func, args, kwargs)
-

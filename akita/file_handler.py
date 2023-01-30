@@ -187,4 +187,3 @@ class FileHandler(PatternMatchingEventHandler):
         self._logging_message(event)
 
         return event
-

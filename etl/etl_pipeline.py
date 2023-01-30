@@ -103,7 +103,6 @@ class ETLPipeline(ETLBase):
                 data_extract = self._extract(event)
                 data_transform = self._transform(event, data_extract)
                 self._load(event, data_transform)
-
             else:
                 time.sleep(sleep_time)
 
@@ -144,8 +143,3 @@ class ETLPipeline(ETLBase):
             self._worker.join()
 
             return error
-
-
-
-
-

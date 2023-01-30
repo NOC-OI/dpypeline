@@ -221,4 +221,3 @@ if __name__ == "__main__":
     checker.xml_to_dict(xml_file)
     ds = xr.open_zarr("https://noc-msm-o.s3-ext.jc.rl.ac.uk/msm-repository/zarr-data/n06-2015.zarr")
     ds = checker.repair_metadata(ds, mapping)
-
