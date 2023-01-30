@@ -10,8 +10,8 @@ class ETLPipeline(ETLBase):
     Extract-load-transform (ETL) pipeline.
 
     This pipeline relies on a watchdog that continuously monitors a folder to check for any events.
-    This watchdog signals these events to a worker thread that created in this pipeline that, when triggered,
-    executes the ETL pipeline step by step.
+    The watchdog signals these events to a worker thread that is created in this pipeline.
+    When triggered, this worker thread executes the ETL pipeline step by step.
 
     Attributes
     ----------
