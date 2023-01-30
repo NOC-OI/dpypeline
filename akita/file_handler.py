@@ -1,4 +1,6 @@
 import logging
+import time
+import os
 from queue import Queue
 from watchdog.events import *
 
@@ -70,7 +72,32 @@ class FileHandler(PatternMatchingEventHandler):
         """
         logging_msg = f"{event}"
         logging.info(logging_msg)
+
         return logging_msg
+
+    @staticmethod
+    def is_file_size_stable(path: str, sleep_time: int = 1) -> bool:
+        """
+        Checks if the size of a given file is stable.
+
+        Parameters
+        ----------
+        path
+            Absolute or relative filepath of the file.
+        sleep_time
+            Sleep time between consecutive file size checks.
+
+        Returns
+        -------
+        `True` when the file size is stable between two consecutive checks.
+        """
+        filesize = -1.
+
+        while filesize != os.path.getsize(path):
+            filesize = os.path.getsize(path)
+            time.sleep(sleep_time)
+
+        return True
 
     def _process_event(self, event) -> Queue:
         """
@@ -104,7 +131,9 @@ class FileHandler(PatternMatchingEventHandler):
         event
         """
         self._logging_message(event)
-        self._process_event(event)
+
+        if self.is_file_size_stable(event.src_path):
+            self._process_event(event)
 
         return event
 
