@@ -8,7 +8,7 @@ from .file_handler import FileHandler
 
 class Akita:
     """
-    Akita watchdog that
+    The Akita watchdog is a composite object that contains the queue, observer, and event handler instances.
 
     Attributes
     ----------
