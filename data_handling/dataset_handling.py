@@ -1,5 +1,4 @@
 import json
-import fsspec
 from kerchunk.hdf import SingleHdf5ToZarr
 
 
