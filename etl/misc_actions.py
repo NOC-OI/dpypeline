@@ -27,3 +27,7 @@ def create_local_cluster(event, data,
     client = Client(cluster)
 
     return cluster, client
+
+
+def empty_stage(event, data, *args, **kwargs):
+    return data

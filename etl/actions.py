@@ -1,74 +1,62 @@
-import logging
-from typing import Callable
-from typing import Any
-from enum import Enum, auto
-
-actions = dict()
+import xarray as xr
+import numpy as np
+from .actions_base import ActionExecutor
 
 
-class Action(Enum):
+class XarrayDataSet(ActionExecutor):
+    def _run_action(self, event):
+        pass
+
+    def _get_dataset(self):
+        dependency_outputs = self.retrieve_dependencies_output()
+        for output in dependency_outputs:
+            if isinstance(output, xr.Dataset):
+                return output
+
+        raise ValueError("No xarray.Dataset was found in the dependency outputs")
+
+
+class LoadToServer(XarrayDataSet):
+    def _run_action(self, event, mapper, load_option: str = "file", *args, **kwargs):
+        if load_option.lower() == "file":
+            with mapper.fs.open(f"{mapper.root}/{event.src_path.rsplit('/', 1)[-1]}", mode="wb") as fa:
+                with open(event.src_path, mode="rb") as fb:
+                    fa.write(fb.read())
+        elif load_option.lower() == "zarr":
+            ds = self._get_dataset()
+            tasks = ds.to_zarr(mapper, mode="a", compute=False, *args, **kwargs)
+            tasks.compute()
+        else:
+            raise NotImplementedError(f"Engine '{load_option}' is not implemented.")
+
+        return None
+
+
+class OpenDataSet(XarrayDataSet):
     """
-    Action types.
+    Actions that opens a dataset using xarray.
     """
-    EXTRACT = auto()
-    TRANSFORM = auto()
-    LOAD = auto()
+    def _run_action(self, event, engine: str = "netcdf4"):
+        ds = xr.open_dataset(event.src_path, engine=engine).chunk("auto")
+        return ds
 
 
-def subscribe_action(act: Action, action_func: Callable, actions_args: tuple = (), actions_kwargs: dict = {}) -> dict:
+class CleanDataSet(XarrayDataSet):
     """
-    Subscribe an action to the actions' dictionary.
-
-    Parameters
-    ----------
-    act
-        Action to subscribe to (Action.EXTRACT, Action.TRANSFORM, Action.LOAD).
-    action_func
-        Function associated with the action.
-    actions_args
-        Arguments to be passed to the function.
-    actions_kwargs
-        Keyword arguments to be passed to the function.
-
-    Returns
-    -------
-    actions
-        Dictionary containing mapping actions to functions.
+    Actions that cleans a dataset using xarray.
     """
-    if act not in actions:
-        actions[act] = []
 
-    act_dict = {"function": action_func, "args": actions_args, "kwargs": actions_kwargs}
-    actions[act].append(act_dict)
+    def _run_action(self, event, engine: str = "netcdf4"):
+        ds = self._get_dataset()
+        supress_value = 1e20
+        delta = 1e-6
+        fill_val = np.nan
 
-    return actions
+        a = ds["sos"].load()
+        a.values = a.fillna(fill_val)
+        a.values = xr.where(np.abs(a - supress_value) < delta, fill_val, a)
+        a.encoding["_FillValue"] = fill_val
+
+        return ds
 
 
-def post_action(act: Action, event, data: Any = None) -> Any:
-    """
-    Execute the functions associated with a given action.
-
-    Parameters
-    ----------
-    act
-        Action type to perform (e.g., Action.EXTRACT, Action.TRANSFORM, Action.LOAD)
-    event
-        Event representing file or directory creation.
-    data
-        Data passed between functions.
-
-    Returns
-    -------
-    actions
-        Data to be passed to the next stage.
-    """
-    if act not in actions:
-        logging.info(f"{act} is not in the actions dictionary.")
-        return
-
-    for proc in actions[act]:
-        logging.info(f"{act}: calling {proc['function'].__name__} function | Event: {event}")
-        data = proc["function"](event, data, *proc["args"], **proc["kwargs"])
-        logging.info(f"{act}: finished {proc['function'].__name__} function | Event: {event}")
-
-    return data
