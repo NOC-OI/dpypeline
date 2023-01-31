@@ -89,7 +89,7 @@ class FileHandler(PatternMatchingEventHandler):
 
         Returns
         -------
-        `True` when the file size is stable between two consecutive checks.
+        `True` if the file size is stable between two consecutive checks.
         """
         filesize = -1.
 
