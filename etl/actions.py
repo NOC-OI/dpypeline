@@ -58,5 +58,3 @@ class CleanDataSet(XarrayDataSet):
         a.encoding["_FillValue"] = fill_val
 
         return ds
-
-

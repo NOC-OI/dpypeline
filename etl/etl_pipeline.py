@@ -1,5 +1,4 @@
 import time
-from typing import Any
 from threading import Thread
 from .etl_base import ETLBase
 from .actions_base import post_action, Action
@@ -59,7 +58,6 @@ class ETLPipeline(ETLBase):
     def _load(self, event) -> None:
         """
         Writes the transformed data from a staging area to a target destination.
-
 
         Parameters
         ----------

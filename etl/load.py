@@ -16,8 +16,3 @@ def setup_load_action(load_obj: Callable, *args, **kwargs) -> None:
         Keyword arguments to be passed to the function that executes the load action.
     """
     subscribe_action(Action.LOAD, load_obj, args, kwargs)
-
-
-
-
-

@@ -32,4 +32,3 @@ if __name__ == "__main__":
     akita = Akita(path="/home/joaomorado/Desktop/workspace/test_dir")
     etl = ETLPipeline(watchdog=akita)
     etl.run()
-

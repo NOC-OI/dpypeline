@@ -16,6 +16,3 @@ def setup_transform_action(transform_obj: Callable, *args, **kwargs) -> None:
         Keyword arguments to be passed to the function that executes the transform action.
     """
     subscribe_action(Action.TRANSFORM, transform_obj, args, kwargs)
-
-
-
