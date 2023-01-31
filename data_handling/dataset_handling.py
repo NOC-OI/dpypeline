@@ -44,7 +44,6 @@ def generate_zarr_refs(paths, urls, fs_in, fs_out,
 
             if refs_path is not None:
                 output_file = f"{refs_path}{url.rsplit('.', 1)[0].rsplit('/', 1)[-1]}.json"
-                print(output_file)
                 with fs_out.open(output_file, "wb", **fs_out_open_kwargs) as f:
                     f.write(json.dumps(ref).encode())
 
