@@ -9,7 +9,7 @@ class FileHandler(PatternMatchingEventHandler):
     """
     Child class of PatternMatchingEventHandler.
     PatternMatchingEventHandler matches given patterns with file paths associated with occurring events.
-    Whenever a file in the target path is modified, the associated even is put in a queue.
+    Whenever a file in the target path is modified, FileHandler puts the associated event in a queue.
 
     Attributes
     ----------

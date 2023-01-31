@@ -106,6 +106,6 @@ class Akita:
 
     def get_event(self):
         """
-        Get the first event on the queue.
+        Get the first event in the queue.
         """
         return self._queue.get()
