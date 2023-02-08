@@ -123,5 +123,3 @@ class ETLPipeline(ETLBase):
             self._watchdog.run()
         except Exception as error:
             self._worker.join()
-
-            return error

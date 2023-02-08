@@ -11,7 +11,7 @@ class CFChecker:
     https://cfconventions.org/vocabularies.html
     """
 
-    def __init__(self, cf_dict: dict or None = None) -> None:
+    def __init__(self, cf_dict: dict | None = None) -> None:
         self._cf_dict = cf_dict
 
     @staticmethod
@@ -106,8 +106,8 @@ class CFChecker:
         return self._cf_dict
 
     def repair_metadata(
-        self, ds: xr.Dataset or xr.DataArray, name_mapping: dict = {}
-    ) -> xr.Dataset or xr.DataArray:
+        self, ds: xr.Dataset | xr.DataArray, name_mapping: dict | None = None
+    ) -> xr.Dataset | xr.DataArray:
         """
         Checks and repairs the metadata of a xarray `Dataset` or `DataArray`.
 
@@ -135,6 +135,9 @@ class CFChecker:
         ds:
             Repaired xarray `Dataset` or `DataArray`.
         """
+        if name_mapping is None:
+            name_mapping = {}
+
         name_mapping = self._create_two_way_dict(name_mapping)
 
         for var in ds.variables:

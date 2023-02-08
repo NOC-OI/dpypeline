@@ -1,9 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum, auto
-from typing import Any, Callable, Self
-
-actions = dict()
+from typing import Any, Callable, Dict, List
 
 
 class Action(Enum):
@@ -14,6 +12,9 @@ class Action(Enum):
     EXTRACT = auto()
     TRANSFORM = auto()
     LOAD = auto()
+
+
+actions: Dict[Action, List[Dict[str, Any]]] = dict()
 
 
 class ActionExecutor(ABC):
@@ -29,7 +30,7 @@ class ActionExecutor(ABC):
         Output of this action. `None` if action has not been run yet.
     """
 
-    def __init__(self, dependencies: list[Self] | None = None):
+    def __init__(self, dependencies: list[ActionExecutor] | None = None):
         """
         Parameters
         ----------
@@ -39,7 +40,7 @@ class ActionExecutor(ABC):
         self._dependencies = dependencies or []
         self._output = None
 
-    def add_dependency(self, dependency: Self) -> list[Self]:
+    def add_dependency(self, dependency: ActionExecutor) -> list[ActionExecutor]:
         """
         Adds a dependency to this action.
 
@@ -84,7 +85,7 @@ class ActionExecutor(ABC):
         return self._output
 
     @abstractmethod
-    def _run_action(self, event: Any) -> Any:
+    def _run_action(self, *args, **kwargs) -> Any:
         """
         Abstract method.
 

@@ -3,15 +3,15 @@ from abc import ABC, abstractmethod
 
 class ETLBase(ABC):
     @abstractmethod
-    def _extract(self):
+    def _extract(self, *args, **kwargs):
         pass
 
     @abstractmethod
-    def _transform(self):
+    def _transform(self, *args, **kwargs):
         pass
 
     @abstractmethod
-    def _load(self):
+    def _load(self, *args, **kwargs):
         pass
 
     def run(self, *args, **kwargs):

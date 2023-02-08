@@ -3,7 +3,17 @@ import os
 import time
 from queue import Queue
 
-from watchdog.events import *
+from watchdog.events import (
+    DirCreatedEvent,
+    DirDeletedEvent,
+    DirModifiedEvent,
+    DirMovedEvent,
+    FileCreatedEvent,
+    FileDeletedEvent,
+    FileModifiedEvent,
+    FileMovedEvent,
+    PatternMatchingEventHandler,
+)
 
 
 class FileHandler(PatternMatchingEventHandler):
