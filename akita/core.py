@@ -3,6 +3,7 @@ from queue import Queue
 
 from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
+
 from .file_handler import FileHandler
 
 
@@ -21,12 +22,15 @@ class Akita:
     _event_handler
         Handler responsible for matching given patterns with file paths associated with occurring events.
     """
-    def __init__(self,
-                 path: str,
-                 observer: Observer | PollingObserver = PollingObserver(),
-                 queue: Queue = Queue(),
-                 run_init: bool = False,
-                 create_event_handler_kwargs: dict = {}) -> None:
+
+    def __init__(
+        self,
+        path: str,
+        observer: Observer | PollingObserver = PollingObserver(),
+        queue: Queue = Queue(),
+        run_init: bool = False,
+        create_event_handler_kwargs: dict = {},
+    ) -> None:
         """
         Parameters
         ----------
@@ -50,9 +54,13 @@ class Akita:
         if run_init:
             self.run()
 
-    def _create_event_handler(self, patterns: str | list[str] = ["*.nc"],
-                              ignore_patterns: str | list[str] | None = None,
-                              ignore_directories: bool = True, case_sensitive: bool = True) -> FileHandler:
+    def _create_event_handler(
+        self,
+        patterns: str | list[str] = ["*.nc"],
+        ignore_patterns: str | list[str] | None = None,
+        ignore_directories: bool = True,
+        case_sensitive: bool = True,
+    ) -> FileHandler:
         """
         Creates the handler responsible for matching given patterns with file paths associated with occurring events.
 
@@ -71,11 +79,13 @@ class Akita:
         -------
         Instance of :obj:`FileHandler`.
         """
-        self._event_handler = FileHandler(patterns=patterns,
-                                          ignore_patterns=ignore_patterns,
-                                          ignore_directories=ignore_directories,
-                                          case_sensitive=case_sensitive,
-                                          queue=self._queue)
+        self._event_handler = FileHandler(
+            patterns=patterns,
+            ignore_patterns=ignore_patterns,
+            ignore_directories=ignore_directories,
+            case_sensitive=case_sensitive,
+            queue=self._queue,
+        )
 
         return self._event_handler
 

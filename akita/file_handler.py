@@ -1,7 +1,8 @@
 import logging
-import time
 import os
+import time
 from queue import Queue
+
 from watchdog.events import *
 
 
@@ -17,8 +18,14 @@ class FileHandler(PatternMatchingEventHandler):
         Queue where events are placed.
     """
 
-    def __init__(self, patterns: str | list[str] = None, ignore_patterns: str | list[str] | None = None,
-                 ignore_directories: bool = False, case_sensitive: bool = True, queue: Queue = Queue()) -> None:
+    def __init__(
+        self,
+        patterns: str | list[str] = None,
+        ignore_patterns: str | list[str] | None = None,
+        ignore_directories: bool = False,
+        case_sensitive: bool = True,
+        queue: Queue = Queue(),
+    ) -> None:
         """
         Calls the init method of the `PatternMatchingEventHandler` class and sets the queue.
 
@@ -36,10 +43,12 @@ class FileHandler(PatternMatchingEventHandler):
             Queue where events are placed.
         """
 
-        super().__init__(patterns=patterns,
-                         ignore_patterns=ignore_patterns,
-                         ignore_directories=ignore_directories,
-                         case_sensitive=case_sensitive)
+        super().__init__(
+            patterns=patterns,
+            ignore_patterns=ignore_patterns,
+            ignore_directories=ignore_directories,
+            case_sensitive=case_sensitive,
+        )
 
         self._queue = queue
 
@@ -91,7 +100,7 @@ class FileHandler(PatternMatchingEventHandler):
         -------
         `True` if the file size is stable between two consecutive checks.
         """
-        filesize = -1.
+        filesize = -1.0
 
         while filesize != os.path.getsize(path):
             filesize = os.path.getsize(path)
@@ -117,7 +126,9 @@ class FileHandler(PatternMatchingEventHandler):
 
         return self._queue
 
-    def on_created(self, event: FileCreatedEvent | DirCreatedEvent) -> FileCreatedEvent | DirCreatedEvent:
+    def on_created(
+        self, event: FileCreatedEvent | DirCreatedEvent
+    ) -> FileCreatedEvent | DirCreatedEvent:
         """
         Called when a file or directory is created.
 
@@ -137,7 +148,9 @@ class FileHandler(PatternMatchingEventHandler):
 
         return event
 
-    def on_deleted(self, event: FileDeletedEvent | DirDeletedEvent) -> FileDeletedEvent | DirDeletedEvent:
+    def on_deleted(
+        self, event: FileDeletedEvent | DirDeletedEvent
+    ) -> FileDeletedEvent | DirDeletedEvent:
         """
         Called when a file or directory is deleted.
 
@@ -154,7 +167,9 @@ class FileHandler(PatternMatchingEventHandler):
 
         return event
 
-    def on_modified(self, event: FileModifiedEvent | DirModifiedEvent) -> FileModifiedEvent | DirModifiedEvent:
+    def on_modified(
+        self, event: FileModifiedEvent | DirModifiedEvent
+    ) -> FileModifiedEvent | DirModifiedEvent:
         """
         Called when a file or directory is modified.
 
@@ -171,7 +186,9 @@ class FileHandler(PatternMatchingEventHandler):
 
         return event
 
-    def on_moved(self, event: FileMovedEvent | DirMovedEvent) -> FileMovedEvent | DirMovedEvent:
+    def on_moved(
+        self, event: FileMovedEvent | DirMovedEvent
+    ) -> FileMovedEvent | DirMovedEvent:
         """
         Called when a file or directory is moved.
 

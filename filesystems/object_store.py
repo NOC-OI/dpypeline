@@ -1,8 +1,9 @@
-import os
-import logging
-import s3fs
 import json
+import logging
+import os
+
 import fsspec
+import s3fs
 
 
 class ObjectStoreS3(s3fs.S3FileSystem):
@@ -10,28 +11,39 @@ class ObjectStoreS3(s3fs.S3FileSystem):
     TODO: write docstrings
     """
 
-    def __init__(self, anon: bool = False, store_credentials_json: str | None = None,
-                 secret: str | None = None, key: str | None = None, endpoint_url: str | None = None,
-                 *fs_args, **fs_kwargs) -> None:
+    def __init__(
+        self,
+        anon: bool = False,
+        store_credentials_json: str | None = None,
+        secret: str | None = None,
+        key: str | None = None,
+        endpoint_url: str | None = None,
+        *fs_args,
+        **fs_kwargs,
+    ) -> None:
         self._anon = anon
 
         if store_credentials_json is None:
-            logging.info("No JSON file was provided."
-                         "Object store credentials will be obtained from the arguments passed.")
+            logging.info(
+                "No JSON file was provided."
+                "Object store credentials will be obtained from the arguments passed."
+            )
             self._store_credentials = {
                 "secret": secret,
                 "token": key,
                 "endpoint_url": endpoint_url,
             }
         else:
-            logging.info(f"Object store credentials will be read from the JSON file '{store_credentials_json}'")
-            self._store_credentials = self.load_store_credentials(store_credentials_json)
+            logging.info(
+                f"Object store credentials will be read from the JSON file '{store_credentials_json}'"
+            )
+            self._store_credentials = self.load_store_credentials(
+                store_credentials_json
+            )
 
         self._remote_options = self.get_remote_options(override=True)
 
-        super().__init__(*fs_args,
-                         **self._remote_options,
-                         **fs_kwargs)
+        super().__init__(*fs_args, **self._remote_options, **fs_kwargs)
 
     @staticmethod
     def load_store_credentials(path: str) -> dict:
@@ -57,7 +69,9 @@ class ObjectStoreS3(s3fs.S3FileSystem):
 
         for key in ["token", "secret", "endpoint_url"]:
             if key not in store_credentials:
-                logging.warning(f"\"{key}\" is not a key in the JSON file provided. Its value will be set to None.")
+                logging.warning(
+                    f'"{key}" is not a key in the JSON file provided. Its value will be set to None.'
+                )
 
         return store_credentials
 
@@ -77,14 +91,20 @@ class ObjectStoreS3(s3fs.S3FileSystem):
 
         """
         if override:
-            self._remote_options = {"anon": self._anon,
-                                    "secret": self._store_credentials["secret"],
-                                    "key": self._store_credentials["token"],
-                                    "client_kwargs": {"endpoint_url": self._store_credentials["endpoint_url"]}}
+            self._remote_options = {
+                "anon": self._anon,
+                "secret": self._store_credentials["secret"],
+                "key": self._store_credentials["token"],
+                "client_kwargs": {
+                    "endpoint_url": self._store_credentials["endpoint_url"]
+                },
+            }
 
         return self._remote_options
 
-    def get_mapper(self, bucket: str, prefix: str = "s3://", **get_mapper_kwargs) -> fsspec.mapping.FSMap:
+    def get_mapper(
+        self, bucket: str, prefix: str = "s3://", **get_mapper_kwargs
+    ) -> fsspec.mapping.FSMap:
         """
         Make a MutableMaping interface to the desired bucket.
 
@@ -102,9 +122,9 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         mapper
             Dict-like key-value store.
         """
-        mapper = fsspec.get_mapper(prefix + bucket,
-                                   **self._remote_options,
-                                   **get_mapper_kwargs)
+        mapper = fsspec.get_mapper(
+            prefix + bucket, **self._remote_options, **get_mapper_kwargs
+        )
 
         return mapper
 
@@ -130,9 +150,11 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         bucket
             Name of the bucket to place the file in.
         """
-        assert bucket in self.get_bucket_list(), f"Bucket \"{bucket}\" does not exist."
-        assert os.path.isfile(path), f"\"{path}\" is not a file."
+        assert bucket in self.get_bucket_list(), f'Bucket "{bucket}" does not exist.'
+        assert os.path.isfile(path), f'"{path}" is not a file.'
 
-        with self.open(f"{bucket}/{path.rsplit('/', 1)[-1]}", mode='wb', s3=dict(profile='default')) as fa:
+        with self.open(
+            f"{bucket}/{path.rsplit('/', 1)[-1]}", mode="wb", s3=dict(profile="default")
+        ) as fa:
             with open(path, mode="rb") as fb:
                 fa.write(fb.read())

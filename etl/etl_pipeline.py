@@ -1,7 +1,8 @@
 import time
 from threading import Thread
+
+from .actions_base import Action, post_action
 from .etl_base import ETLBase
-from .actions_base import post_action, Action
 
 
 class ETLPipeline(ETLBase):
@@ -19,6 +20,7 @@ class ETLPipeline(ETLBase):
     _worker: Thread
         Instance of the worker thread that performs the ETL pipeline.
     """
+
     def __init__(self, watchdog, worker: Thread | None = None) -> None:
         """
         Init method for ETLPipeline.

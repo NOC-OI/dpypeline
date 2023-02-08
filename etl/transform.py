@@ -1,5 +1,6 @@
 from typing import Callable
-from .actions_base import subscribe_action, Action
+
+from .actions_base import Action, subscribe_action
 
 
 def setup_transform_action(transform_obj: Callable, *args, **kwargs) -> None:

@@ -1,5 +1,6 @@
 from typing import Callable
-from .actions_base import subscribe_action, Action
+
+from .actions_base import Action, subscribe_action
 
 
 def setup_extract_action(extract_obj: Callable, *args, **kwargs) -> None:

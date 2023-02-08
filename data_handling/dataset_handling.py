@@ -1,10 +1,18 @@
 import json
+
 from kerchunk.hdf import SingleHdf5ToZarr
 
 
-def generate_zarr_refs(paths, urls, fs_in, fs_out,
-                       fs_in_open_kwargs={}, fs_out_open_kwargs={},
-                       refs_path="./", inline_threshold=300):
+def generate_zarr_refs(
+    paths,
+    urls,
+    fs_in,
+    fs_out,
+    fs_in_open_kwargs={},
+    fs_out_open_kwargs={},
+    refs_path="./",
+    inline_threshold=300,
+):
     """
     Translate the content of HDF5/NetCDF files into Zarr metadata.
     A single .json reference file is created for each file url passed to it.
@@ -43,7 +51,9 @@ def generate_zarr_refs(paths, urls, fs_in, fs_out,
             refs.append(ref)
 
             if refs_path is not None:
-                output_file = f"{refs_path}{url.rsplit('.', 1)[0].rsplit('/', 1)[-1]}.json"
+                output_file = (
+                    f"{refs_path}{url.rsplit('.', 1)[0].rsplit('/', 1)[-1]}.json"
+                )
                 with fs_out.open(output_file, "wb", **fs_out_open_kwargs) as f:
                     f.write(json.dumps(ref).encode())
 

@@ -1,8 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Callable
-from typing import Any, Self
 from enum import Enum, auto
+from typing import Any, Callable, Self
 
 actions = dict()
 
@@ -11,6 +10,7 @@ class Action(Enum):
     """
     Action types.
     """
+
     EXTRACT = auto()
     TRANSFORM = auto()
     LOAD = auto()
@@ -28,6 +28,7 @@ class ActionExecutor(ABC):
     _output
         Output of this action. `None` if action has not been run yet.
     """
+
     def __init__(self, dependencies: list[Self] | None = None):
         """
         Parameters
@@ -99,7 +100,12 @@ class ActionExecutor(ABC):
         pass
 
 
-def subscribe_action(act: Action, action_func: Callable, actions_args: tuple = (), actions_kwargs: dict = {}) -> dict:
+def subscribe_action(
+    act: Action,
+    action_func: Callable,
+    actions_args: tuple = (),
+    actions_kwargs: dict = {},
+) -> dict:
     """
     Subscribe an action to the actions' dictionary.
 
@@ -144,6 +150,10 @@ def post_action(act: Action, event) -> None:
         return
 
     for proc in actions[act]:
-        logging.info(f"{act}: calling instance of {proc['function'].__class__.__name__} class | Event: {event}")
+        logging.info(
+            f"{act}: calling instance of {proc['function'].__class__.__name__} class | Event: {event}"
+        )
         proc["function"](event, *proc["args"], **proc["kwargs"])
-        logging.info(f"{act}: finished executing instance of {proc['function'].__class__.__name__} class | Event: {event}")
+        logging.info(
+            f"{act}: finished executing instance of {proc['function'].__class__.__name__} class | Event: {event}"
+        )

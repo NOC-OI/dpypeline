@@ -1,6 +1,7 @@
-import xml.etree.ElementTree as ET
 import json
 import logging
+import xml.etree.ElementTree as ET
+
 import xarray as xr
 
 
@@ -78,12 +79,14 @@ class CFChecker:
         cf_dict
             Dictionary of the CF table.
         """
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             f.write(json.dumps(self._cf_dict))
 
         return self._cf_dict
 
-    def load_cf_table_from_json(self, path: str = "cf-standard-name-table.json") -> dict:
+    def load_cf_table_from_json(
+        self, path: str = "cf-standard-name-table.json"
+    ) -> dict:
         """
         Loads the CF standard names table from a JSON file.
 
@@ -97,12 +100,14 @@ class CFChecker:
         cf_dict
             Dictionary of the CF table.
         """
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             self._cf_dict = json.load(f)
 
         return self._cf_dict
 
-    def repair_metadata(self, ds: xr.Dataset or xr.DataArray, name_mapping: dict = {}) -> xr.Dataset or xr.DataArray:
+    def repair_metadata(
+        self, ds: xr.Dataset or xr.DataArray, name_mapping: dict = {}
+    ) -> xr.Dataset or xr.DataArray:
         """
         Checks and repairs the metadata of a xarray `Dataset` or `DataArray`.
 
@@ -138,58 +143,90 @@ class CFChecker:
             if "standard_name" in var_attrs:
                 if "long_name" in var_attrs:
                     if var_attrs["standard_name"] not in self._cf_dict:
-                        logging.warning(f"CF_NAMES:Standard name of '{var}' "
-                                        f"['{var_attrs['standard_name']}'] is not a CF standard.")
+                        logging.warning(
+                            f"CF_NAMES:Standard name of '{var}' "
+                            f"['{var_attrs['standard_name']}'] is not a CF standard."
+                        )
                 else:
                     if var_attrs["standard_name"] not in self._cf_dict:
-                        logging.warning(f"CF_NAMES:Standard name of '{var}' "
-                                        f"['{var_attrs['standard_name']}'] is not a CF standard.")
+                        logging.warning(
+                            f"CF_NAMES:Standard name of '{var}' "
+                            f"['{var_attrs['standard_name']}'] is not a CF standard."
+                        )
                         if var_attrs["standard_name"] in name_mapping:
-                            logging.warning(f"CF_NAMES:Long name of '{var}' ['{var_attrs['long_name']}'] will be set "
-                                            f"using the mapping ['{name_mapping[var_attrs['standard_name']]}'].")
-                            var_attrs["long_name"] = name_mapping[var_attrs["standard_name"]]
+                            logging.warning(
+                                f"CF_NAMES:Long name of '{var}' ['{var_attrs['long_name']}'] will be set "
+                                f"using the mapping ['{name_mapping[var_attrs['standard_name']]}']."
+                            )
+                            var_attrs["long_name"] = name_mapping[
+                                var_attrs["standard_name"]
+                            ]
                         else:
-                            logging.warning(f"CF_NAMES:Long name of '{var}' will be set using "
-                                            f"its not CF-compliant standard name ['{var_attrs['standard_name']}'].")
+                            logging.warning(
+                                f"CF_NAMES:Long name of '{var}' will be set using "
+                                f"its not CF-compliant standard name ['{var_attrs['standard_name']}']."
+                            )
                             var_attrs["long_name"] = var_attrs["standard_name"]
                     else:
                         var_attrs["long_name"] = var_attrs["standard_name"]
-                        logging.info(f"CF_NAMES:Long name of '{var}' ['{var_attrs['long_name']}'] "
-                                        f"will be set using its CF-compliant standard name ['{var_attrs['standard_name']}'].")
+                        logging.info(
+                            f"CF_NAMES:Long name of '{var}' ['{var_attrs['long_name']}'] "
+                            f"will be set using its CF-compliant standard name ['{var_attrs['standard_name']}']."
+                        )
             elif "long_name" in var_attrs:
                 logging.info(f"CF_NAMES:Standard name of '{var}' is not set.")
                 if var_attrs["long_name"] not in self._cf_dict:
-                    logging.info(f"CF_NAMES:Long name of '{var}' ['{var_attrs['long_name']}'] is not a CF standard.")
+                    logging.info(
+                        f"CF_NAMES:Long name of '{var}' ['{var_attrs['long_name']}'] is not a CF standard."
+                    )
                     if var_attrs["long_name"] in name_mapping:
-                        logging.warning(f"CF_NAMES:Standard name of '{var}' will be set "
-                                        f"using the mapping ['{name_mapping[var_attrs['long_name']]}'].")
-                        var_attrs["standard_name"] = name_mapping[var_attrs["long_name"]]
+                        logging.warning(
+                            f"CF_NAMES:Standard name of '{var}' will be set "
+                            f"using the mapping ['{name_mapping[var_attrs['long_name']]}']."
+                        )
+                        var_attrs["standard_name"] = name_mapping[
+                            var_attrs["long_name"]
+                        ]
                     else:
                         logging.warning(
                             f"CF_NAMES:Standard name of '{var}' will be set using its "
-                            f"not CF-compliant long name ['{var_attrs['long_name']}'].")
+                            f"not CF-compliant long name ['{var_attrs['long_name']}']."
+                        )
                         var_attrs["standard_name"] = var_attrs["long_name"]
 
                 else:
-                    logging.info(f"CF_NAMES:Standard name of '{var}' will be set using its "
-                                    f"CF-compliant long name ['{var_attrs['long_name']}'].")
+                    logging.info(
+                        f"CF_NAMES:Standard name of '{var}' will be set using its "
+                        f"CF-compliant long name ['{var_attrs['long_name']}']."
+                    )
                     var_attrs["standard_name"] = var_attrs["long_name"]
 
             else:
-                logging.warning(f"CF_NAMES:Standard and long name of '{var}' are not set.")
+                logging.warning(
+                    f"CF_NAMES:Standard and long name of '{var}' are not set."
+                )
 
             # Check CF-compliance of the units
             if "units" in var_attrs:
                 if var_attrs["standard_name"] in self._cf_dict:
-                    if var_attrs["units"] == self._cf_dict[var_attrs["standard_name"]]["canonical_units"]:
-                        logging.info(f"CF_UNITS:Units of '{var}' [{var_attrs['units']}] are CF-compliant"
-                                        f" [{self._cf_dict[var_attrs['standard_name']]['canonical_units']}].")
+                    if (
+                        var_attrs["units"]
+                        == self._cf_dict[var_attrs["standard_name"]]["canonical_units"]
+                    ):
+                        logging.info(
+                            f"CF_UNITS:Units of '{var}' [{var_attrs['units']}] are CF-compliant"
+                            f" [{self._cf_dict[var_attrs['standard_name']]['canonical_units']}]."
+                        )
                     else:
-                        logging.warning(f"CF_UNITS:Units of '{var}' [{var_attrs['units']}] are not CF-compliant "
-                                        f"[{self._cf_dict[var_attrs['standard_name']]['canonical_units']}].")
+                        logging.warning(
+                            f"CF_UNITS:Units of '{var}' [{var_attrs['units']}] are not CF-compliant "
+                            f"[{self._cf_dict[var_attrs['standard_name']]['canonical_units']}]."
+                        )
                 else:
-                    logging.warning(f"CF_UNITS:CF-compliance of '{var}' [{var_attrs['units']}] units is not possible "
-                                    f"to check as it is does not have a CF-compliant standard name.")
+                    logging.warning(
+                        f"CF_UNITS:CF-compliance of '{var}' [{var_attrs['units']}] units is not possible "
+                        f"to check as it is does not have a CF-compliant standard name."
+                    )
             else:
                 logging.warning(f"CF_UNITS:Units of '{var}' are not set.")
 
@@ -202,22 +239,26 @@ if __name__ == "__main__":
     url = "https://cfconventions.org/Data/cf-standard-names/79/src/cf-standard-name-table.xml"
     xml_file, headers = urllib.request.urlretrieve(url)
 
-    mapping = {"Vertical T levels": "depth",
-               "sea_water_potential_temperature": "sea_water_potential_temperature",
-               "sea_water_salinity": "sea_water_salinity",
-               "sea_surface_salinity": "sea_surface_salinity",
-               "sea_surface_temperature": "sea_surface_temperature",
-               "square_of_sea_surface_temperature": "square_of_sea_surface_temperature",
-               "sea_surface_height_above_geoid": "sea_surface_height_above_geoid",
-               "square_of_sea_surface_height_above_geoid": "square_of_sea_surface_height_above_geoid",
-               "water_flux_into_sea_water": "water_flux_into_sea_water",
-               "surface_net_downward_shortwave_flux": "surface_net_downward_shortwave_flux",
-               "surface_net_downward_total_heat_flux": "surface_net_downward_total_heat_flux",
-               "wind stress module": "wind_stress_module",
-               "mixing layer depth (Turbocline)": "turbocline",
-               "Mixed Layer Depth 0.01 ref.10m": "turbocline_0.01"}
+    mapping = {
+        "Vertical T levels": "depth",
+        "sea_water_potential_temperature": "sea_water_potential_temperature",
+        "sea_water_salinity": "sea_water_salinity",
+        "sea_surface_salinity": "sea_surface_salinity",
+        "sea_surface_temperature": "sea_surface_temperature",
+        "square_of_sea_surface_temperature": "square_of_sea_surface_temperature",
+        "sea_surface_height_above_geoid": "sea_surface_height_above_geoid",
+        "square_of_sea_surface_height_above_geoid": "square_of_sea_surface_height_above_geoid",
+        "water_flux_into_sea_water": "water_flux_into_sea_water",
+        "surface_net_downward_shortwave_flux": "surface_net_downward_shortwave_flux",
+        "surface_net_downward_total_heat_flux": "surface_net_downward_total_heat_flux",
+        "wind stress module": "wind_stress_module",
+        "mixing layer depth (Turbocline)": "turbocline",
+        "Mixed Layer Depth 0.01 ref.10m": "turbocline_0.01",
+    }
 
     checker = CFChecker()
     checker.xml_to_dict(xml_file)
-    ds = xr.open_zarr("https://noc-msm-o.s3-ext.jc.rl.ac.uk/msm-repository/zarr-data/n06-2015.zarr")
+    ds = xr.open_zarr(
+        "https://noc-msm-o.s3-ext.jc.rl.ac.uk/msm-repository/zarr-data/n06-2015.zarr"
+    )
     ds = checker.repair_metadata(ds, mapping)

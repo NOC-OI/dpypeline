@@ -1,5 +1,6 @@
-import xarray as xr
 import numpy as np
+import xarray as xr
+
 from .actions_base import ActionExecutor
 
 
@@ -19,7 +20,9 @@ class XarrayDataSet(ActionExecutor):
 class LoadToServer(XarrayDataSet):
     def _run_action(self, event, mapper, load_option: str = "file", *args, **kwargs):
         if load_option.lower() == "file":
-            with mapper.fs.open(f"{mapper.root}/{event.src_path.rsplit('/', 1)[-1]}", mode="wb") as fa:
+            with mapper.fs.open(
+                f"{mapper.root}/{event.src_path.rsplit('/', 1)[-1]}", mode="wb"
+            ) as fa:
                 with open(event.src_path, mode="rb") as fb:
                     fa.write(fb.read())
         elif load_option.lower() == "zarr":
@@ -36,6 +39,7 @@ class OpenDataSet(XarrayDataSet):
     """
     Actions that opens a dataset using xarray.
     """
+
     def _run_action(self, event, engine: str = "netcdf4"):
         ds = xr.open_dataset(event.src_path, engine=engine).chunk("auto")
         return ds
