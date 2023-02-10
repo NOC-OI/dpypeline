@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum, auto
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Self
 
 
 class Action(Enum):
@@ -30,7 +30,7 @@ class ActionExecutor(ABC):
         Output of this action. `None` if action has not been run yet.
     """
 
-    def __init__(self, dependencies: list[ActionExecutor] | None = None):
+    def __init__(self, dependencies: list[Self] | None = None):
         """
         Parameters
         ----------
@@ -40,7 +40,7 @@ class ActionExecutor(ABC):
         self._dependencies = dependencies or []
         self._output = None
 
-    def add_dependency(self, dependency: ActionExecutor) -> list[ActionExecutor]:
+    def add_dependency(self, dependency: Self) -> list[Self]:
         """
         Adds a dependency to this action.
 
