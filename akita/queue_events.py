@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import logging
+import os
+import pickle
 from queue import Empty, Full, Queue
 from typing import Any
 
@@ -11,6 +13,7 @@ class EventsQueue(Queue):
 
     _instance: EventsQueue = None
     _initialized: bool = False
+    _state_file: str = "queue_state.pickle"
 
     def __init__(self, maxsize: int = 0) -> None:
         """Initiate the EventsQueue singleton."""
@@ -18,6 +21,16 @@ class EventsQueue(Queue):
             logging.info("Initializing singleton instance of EventsQueue.")
             super().__init__(maxsize=maxsize)
             self._initialized: bool = True
+
+            if os.path.isfile(os.getenv("CACHE_DIR") + self._state_file):
+                logging.info(
+                    f"Found queue state file {os.getenv('CACHE_DIR') + self._state_file}"
+                )
+                self._load_state()
+            else:
+                logging.info(
+                    f"No queue state file {os.getenv('CACHE_DIR') + self._state_file}"
+                )
 
     def __new__(cls, maxsize: int = 0) -> EventsQueue:
         """
@@ -33,8 +46,22 @@ class EventsQueue(Queue):
 
         return cls._instance
 
+    def _save_state(self) -> None:
+        """Save the state of the queue."""
+        logging.info("Saving state of the queue.")
+        with open(os.getenv("CACHE_DIR") + self._state_file, "wb") as f:
+            pickle.dump(self.queue, f)
+
+    def _load_state(self) -> None:
+        """Load the state of the queue."""
+        logging.info("Loading state of the queue.")
+        with open(os.getenv("CACHE_DIR") + self._state_file, "rb") as f:
+            self.queue = pickle.load(f)
+
     def enqueue(self, event) -> bool:
         """Add an event to the queue.
+
+        Everytime an event is added to the queue, the state of the queue is saved.
 
         Parameters
         ----------
@@ -48,6 +75,7 @@ class EventsQueue(Queue):
         try:
             logging.info(f"Enqueuing event:{event}.")
             self.put(event, block=False)
+            self._save_state()
             return True
         except Full:
             raise Full("Queue is full.")
@@ -78,11 +106,9 @@ class EventsQueue(Queue):
         -------
         First event in the queue or None if the queue is empty.
         """
-        try:
+        if self.get_queue_size():
             logging.info("Peeking first item in the queue.")
             return self.queue[0]
-        except Empty:
-            return None
 
     def get_queue_size(self) -> int:
         """
@@ -93,3 +119,8 @@ class EventsQueue(Queue):
         Number of events in the queue.
         """
         return self.qsize()
+
+    @classmethod
+    def clear_instance(cls):
+        """Clear the singleton instance."""
+        cls._instance = None

@@ -1,8 +1,8 @@
 """Celery app configuration."""
-# import os
+import os
 
-broker_url = "amqp://jmorado:mypass@morado-unix:5672/myvhost"  # os.getenv("BROKER_URL")
-# result_backend = "db+sqlite:///a.sqlite/"
+broker_url = os.getenv("BROKER_URL")
+result_backend = "db+sqlite:///a.sqlite/"
 imports = ("celery_app.tasks.xarray",)
 
 task_serializer = "pickle"

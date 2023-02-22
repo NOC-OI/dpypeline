@@ -1,21 +1,37 @@
-# Object Store Project
+# Data pipeline
 
-## Architecture
+Program for creating data pipelines triggered by file creation events.
+
+# Version
+
+v0.1.0
+
+# Pipeline architecture
 ![Pipeline architecture](/images/architecture_diagram.png "Pipeline architecture")
 
-## How to use
+# How to use
 
-### 1. Start RabbitMQ
+## 1. Start RabbitMQ locally (Optional)
 
+Set up a local instance of RabbitMQ using Docker:
+
+``` bash
+docker pull rabbitmq:3-management
+docker run --rm -it -p 15672:15672 -p 5672:5672  dadrabbitmq:3-management
 ```
-```
 
-### 2. Start a celery worker
+The rabbitMQ management interface can be access on the url http://localhost:15672
+
+
+NOTE: If RabbitMQ is run locally, set the BROKER_URL env variable to amqp://guest:guest@localhost. The default username and password are uest.
+
+
+## 2. Start a celery worker
 
 Start a celery worker:
 
 ```bash
-python -m celery -A main worker --loglevel=INFO-n ETLPipeline@%h
+python -m celery -A main worker --loglevel=INFO -n ETLPipeline@%h
 ```
 
 Alternatively, run the customisable `start_celery_worker.sh` script:
@@ -24,15 +40,15 @@ Alternatively, run the customisable `start_celery_worker.sh` script:
 ./start_celery_worker.sh
 ```
 
-### 3. Run the ETL data pipeline
+## 3. Run the ETL data pipeline
 
-Start a celery worke:
+Run the application:
 
 ```bash
 python -u main.py
 ```
 
-### 4. Monitor a Celery cluster with Flower
+## 4. Monitor a Celery cluster with Flower (Optional)
 
 Install Flower using pip:
 
@@ -53,6 +69,24 @@ docker run -p 5555:5555 mher/flower
 ```
 
 Access Flower on the url http://localhost:5555/
+
+## Unit tests
+
+Run tests using `pytest` in the main directory:
+
+```
+pip install pytest
+pytest
+```
+
+## Environment variables
+
+There are a few env variables that need to be set so that the application can run correctly:
+
+- `BROKER_URL`: URL of the rabbitMQ broker to connect to.
+- `CACHE_DIR`: Path to the cache directory.
+
+
 
 ## Filesystems
 
