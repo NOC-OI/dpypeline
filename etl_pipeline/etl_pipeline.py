@@ -1,9 +1,7 @@
 """ETL pipeline definitions."""
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Callable
-
-from celery import Task as CeleryTask
+from typing import Any
 
 
 @dataclass(frozen=True)
