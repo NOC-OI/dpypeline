@@ -1,12 +1,12 @@
+"""Run the ETL pipeline explicitly defining everything."""
 import logging
 
 from akita.core import Akita
-from etl.actions import CleanDataSet, LoadToServer, OpenDataSet
-from etl.etl_pipeline import ETLPipeline
-from etl.extract import setup_extract_action
-from etl.load import setup_load_action
-from etl.transform import setup_transform_action
-from filesystems.object_store import ObjectStoreS3
+from celery_app.app import app
+from celery_app.tasks.xarray import open_dataset, to_zarr
+from etl_pipeline.celery_pipeline import CeleryPipeline
+from etl_pipeline.etl_pipeline import Job, Task
+from event_consumer.event_consumer import EventConsumer
 
 if __name__ == "__main__":
     logging.basicConfig(
@@ -15,26 +15,22 @@ if __name__ == "__main__":
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    # Create instance of the JASMIN object store
-    jasmin = ObjectStoreS3(
-        anon=False,
-        store_credentials_json="/home/joaomorado/PycharmProjects/"
-        "msm_project/jasmin_object_store_credentials.json",
-    )
+    # Celery app
+    app = app
 
-    # Define tree actions that will be executed in the ETL pipeline
-    open_dataset = OpenDataSet()
-    clean_dataset = CleanDataSet(dependencies=[open_dataset])
-    load_to_server = LoadToServer(dependencies=[clean_dataset])
+    # Create akita, data pipeline, and event consumer
+    akita = Akita(path=".")
+    etl_pipeline = CeleryPipeline()
+    event_consumer = EventConsumer(queue=akita.queue, job_producer=etl_pipeline)
 
-    # Set up the actions of each stage of the ETL pipeline (the order of the actions matters)
-    setup_extract_action(open_dataset, engine="netcdf4")
-    setup_transform_action(clean_dataset)
-    setup_load_action(
-        load_to_server, load_option="zarr", mapper=jasmin.get_mapper("testmorado")
-    )
+    # Create a job and add tasks to it
+    job = Job(name="test_job")
+    job.add_task(Task(function=open_dataset))
+    job.add_task(Task(function=to_zarr))
 
-    # Setup Akita and run the ETL pipeline
-    akita = Akita(path="/home/joaomorado/Desktop/workspace/test_dir")
-    etl = ETLPipeline(watchdog=akita)
-    etl.run()
+    # Add job to pipeline
+    etl_pipeline.add_job(job)
+
+    # Run the EventConsumer and Akita
+    event_consumer.run()
+    akita.run()

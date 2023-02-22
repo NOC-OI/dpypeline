@@ -1,7 +1,9 @@
+"""Filehandler for the watchdog."""
+
 import logging
 import os
 import time
-from queue import Queue
+from typing import Any, Protocol
 
 from watchdog.events import (
     DirCreatedEvent,
@@ -16,31 +18,38 @@ from watchdog.events import (
 )
 
 
+class Queue(Protocol):
+    """Queue interface."""
+
+    def enqueue(self, event: Any) -> Any:
+        """Add an event to the queue."""
+        ...
+
+
 class FileHandler(PatternMatchingEventHandler):
     """
+    Filehandler for the watchdog.
+
     Child class of PatternMatchingEventHandler.
     PatternMatchingEventHandler matches given patterns with file paths associated with occurring events.
     Whenever a file in the target path is modified, FileHandler puts the associated event in a queue.
-
-    Attributes
-    ----------
-    _queue
-        Queue where events are placed.
     """
 
     def __init__(
         self,
+        queue: Queue,
         patterns: str | list[str] = None,
         ignore_patterns: str | list[str] | None = None,
         ignore_directories: bool = False,
         case_sensitive: bool = True,
-        queue: Queue = Queue(),
     ) -> None:
         """
-        Calls the init method of the `PatternMatchingEventHandler` class and sets the queue.
+        Call the init method of the `PatternMatchingEventHandler` class and sets the queue.
 
         Parameters
         ----------
+        queue
+            Queue where events are placed.
         patterns
             Patterns to allow matching events.
         ignore_patterns
@@ -52,6 +61,7 @@ class FileHandler(PatternMatchingEventHandler):
         queue
             Queue where events are placed.
         """
+        self._queue = queue
 
         super().__init__(
             patterns=patterns,
@@ -59,20 +69,6 @@ class FileHandler(PatternMatchingEventHandler):
             ignore_directories=ignore_directories,
             case_sensitive=case_sensitive,
         )
-
-        self._queue = queue
-
-    @property
-    def queue(self) -> Queue:
-        return self._queue
-
-    @queue.setter
-    def queue(self, queue: Queue) -> None:
-        self._queue = queue
-
-    @queue.deleter
-    def queue(self) -> None:
-        del self._queue
 
     @staticmethod
     def _logging_message(event) -> str:
@@ -97,7 +93,7 @@ class FileHandler(PatternMatchingEventHandler):
     @staticmethod
     def is_file_size_stable(path: str, sleep_time: int = 1) -> bool:
         """
-        Checks if the size of a given file is stable.
+        Check if the size of a given file is stable.
 
         Parameters
         ----------
@@ -118,29 +114,22 @@ class FileHandler(PatternMatchingEventHandler):
 
         return True
 
-    def _process_event(self, event) -> Queue:
+    def _process_event(self, event) -> None:
         """
-        Puts the event in the queue of events.
+        Put the event in the queue of events.
 
         Parameters
         ----------
         event
             Event representing file or directory creation, deletion, modification or moving.
-
-        Returns
-        -------
-        _queue
-            Queue of events.
         """
-        self._queue.put(event)
-
-        return self._queue
+        self._queue.enqueue(event.src_path)
 
     def on_created(
         self, event: FileCreatedEvent | DirCreatedEvent
     ) -> FileCreatedEvent | DirCreatedEvent:
         """
-        Called when a file or directory is created.
+        Return event when a file or directory is created.
 
         Parameters
         ----------
@@ -162,7 +151,7 @@ class FileHandler(PatternMatchingEventHandler):
         self, event: FileDeletedEvent | DirDeletedEvent
     ) -> FileDeletedEvent | DirDeletedEvent:
         """
-        Called when a file or directory is deleted.
+        Return event when a file or directory is deleted.
 
         Parameters
         ----------
@@ -181,7 +170,7 @@ class FileHandler(PatternMatchingEventHandler):
         self, event: FileModifiedEvent | DirModifiedEvent
     ) -> FileModifiedEvent | DirModifiedEvent:
         """
-        Called when a file or directory is modified.
+        Return event when a file or directory is modified.
 
         Parameters
         ----------
@@ -200,7 +189,7 @@ class FileHandler(PatternMatchingEventHandler):
         self, event: FileMovedEvent | DirMovedEvent
     ) -> FileMovedEvent | DirMovedEvent:
         """
-        Called when a file or directory is moved.
+        Return event when a file or directory is moved.
 
         Parameters
         ----------

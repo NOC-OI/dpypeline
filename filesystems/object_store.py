@@ -1,3 +1,4 @@
+"""S3 object store class."""
 import json
 import logging
 import os
@@ -8,7 +9,12 @@ import s3fs
 
 class ObjectStoreS3(s3fs.S3FileSystem):
     """
-    TODO: write docstrings
+    S3 object store.
+
+    Parameters
+    ----------
+    s3fs
+        _description_
     """
 
     def __init__(
@@ -21,8 +27,23 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         *fs_args,
         **fs_kwargs,
     ) -> None:
-        self._anon = anon
+        """
+        Initialize the S3 object store.
 
+        Parameters
+        ----------
+        anon, optional
+            _description_, by default False
+        store_credentials_json, optional
+            _description_, by default None
+        secret, optional
+            _description_, by default None
+        key, optional
+            _description_, by default None
+        endpoint_url, optional
+            _description_, by default None
+        """
+        self._anon = anon
         if store_credentials_json is None:
             logging.info(
                 "No JSON file was provided."
