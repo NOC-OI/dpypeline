@@ -1,0 +1,18 @@
+:py:mod:`event_consumer`
+========================
+
+.. py:module:: event_consumer
+
+.. autoapi-nested-parse::
+
+   Event consumer package.
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   event_consumer/index.rst

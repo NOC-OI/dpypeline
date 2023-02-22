@@ -1,0 +1,20 @@
+:py:mod:`akita`
+===============
+
+.. py:module:: akita
+
+.. autoapi-nested-parse::
+
+   Akita package.
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   core/index.rst
+   file_handler/index.rst
+   queue_events/index.rst

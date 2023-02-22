@@ -106,7 +106,6 @@ class EventConsumer:
 
         Returns
         -------
-        worker
             Worker thread that consumes events from the in-memory queue and processes them to produce jobs.
         """
         # Set up a worker thread to process database load

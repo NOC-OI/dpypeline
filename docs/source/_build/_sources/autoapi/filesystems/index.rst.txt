@@ -1,0 +1,18 @@
+:py:mod:`filesystems`
+=====================
+
+.. py:module:: filesystems
+
+.. autoapi-nested-parse::
+
+   Filesystems package.
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   object_store/index.rst
