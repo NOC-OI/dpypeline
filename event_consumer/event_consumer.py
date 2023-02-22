@@ -1,5 +1,5 @@
 """Event consumer. Acts as an interface between Akita and the ETL pipeline."""
-
+import logging
 import time
 from threading import Thread
 from typing import Any, Protocol
@@ -89,6 +89,7 @@ class EventConsumer:
         while True:
             if self._queue.get_queue_size():
                 event = self._queue.peek()
+                logging.info(f"Consuming event: {event}")
                 self._consume_event(event)
                 self._queue.dequeue()
             else:

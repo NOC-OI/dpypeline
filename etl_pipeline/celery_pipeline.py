@@ -1,4 +1,5 @@
 """Celer-based ETL pipeline."""
+import logging
 from typing import Any
 
 from celery import chain, group
@@ -9,9 +10,9 @@ from .etl_pipeline import ETLPipeline, Job
 class CeleryPipeline(ETLPipeline):
     """Celery-based ETL pipeline."""
 
-    def __init__(self) -> None:
+    def __init__(sel, jobs: list[Job] = None) -> None:
         """Initialize the celery-based ETL pipeline."""
-        pass
+        super().__init__(jobs)
 
     def _create_chain(self, event, job: Job) -> chain:
         """
@@ -28,13 +29,13 @@ class CeleryPipeline(ETLPipeline):
         -------
             Celery chain associated with job.
         """
-        chained_task = [
-            job.tasks[0].function.si(event, *job.tasks[0].args, **job.tasks[0].kwargs)
-        ]
-        for task in job.tasks[1:]:
-            chained_task.append(task.function.s(event, *task.args, **task.kwargs))
 
-        return chain(*chained_task)
+        chained_tasks = chain(
+            [job.tasks[0].function.si(event, *job.tasks[0].args, **job.tasks[0].kwargs)]
+            + [task.function.s(*task.args, **task.kwargs) for task in job.tasks[1:]]
+        )
+
+        return chained_tasks
 
     def _chain_all_jobs(self, event: Any) -> list[chain]:
         """
@@ -67,7 +68,7 @@ class CeleryPipeline(ETLPipeline):
         -------
             Celery group associated with all jobs.
         """
-        return group(*self._chain_all_jobs(event))
+        return group(self._chain_all_jobs(event))
 
     def produce_jobs(self, event: Any) -> Any:
         """
@@ -78,4 +79,6 @@ class CeleryPipeline(ETLPipeline):
         event
             Event representing file or directory creation.
         """
-        return self._group_jobs(event).apply_async()
+        group = self._group_jobs(event)
+        logging.info(f"Celery group created: {group}")
+        return group.apply_async()

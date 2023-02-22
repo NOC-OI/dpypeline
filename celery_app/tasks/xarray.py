@@ -30,7 +30,7 @@ def to_zarr(self, dataset: xr.Dataset, *args, **kwargs):
     -----
     https://docs.xarray.dev/en/stable/generated/xarray.to_zarr.html
     """
-    return dataset.to_zarr("lol.zarr", *args, **kwargs)
+    return dataset.to_zarr("trial.zarr", *args, **kwargs)
 
 
 @app.task(bind=True)
@@ -42,10 +42,8 @@ def clean_dataset(
     threshold: float = 1e-6,
     *args,
     **kwargs,
-):
-    """
-    Clean a dataset.
-    """
+) -> str:
+    """Clean a dataset."""
     fill_value = fill_value if fill_value is not None else np.NaN
     supression_value = supression_value if supression_value is not None else np.NaN
 

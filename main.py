@@ -31,6 +31,6 @@ if __name__ == "__main__":
     # Add job to pipeline
     etl_pipeline.add_job(job)
 
-    # Run the EventConsumer and Akita
+    # Run the EventConsumer and Akita (must be in this order)
     event_consumer.run()
     akita.run()

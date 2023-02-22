@@ -3,7 +3,7 @@
 
 broker_url = "amqp://jmorado:mypass@morado-unix:5672/myvhost"  # os.getenv("BROKER_URL")
 # result_backend = "db+sqlite:///a.sqlite/"
-imports = ("etl_pipeline.tasks.xarray",)
+imports = ("celery_app.tasks.xarray",)
 
 task_serializer = "pickle"
 result_serializer = "pickle"
