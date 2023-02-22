@@ -9,6 +9,23 @@ v0.1.0
 # Pipeline architecture
 ![Pipeline architecture](/images/architecture_diagram.png "Pipeline architecture")
 
+# Python enviroment setup
+
+Setup the environment using conda (or mamba):
+
+```
+conda create --name <environment_name> --file requirements.txt -c conda-forge python=3.11.0
+conda activate <environment_name>
+```
+
+Alternatively, use `virtualenv` and `pip` to setup the environment:
+
+```bash
+python -m venv <environment_name>
+source <envionment_name>/bin/activate
+pip install -r requirements
+```
+
 # How to use
 
 ## 1. Start RabbitMQ locally (Optional)
