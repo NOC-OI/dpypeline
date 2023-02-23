@@ -21,7 +21,7 @@ class CeleryPipeline(ETLPipeline):
         Parameters
         ----------
         event
-            Event representing file or directory creation.
+            Triggering event.
         job
             Job to associate the task to.
 
@@ -44,7 +44,7 @@ class CeleryPipeline(ETLPipeline):
         Parameters
         ----------
         event
-            Event representing file or directory creation.
+            Triggering event.
 
         Returns
         -------
@@ -62,7 +62,7 @@ class CeleryPipeline(ETLPipeline):
         Parameters
         ----------
         event
-            Event representing file or directory creation.
+            Triggering event.
 
         Returns
         -------
@@ -77,7 +77,7 @@ class CeleryPipeline(ETLPipeline):
         Parameters
         ----------
         event
-            Event representing file or directory creation.
+            Triggering event.
         """
         group = self._group_jobs(event)
         logging.info(f"Celery group created: {group}")

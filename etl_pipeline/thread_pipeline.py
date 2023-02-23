@@ -15,7 +15,14 @@ class ThreadPipeline(ETLPipeline):
         """
         Produce tasks triggered by an event.
 
-        Notes
-        -----
-        https://docs.python.org/3/library/threading.html
+        Parameters
+        ----------
+        event
+            Triggering event.
         """
+        for job in self._jobs:
+            result = job.tasks[0].function(
+                event, *job.tasks[0].args, **job.tasks[0].kwargs
+            )
+            for task in job.tasks[1:]:
+                result = task.function(result, *task.args, **task.kwargs)
