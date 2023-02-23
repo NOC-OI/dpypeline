@@ -1,0 +1,100 @@
+:py:mod:`dpypeline.akita.queue_events`
+======================================
+
+.. py:module:: dpypeline.akita.queue_events
+
+.. autoapi-nested-parse::
+
+   Queue of events class.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   dpypeline.akita.queue_events.EventsQueue
+
+
+
+
+.. py:class:: EventsQueue(maxsize: int = 0)
+
+   Bases: :py:obj:`queue.Queue`
+
+   EventsQueue singleton class.
+
+   .. py:attribute:: _instance
+      :type: EventsQueue
+
+      
+
+   .. py:attribute:: _initialized
+      :type: bool
+      :value: False
+
+      
+
+   .. py:attribute:: _state_file
+      :type: str
+      :value: 'queue_state.pickle'
+
+      
+
+   .. py:method:: _save_state() -> None
+
+      Save the state of the queue.
+
+
+   .. py:method:: _load_state() -> None
+
+      Load the state of the queue.
+
+
+   .. py:method:: enqueue(event) -> bool
+
+      Add an event to the queue.
+
+      Everytime an event is added to the queue, the state of the queue is saved.
+
+      :param event: Event to add to the queue.
+
+      :returns: *True if the event was added to the queue.*
+
+
+   .. py:method:: dequeue() -> Any
+
+      Remove and return an event from the queue.
+
+      If the queue is empty, returns None.
+
+      :returns: *First event in the queue or None if the queue is empty.*
+
+
+   .. py:method:: peek() -> Any
+
+      Peek first item in the queue withou removing it.
+
+      If the queue is empty, returns None.
+
+      :returns: *First event in the queue or None if the queue is empty.*
+
+
+   .. py:method:: get_queue_size() -> int
+
+      Get the size of the queue.
+
+      :returns: *Number of events in the queue.*
+
+
+   .. py:method:: clear_instance()
+      :classmethod:
+
+      Clear the singleton instance.
+
+
+

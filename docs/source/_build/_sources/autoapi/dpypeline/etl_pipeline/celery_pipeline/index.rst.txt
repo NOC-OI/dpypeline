@@ -1,0 +1,66 @@
+:py:mod:`dpypeline.etl_pipeline.celery_pipeline`
+================================================
+
+.. py:module:: dpypeline.etl_pipeline.celery_pipeline
+
+.. autoapi-nested-parse::
+
+   Celer-based ETL pipeline.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   dpypeline.etl_pipeline.celery_pipeline.CeleryPipeline
+
+
+
+
+.. py:class:: CeleryPipeline(jobs: list[dpypeline.etl_pipeline.core.Job] = None)
+
+   Bases: :py:obj:`dpypeline.etl_pipeline.core.ETLPipeline`
+
+   Celery-based ETL pipeline.
+
+   .. py:method:: _create_chain(event, job: dpypeline.etl_pipeline.core.Job) -> celery.chain
+
+      Create a Celery chain associated with a job.
+
+      :param event: Triggering event.
+      :param job: Job to associate the task to.
+
+      :returns: *Celery chain associated with job.*
+
+
+   .. py:method:: _chain_all_jobs(event: Any) -> list[celery.chain]
+
+      Chain tasks within all jobs.
+
+      :param event: Triggering event.
+
+      :returns: *List of Celery chains associated with all jobs.*
+
+
+   .. py:method:: _group_jobs(event: Any) -> celery.group
+
+      Group all jobs by first chaining tasks within all jobs.
+
+      :param event: Triggering event.
+
+      :returns: *Celery group associated with all jobs.*
+
+
+   .. py:method:: produce_jobs(event: Any) -> Any
+
+      Produce tasks triggered by an event.
+
+      :param event: Triggering event.
+
+
+

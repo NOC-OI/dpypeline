@@ -1,0 +1,64 @@
+:py:mod:`dpypeline.akita.core`
+==============================
+
+.. py:module:: dpypeline.akita.core
+
+.. autoapi-nested-parse::
+
+   Akita, the watchdog class.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   dpypeline.akita.core.Akita
+
+
+
+
+.. py:class:: Akita(path: str, queue: dpypeline.akita.queue_events.EventsQueue = None, observer: Observer | PollingObserver = PollingObserver(), run_init: bool = False, create_event_handler_kwargs: dict = None, create_queue_arguments: dict = None)
+
+   Akita, the watchdog.
+
+   The Akita watchdog holds the queue, observer, and event handler instances.
+   The in-memory Queue is created upon instantiation and should be a singleton to provide a global point of access.
+
+   :ivar _path: Directory to watch.
+   :ivar _queue: Queue where events are placed by the FileHandler.
+   :ivar _observer: Observer thread that schedules watching directories and dispatches calls to event handlers.
+   :ivar _event_handler: Handler responsible for matching given patterns with file paths associated with occurring events.
+
+
+   .. py:property:: queue
+
+      Return the queue.
+
+   .. py:method:: queue()
+
+      Delete the queue.
+
+
+   .. py:method:: _create_event_handler(patterns: str | list[str] = ['*.nc'], ignore_patterns: str | list[str] | None = None, ignore_directories: bool = True, case_sensitive: bool = True) -> dpypeline.akita.file_handler.FileHandler
+
+      Create the handler responsible for matching given patterns with file paths associated with occurring events.
+
+      :param patterns: Patterns to allow matching events.
+      :param ignore_patterns: Patterns to ignore matching event paths.
+      :param ignore_directories: If `True` directories are ignored; `False` otherwise.
+      :param case_sensitive: If `True` path names are matched sensitive to case; `False` otherwise.
+
+      :returns: Instance of :obj:`FileHandler`.
+
+
+   .. py:method:: run() -> None
+
+      Run the Akita watchdog.
+
+
+

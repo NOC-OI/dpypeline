@@ -12,18 +12,18 @@
 #
 import os
 import sys
-
 sys.path.insert(0, os.path.abspath("../../"))
-
+sys.path.append(os.path.abspath("../../src/"))
+from dpypeline.__init__ import __version__
 
 # -- Project information -----------------------------------------------------
 
-project = "etl-pipeline"
+project = "dpypeline"
 copyright = "2023, João Morado"
 author = "João Morado"
 
 # The full version, including alpha/beta/rc tags
-release = "v0.1.0"
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -40,10 +40,10 @@ extensions = [
 ]
 
 autoapi_dirs = [
-    "../../akita",
-    "../../etl_pipeline",
-    "../../event_consumer",
-    "../../filesystems",
+    "../../src/dpypeline/akita",
+    "../../src/dpypeline/etl_pipeline",
+    "../../src/dpypeline/event_consumer",
+    "../../src/dpypeline/filesystems",
 ]
 
 # Napoleon configuration

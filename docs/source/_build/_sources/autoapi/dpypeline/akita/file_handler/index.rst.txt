@@ -1,0 +1,112 @@
+:py:mod:`dpypeline.akita.file_handler`
+======================================
+
+.. py:module:: dpypeline.akita.file_handler
+
+.. autoapi-nested-parse::
+
+   Filehandler for the watchdog.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   dpypeline.akita.file_handler.Queue
+   dpypeline.akita.file_handler.FileHandler
+
+
+
+
+.. py:class:: Queue
+
+   Bases: :py:obj:`Protocol`
+
+   Queue interface.
+
+   .. py:method:: enqueue(event: Any) -> Any
+
+      Add an event to the queue.
+
+
+
+.. py:class:: FileHandler(queue: Queue, patterns: str | list[str] = None, ignore_patterns: str | list[str] | None = None, ignore_directories: bool = False, case_sensitive: bool = True)
+
+   Bases: :py:obj:`watchdog.events.PatternMatchingEventHandler`
+
+   Filehandler for the watchdog.
+
+   Child class of PatternMatchingEventHandler.
+   PatternMatchingEventHandler matches given patterns with file paths associated with occurring events.
+   Whenever a file in the target path is modified, FileHandler puts the associated event in a queue.
+
+   .. py:method:: _logging_message(event) -> str
+      :staticmethod:
+
+      Message to log when event is triggered.
+
+      :param event: Event representing file or directory creation, deletion, modification or moving.
+
+      :returns: *logging_msg* -- Message to be logged.
+
+
+   .. py:method:: is_file_size_stable(path: str, sleep_time: int = 1) -> bool
+      :staticmethod:
+
+      Check if the size of a given file is stable.
+
+      :param path: Absolute or relative filepath of the file.
+      :param sleep_time: Sleep time between consecutive file size checks.
+
+      :returns: `True` if the file size is stable between two consecutive checks.
+
+
+   .. py:method:: _process_event(event) -> None
+
+      Put the event in the queue of events.
+
+      :param event: Event representing file or directory creation, deletion, modification or moving.
+
+
+   .. py:method:: on_created(event: FileCreatedEvent | DirCreatedEvent) -> FileCreatedEvent | DirCreatedEvent
+
+      Return event when a file or directory is created.
+
+      :param event: Event representing file or directory creation.
+
+      :returns: *event*
+
+
+   .. py:method:: on_deleted(event: FileDeletedEvent | DirDeletedEvent) -> FileDeletedEvent | DirDeletedEvent
+
+      Return event when a file or directory is deleted.
+
+      :param event: Event representing file or directory deletion.
+
+      :returns: *event*
+
+
+   .. py:method:: on_modified(event: FileModifiedEvent | DirModifiedEvent) -> FileModifiedEvent | DirModifiedEvent
+
+      Return event when a file or directory is modified.
+
+      :param event: Event representing file or directory modification.
+
+      :returns: *event*
+
+
+   .. py:method:: on_moved(event: FileMovedEvent | DirMovedEvent) -> FileMovedEvent | DirMovedEvent
+
+      Return event when a file or directory is moved.
+
+      :param event: Event representing file or directory move/renaming.
+
+      :returns: *event*
+
+
+

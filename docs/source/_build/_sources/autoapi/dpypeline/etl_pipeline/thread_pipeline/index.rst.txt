@@ -1,0 +1,38 @@
+:py:mod:`dpypeline.etl_pipeline.thread_pipeline`
+================================================
+
+.. py:module:: dpypeline.etl_pipeline.thread_pipeline
+
+.. autoapi-nested-parse::
+
+   Thread-based ETL pipeline.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   dpypeline.etl_pipeline.thread_pipeline.ThreadPipeline
+
+
+
+
+.. py:class:: ThreadPipeline(jobs: list[etl_pipeline.etl_pipeline.Job] = None)
+
+   Bases: :py:obj:`etl_pipeline.etl_pipeline.ETLPipeline`
+
+   Thread-based ETL pipeline.
+
+   .. py:method:: produce_jobs(event: Any) -> Any
+
+      Produce tasks triggered by an event.
+
+      :param event: Triggering event.
+
+
+

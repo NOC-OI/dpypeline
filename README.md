@@ -1,5 +1,5 @@
 # data-pypeline 
-![Continuousu Integration](https://github.com/NOC-OI/object-store-project/actions/workflows/main.yml/badge.svg)
+![Continuous Integration](https://github.com/NOC-OI/object-store-project/actions/workflows/main.yml/badge.svg)
 
 Program for creating data pipelines triggered by file creation events.
 
@@ -29,7 +29,16 @@ pip install -r requirements
 
 # How to use
 
-## 1. Start RabbitMQ locally (Optional)
+## 1. Install the data-pypeline package
+
+Install data-pypeline using pip:
+
+```bash
+pip install -i https://test.pypi.org/simple/ dpypeline
+```
+
+
+## 2. Start RabbitMQ locally (Optional)
 
 Set up a local instance of RabbitMQ using Docker:
 
@@ -44,7 +53,7 @@ The rabbitMQ management interface can be access on the url http://localhost:1567
 NOTE: If RabbitMQ is run locally, set the BROKER_URL env variable to amqp://guest:guest@localhost. The default username and password are uest.
 
 
-## 2. Start a celery worker
+## 3. Start a celery worker
 
 Start a celery worker:
 
@@ -58,12 +67,12 @@ Alternatively, run the customisable `start_celery_worker.sh` script:
 ./start_celery_worker.sh
 ```
 
-## 3. Run the ETL data pipeline
+## 4. Run the ETL data pipeline
 
-Run the application:
+Run one of the examples in the examples directory, e.g.:
 
 ```bash
-python -u main.py
+python -u examples/example_celery.py
 ```
 
 ## 4. Monitor a Celery cluster with Flower (Optional)

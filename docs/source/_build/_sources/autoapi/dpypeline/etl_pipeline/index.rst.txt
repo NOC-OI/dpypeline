@@ -1,0 +1,22 @@
+:py:mod:`dpypeline.etl_pipeline`
+================================
+
+.. py:module:: dpypeline.etl_pipeline
+
+.. autoapi-nested-parse::
+
+   Extract-transform-load (ETL) pipeline package.
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   celery_pipeline/index.rst
+   core/index.rst
+   thread_pipeline/index.rst
+
+

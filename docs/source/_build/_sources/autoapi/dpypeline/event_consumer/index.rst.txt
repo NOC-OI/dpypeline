@@ -1,0 +1,20 @@
+:py:mod:`dpypeline.event_consumer`
+==================================
+
+.. py:module:: dpypeline.event_consumer
+
+.. autoapi-nested-parse::
+
+   Event consumer package.
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   core/index.rst
+
+
