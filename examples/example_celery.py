@@ -5,8 +5,8 @@ from akita.core import Akita
 from celery_app.app import app
 from celery_app.tasks.xarray import open_dataset, to_zarr
 from etl_pipeline.celery_pipeline import CeleryPipeline
-from etl_pipeline.etl_pipeline import Job, Task
-from event_consumer.event_consumer import EventConsumer
+from etl_pipeline.core import Job, Task
+from event_consumer.core import EventConsumer
 
 if __name__ == "__main__":
     logging.basicConfig(

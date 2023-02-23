@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "data-pypeline"
+description = "Program for creating data pipelines triggered by file creation events."
+requires-python = ">=3.10"
+license = {file = "LICENSE.md"}
+keywords = ["data", "pipeline", "data-pypeline", "pypeline", "noc"]
+authors = [{email = "joao.morado@noc.ac.uk"},{name = "Joao Morado"}]
+maintainers = [{name = "Joao Morado", email = "joao.morado@noc.ac.uk"}]
+classifiers = [
+  "Development Status :: 1 - Beta",
+  "Programming Language :: Python :: 3",
+  "Intended Audience :: Science/Research"
+]
+dependencies = []
+dynamic = ["version", "readme"]
+
+[tool.setuptools.dynamic]
+version = {attr = "__init__.__version__"}
+readme = {file = ["README.md"]}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["*"]
+exclude = ["*__pycache__*"]
+namespaces = true
+
+[project.optional-dependencies]
+test = []
+
+[project.urls]
+repository = "https://github.com/NOC-OI/ETL-pipeline"

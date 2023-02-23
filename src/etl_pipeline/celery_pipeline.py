@@ -4,7 +4,7 @@ from typing import Any
 
 from celery import chain, group
 
-from .etl_pipeline import ETLPipeline, Job
+from .core import ETLPipeline, Job
 
 
 class CeleryPipeline(ETLPipeline):
