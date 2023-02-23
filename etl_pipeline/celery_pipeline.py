@@ -29,7 +29,6 @@ class CeleryPipeline(ETLPipeline):
         -------
             Celery chain associated with job.
         """
-
         chained_tasks = chain(
             [job.tasks[0].function.si(event, *job.tasks[0].args, **job.tasks[0].kwargs)]
             + [task.function.s(*task.args, **task.kwargs) for task in job.tasks[1:]]
