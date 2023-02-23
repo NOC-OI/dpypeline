@@ -8,7 +8,12 @@ Program for creating data pipelines triggered by file creation events.
 v0.1.0
 
 # Pipeline architecture
-![Pipeline architecture](/images/architecture_diagram.png "Pipeline architecture")
+
+## Celery-based pipeline
+![Celery-based pipeline architecture](/images/celery_pipeline.png "Celery-based pipeline architecture")
+
+## Thread-based pipeline
+![Thread-based pipeline architecture](/images/thread_pipeline.png "Thread-based pipeline architecture")
 
 # Python enviroment setup
 

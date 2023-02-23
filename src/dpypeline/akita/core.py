@@ -7,6 +7,7 @@ from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
 
 from .file_handler import FileHandler
+from .directory_state import DirectoryState
 from .queue_events import EventsQueue
 
 
@@ -32,11 +33,12 @@ class Akita:
     def __init__(
         self,
         path: str,
+        patterns: str | list[str],
         queue: EventsQueue = None,
         observer: Observer | PollingObserver = PollingObserver(),
         run_init: bool = False,
         create_event_handler_kwargs: dict = None,
-        create_queue_arguments: dict = None,
+        create_queue_kwargs: dict = None,
     ) -> None:
         """
         Initialize the Akita watchdog.
@@ -45,6 +47,8 @@ class Akita:
         ----------
         path
             Directory to watch.
+        patterns
+            Patterns for matching files.
         queue
             Queue where events are placed by the FileHandler.
         observer
@@ -53,24 +57,23 @@ class Akita:
             If `True` runs the watchdog. `False` otherwise.
         create_event_handler_kwargs
             Kwargs to pass to the _create_event_handler function.
-        create_queue_arguments
+        create_queue_kwargs
             Kwargs to use when creating the queue.
+        glob_kwargs
+            Glob kwargs.
         """
-        create_queue_arguments = (
-            create_queue_arguments if create_queue_arguments is not None else {}
-        )
-        create_event_handler_kwargs = (
-            create_event_handler_kwargs
-            if create_event_handler_kwargs is not None
-            else {}
-        )
+        create_queue_kwargs = create_queue_kwargs if create_queue_kwargs is not None else {}
+        create_event_handler_kwargs = create_event_handler_kwargs if create_event_handler_kwargs is not None else {}
+        glob_kwargs = glob_kwargs if glob_kwargs is not None else {}
 
         self._path = path
+        self._patterns = patterns if patterns else list(patterns)
         self._queue = (
-            queue if queue is not None else EventsQueue(**create_queue_arguments)
+            queue if queue is not None else EventsQueue(**create_queue_kwargs)
         )
         self._observer = observer
-        self._event_handler = self._create_event_handler(**create_event_handler_kwargs)
+        self._event_handler = self._create_event_handler(self._patterns, **create_event_handler_kwargs)
+        self._directory_state = self._create_directory_state(self._path, self._patterns)
 
         if run_init:
             self.run()
@@ -120,6 +123,15 @@ class Akita:
         )
 
         return self._event_handler
+    
+    def _create_directory_state(self, path: str, patterns: str | list[str] = ["*.nc"]) -> DirectoryState:
+        """
+        Create the state of the directory.
+        """
+        self._directory_state = DirectoryState(
+            path=path, patterns=patterns
+        )
+        return self._directory_state
 
     def run(self) -> None:
         """Run the Akita watchdog."""
