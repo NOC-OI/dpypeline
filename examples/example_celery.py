@@ -1,12 +1,12 @@
 """Run the ETL pipeline explicitly defining everything."""
 import logging
 
-from akita.core import Akita
-from celery_app.app import app
-from celery_app.tasks.xarray import open_dataset, to_zarr
-from etl_pipeline.celery_pipeline import CeleryPipeline
-from etl_pipeline.core import Job, Task
-from event_consumer.core import EventConsumer
+from dpypeline.akita.core import Akita
+from dpypeline.celery_app.app import app
+from dpypeline.celery_app.tasks.xarray import open_dataset, to_zarr
+from dpypeline.etl_pipeline.celery_pipeline import CeleryPipeline
+from dpypeline.etl_pipeline.core import Job, Task
+from dpypeline.event_consumer.core import EventConsumer
 
 if __name__ == "__main__":
     logging.basicConfig(

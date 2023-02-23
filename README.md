@@ -1,4 +1,4 @@
-# data-pypeline 
+# dpypeline 
 ![Continuous Integration](https://github.com/NOC-OI/object-store-project/actions/workflows/main.yml/badge.svg)
 
 Program for creating data pipelines triggered by file creation events.
@@ -29,9 +29,9 @@ pip install -r requirements
 
 # How to use
 
-## 1. Install the data-pypeline package
+## 1. Install the dpypeline package
 
-Install data-pypeline using pip:
+Install dpypeline using pip:
 
 ```bash
 pip install -i https://test.pypi.org/simple/ dpypeline

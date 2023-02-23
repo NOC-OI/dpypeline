@@ -2,7 +2,7 @@
 import os
 import random
 
-from akita.queue_events import EventsQueue
+from dpypeline.akita.queue_events import EventsQueue
 
 
 def delete_cache_file() -> None:
