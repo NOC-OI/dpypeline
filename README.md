@@ -1,4 +1,4 @@
-# Data pipeline
+# data-pypeline 
 ![Continuousu Integration](https://github.com/NOC-OI/object-store-project/actions/workflows/main.yml/badge.svg)
 
 Program for creating data pipelines triggered by file creation events.

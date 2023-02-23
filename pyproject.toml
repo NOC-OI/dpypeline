@@ -32,4 +32,4 @@ namespaces = true
 test = []
 
 [project.urls]
-repository = "https://github.com/NOC-OI/ETL-pipeline"
+repository = "https://github.com/NOC-OI/data-pypeline"
