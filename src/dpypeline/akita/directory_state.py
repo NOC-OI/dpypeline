@@ -34,14 +34,14 @@ class DirectoryState:
     def stored_state(self) -> list[str]:
         """
         Return the stored state of the directory.
-        
+
         Returns
         -------
             Store state of the directory.
         """
         self._load_state()
         return self._stored_state
-    
+
     @property
     def current_state(self) -> list[str]:
         """
@@ -56,7 +56,7 @@ class DirectoryState:
 
     def _save_state(self) -> None:
         """Save the state of the directory by only saving files that were already enqueued."""
-        logging.info("-"*79)
+        logging.info("-" * 79)
         logging.info("Saving state of the directory.")
         assert (
             os.getenv("CACHE_DIR") is not None
@@ -65,10 +65,9 @@ class DirectoryState:
         with open(os.getenv("CACHE_DIR") + self._state_file, "wb") as f:
             pickle.dump(self._current_state, f)
 
-
     def _load_state(self) -> None:
         """Load the stored state of the directory."""
-        logging.info("-"*79)
+        logging.info("-" * 79)
         logging.info("Loading state of the directory.")
         assert (
             os.getenv("CACHE_DIR") is not None
@@ -85,7 +84,6 @@ class DirectoryState:
                 f"No directory state file {os.getenv('CACHE_DIR') + self._state_file} was found."
             )
             self._stored_state = []
-
 
     def _get_current_directory_state(self) -> list[str]:
         """

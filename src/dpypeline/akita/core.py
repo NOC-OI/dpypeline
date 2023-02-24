@@ -1,8 +1,9 @@
 """Akita, the watchdog class."""
 import logging
 import time
-from typing import Any, Protocol
 from itertools import chain
+from typing import Any, Protocol
+
 
 class Queue(Protocol):
     """Queue class protocol."""
@@ -96,7 +97,7 @@ class Akita:
         Observer thread that schedules watching directories and dispatches calls to event handlers.
     _event_handler
         Handler responsible for matching given patterns with file paths associated with occurring events.
-    """    
+    """
 
     def __init__(
         self,
@@ -142,9 +143,9 @@ class Akita:
     @queue.deleter
     def queue(self):
         """Delete the queue."""
-        logging.info("-"*79)
+        logging.info("-" * 79)
         logging.info("Deleting in-memory queue.")
-        logging.info("-"*79)
+        logging.info("-" * 79)
 
         del self._queue
 
@@ -158,7 +159,7 @@ class Akita:
           Akita determines which files in the the directory being monitored have never been enqueued.
         This is done as follows:
 
-        n = d - (s V q V p) 
+        n = d - (s V q V p)
 
         where
 
@@ -176,10 +177,10 @@ class Akita:
         d = self._directory_state.current_state
         q = self._queue.queue_list
         p = self._queue.processed_events
-        
-        n = set(d) - set(chain.from_iterable([s, q, p])) 
 
-        logging.info("-"*79)
+        n = set(d) - set(chain.from_iterable([s, q, p]))
+
+        logging.info("-" * 79)
         logging.info(f"Events in the stored directory state (n={len(s)}):")
         for event in s:
             logging.info(f"{event}")
@@ -188,11 +189,15 @@ class Akita:
         for event in d:
             logging.info(f"{event}")
 
-        logging.info(f"Events in the queue when the previou session terminated (n={len(q)}):")
+        logging.info(
+            f"Events in the queue when the previou session terminated (n={len(q)}):"
+        )
         for event in q:
             logging.info(f"{event}")
 
-        logging.info(f"Events processed before previou session terminated (n={len(p)}):")
+        logging.info(
+            f"Events processed before previou session terminated (n={len(p)}):"
+        )
         for event in p:
             logging.info(f"{event}")
 
@@ -204,7 +209,7 @@ class Akita:
             f"Found {len(n)} files not enqueued in the current state of the directory."
         )
 
-        logging.info("-"*79)
+        logging.info("-" * 79)
 
         return list(n)
 

@@ -37,4 +37,3 @@ services:
           test: ["NONE"]
         volumes:
           - ./:/app
-

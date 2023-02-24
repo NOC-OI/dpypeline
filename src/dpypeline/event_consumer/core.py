@@ -89,7 +89,7 @@ class EventConsumer:
         while True:
             if self._queue.get_queue_size():
                 event = self._queue.peek()
-                logging.info("-"*79)
+                logging.info("-" * 79)
                 logging.info(f"Consuming event: {event}")
                 self._consume_event(event)
                 logging.info(f"Event consumed: {event}")

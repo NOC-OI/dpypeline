@@ -87,7 +87,7 @@ class EventHandler(PatternMatchingEventHandler):
         """
 
         logging_msg = f"{event}"
-        logging.info("-"*79)
+        logging.info("-" * 79)
         logging.info(logging_msg)
 
         return logging_msg

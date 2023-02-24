@@ -1,18 +1,22 @@
-from .event_handler import EventHandler
+from watchdog.observers.polling import PollingObserver
+
 from .directory_state import DirectoryState
+from .event_handler import EventHandler
 from .queue_events import EventsQueue
 
-from watchdog.observers.polling import PollingObserver
 
 class AkitaFactory:
     """Factory that creates instances required for Akita."""
-    def __init__(self, 
-                 path: str = "./",
-                 patterns: str | list[str] = ["*.nc"],
-                 ignore_patterns: str | list[str] = None,
-                 ignore_directories: bool = True,
-                 case_sensitive: bool = True,
-                 glob_kwargs: dict = None) -> None:
+
+    def __init__(
+        self,
+        path: str = "./",
+        patterns: str | list[str] = ["*.nc"],
+        ignore_patterns: str | list[str] = None,
+        ignore_directories: bool = True,
+        case_sensitive: bool = True,
+        glob_kwargs: dict = None,
+    ) -> None:
         """
         Initialize the factory.
 
@@ -34,11 +38,12 @@ class AkitaFactory:
 
         self._path = path
         self._patterns = list(patterns) if patterns is str else patterns
-        self._ignore_patterns = list(ignore_directories) if ignore_patterns is str else ignore_patterns
+        self._ignore_patterns = (
+            list(ignore_directories) if ignore_patterns is str else ignore_patterns
+        )
         self._ignore_directories = ignore_directories
         self._case_sensitive = case_sensitive
         self._glob_kwargs = glob_kwargs if glob_kwargs is not None else {}
-
 
     def get_queue(self, maxsize=0) -> EventsQueue:
         """
@@ -55,12 +60,14 @@ class AkitaFactory:
         """
         return EventsQueue(maxsize)
 
-    def get_event_handler(self, 
-                          queue: EventsQueue,
-                          patterns: str | list[str] = None,
-                          ignore_patterns: str | list[str] = None, 
-                          ignore_directories: bool = None, 
-                          case_sensitive: bool = None) -> EventHandler:   
+    def get_event_handler(
+        self,
+        queue: EventsQueue,
+        patterns: str | list[str] = None,
+        ignore_patterns: str | list[str] = None,
+        ignore_directories: bool = None,
+        case_sensitive: bool = None,
+    ) -> EventHandler:
         """
         Create the handler responsible for matching given patterns with file paths associated with occurring events.
 
@@ -80,12 +87,21 @@ class AkitaFactory:
             EvetnHandler instance.
         """
         patterns = patterns if patterns is not None else self._patterns
-        ignore_patterns = ignore_patterns if ignore_patterns is not None else self._ignore_patterns
-        ignore_directories = ignore_directories if ignore_directories is not None else self._ignore_directories
-        case_sensitive = case_sensitive if case_sensitive is not None else self._case_sensitive
+        ignore_patterns = (
+            ignore_patterns if ignore_patterns is not None else self._ignore_patterns
+        )
+        ignore_directories = (
+            ignore_directories
+            if ignore_directories is not None
+            else self._ignore_directories
+        )
+        case_sensitive = (
+            case_sensitive if case_sensitive is not None else self._case_sensitive
+        )
 
-
-        return EventHandler(queue, patterns, ignore_patterns, ignore_directories, case_sensitive)
+        return EventHandler(
+            queue, patterns, ignore_patterns, ignore_directories, case_sensitive
+        )
 
     def get_polling_observer(self) -> PollingObserver:
         """
@@ -97,7 +113,12 @@ class AkitaFactory:
         """
         return PollingObserver()
 
-    def get_directory_state(self, path: str = None, patterns: str | list[str] = None, glob_kwargs: dict = None) -> DirectoryState:
+    def get_directory_state(
+        self,
+        path: str = None,
+        patterns: str | list[str] = None,
+        glob_kwargs: dict = None,
+    ) -> DirectoryState:
         """
         Create the directory state.
 
@@ -121,13 +142,14 @@ class AkitaFactory:
         return DirectoryState(path, patterns, glob_kwargs)
 
 
-
-def get_akita_dependencies(path: str = "./",
-                           patterns: str | list[str] = ["*.nc"],
-                           ignore_patterns: str | list[str] = None,
-                           ignore_directories: bool = True,
-                           case_sensitive: bool = True,
-                           glob_kwargs: dict = None) -> tuple[str, EventsQueue, EventHandler, PollingObserver, DirectoryState]:
+def get_akita_dependencies(
+    path: str = "./",
+    patterns: str | list[str] = ["*.nc"],
+    ignore_patterns: str | list[str] = None,
+    ignore_directories: bool = True,
+    case_sensitive: bool = True,
+    glob_kwargs: dict = None,
+) -> tuple[str, EventsQueue, EventHandler, PollingObserver, DirectoryState]:
     """
     Get the dependencies of Akita.
 
@@ -135,7 +157,9 @@ def get_akita_dependencies(path: str = "./",
     -------
         List of dependencies of Akita.
     """
-    akita_factory = AkitaFactory(path, patterns, ignore_patterns, ignore_directories, case_sensitive, glob_kwargs)
+    akita_factory = AkitaFactory(
+        path, patterns, ignore_patterns, ignore_directories, case_sensitive, glob_kwargs
+    )
     queue = akita_factory.get_queue()
     event_handler = akita_factory.get_event_handler(queue)
     directory_state = akita_factory.get_directory_state()

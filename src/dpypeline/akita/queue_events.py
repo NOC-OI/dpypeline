@@ -34,12 +34,12 @@ class EventsQueue(Queue):
             Instance of the EventsQueue class.
         """
         if cls._instance is None:
-            logging.info("-"*79)
+            logging.info("-" * 79)
             logging.info("Creating singleton instance of EventsQueue.")
             cls._instance = super(EventsQueue, cls).__new__(cls)
 
         return cls._instance
-    
+
     @property
     def queue_list(self) -> list[Any]:
         """
@@ -68,7 +68,7 @@ class EventsQueue(Queue):
 
     def _save_state(self, logging_prefix="") -> None:
         """Save the state of the queue."""
-        logging.info("-"*79)
+        logging.info("-" * 79)
         logging.info(f"{logging_prefix}Saving state of the queue.")
         assert (
             os.getenv("CACHE_DIR") is not None
@@ -77,10 +77,9 @@ class EventsQueue(Queue):
         with open(os.getenv("CACHE_DIR") + self._state_file, "wb") as f:
             pickle.dump(self.queue, f)
 
-
     def _load_state(self) -> None:
         """Load the state of the queue."""
-        logging.info("-"*79)
+        logging.info("-" * 79)
         logging.info("Loading state of the queue.")
         assert (
             os.getenv("CACHE_DIR") is not None
@@ -90,7 +89,7 @@ class EventsQueue(Queue):
             logging.info(
                 f"Found queue state file {os.getenv('CACHE_DIR') + self._state_file}"
             )
-            
+
             with open(os.getenv("CACHE_DIR") + self._state_file, "rb") as f:
                 self.queue = pickle.load(f)
         else:
@@ -98,10 +97,9 @@ class EventsQueue(Queue):
                 f"No queue state file {os.getenv('CACHE_DIR') + self._state_file} was found."
             )
 
-
     def _load_processed_events(self) -> None:
         """Load the processed events."""
-        logging.info("-"*79)
+        logging.info("-" * 79)
         logging.info("Loading processed events.")
         assert (
             os.getenv("CACHE_DIR") is not None
@@ -111,7 +109,7 @@ class EventsQueue(Queue):
             logging.info(
                 f"Found processed events file {os.getenv('CACHE_DIR') + self._processed_events_file}."
             )
-            
+
             with open(os.getenv("CACHE_DIR") + self._processed_events_file, "rb") as f:
                 self._processed_events = pickle.load(f)
         else:
@@ -122,14 +120,13 @@ class EventsQueue(Queue):
 
     def _save_processed_events(self) -> None:
         """Save the events processed so far in this session."""
-        logging.info("-"*79)
+        logging.info("-" * 79)
         logging.info("Saving processed events.")
         assert (
             os.getenv("CACHE_DIR") is not None
         ), "CACHE_DIR environmental variable is not set."
         with open(os.getenv("CACHE_DIR") + self._processed_events_file, "wb") as f:
             pickle.dump(self._processed_events, f)
-
 
     def enqueue(self, event) -> bool:
         """Add an event to the queue.
@@ -146,7 +143,7 @@ class EventsQueue(Queue):
         True if the event was added to the queue.
         """
         try:
-            logging.info("-"*79)
+            logging.info("-" * 79)
             logging.info(f"Enqueuing event: {event}.")
             self.put(event, block=False)
             self._save_state(logging_prefix="Enqueueing event: ")
@@ -165,7 +162,7 @@ class EventsQueue(Queue):
         First event in the queue or None if the queue is empty.
         """
         try:
-            logging.info("-"*79)
+            logging.info("-" * 79)
             logging.info("Dequeuing event: Starting.")
             event = self.get(block=False)
             logging.info(f"Dequeued event: {event}.")
@@ -189,7 +186,7 @@ class EventsQueue(Queue):
         First event in the queue or None if the queue is empty.
         """
         if self.get_queue_size():
-            logging.info("-"*79)
+            logging.info("-" * 79)
             logging.info("Peeking first item in the queue.")
             return self.queue[0]
 
@@ -202,7 +199,6 @@ class EventsQueue(Queue):
         Number of events in the queue.
         """
         return self.qsize()
-
 
     @classmethod
     def clear_instance(cls):
