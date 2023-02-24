@@ -1,4 +1,5 @@
 """Thread-based ETL pipeline."""
+import logging
 from typing import Any
 
 from etl_pipeline.etl_pipeline import ETLPipeline, Job
@@ -21,8 +22,11 @@ class ThreadPipeline(ETLPipeline):
             Triggering event.
         """
         for job in self._jobs:
+            logging.info(f"Running job {job.name}.")
+            logging.info(f"Running function {job.tasks[0].function.__name__}.")
             result = job.tasks[0].function(
                 event, *job.tasks[0].args, **job.tasks[0].kwargs
             )
             for task in job.tasks[1:]:
+                logging.info(f"Running function {task.function.__name__}.")
                 result = task.function(result, *task.args, **task.kwargs)
