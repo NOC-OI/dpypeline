@@ -13,8 +13,10 @@ class EventsQueue(Queue):
 
     _instance: EventsQueue = None
     _initialized: bool = False
-    _state_file: str = "queue_state.pickle"
-    _processed_events_file: str = "processed_events.pickle"
+    _state_file: str = os.path.join(os.getenv("CACHE_DIR"), "queue_state.pickle")
+    _processed_events_file: str = os.path.join(
+        os.getenv("CACHE_DIR"), "processed_events.pickle"
+    )
 
     def __init__(self, maxsize: int = 0) -> None:
         """Initiate the EventsQueue singleton."""
@@ -22,8 +24,12 @@ class EventsQueue(Queue):
             logging.info("Initializing singleton instance of EventsQueue.")
             super().__init__(maxsize=maxsize)
             self._initialized: bool = True
-            self._processed_events = None
+            self._processed_events: list[str] = None
             self._load_state()
+
+        assert (
+            os.getenv("CACHE_DIR") is not None
+        ), "CACHE_DIR environmental variable is not set."
 
     def __new__(cls, maxsize: int = 0) -> EventsQueue:
         """
@@ -70,51 +76,36 @@ class EventsQueue(Queue):
         """Save the state of the queue."""
         logging.info("-" * 79)
         logging.info(f"{logging_prefix}Saving state of the queue.")
-        assert (
-            os.getenv("CACHE_DIR") is not None
-        ), "CACHE_DIR environmental variable is not set."
 
-        with open(os.getenv("CACHE_DIR") + self._state_file, "wb") as f:
+        with open(self._state_file, "wb") as f:
             pickle.dump(self.queue, f)
 
     def _load_state(self) -> None:
         """Load the state of the queue."""
         logging.info("-" * 79)
         logging.info("Loading state of the queue.")
-        assert (
-            os.getenv("CACHE_DIR") is not None
-        ), "CACHE_DIR environmental variable is not set."
 
-        if os.path.isfile(os.getenv("CACHE_DIR") + self._state_file):
-            logging.info(
-                f"Found queue state file {os.getenv('CACHE_DIR') + self._state_file}"
-            )
+        if os.path.isfile(self._state_file):
+            logging.info(f"Found queue state file {self._state_file}")
 
-            with open(os.getenv("CACHE_DIR") + self._state_file, "rb") as f:
+            with open(self._state_file, "rb") as f:
                 self.queue = pickle.load(f)
         else:
-            logging.info(
-                f"No queue state file {os.getenv('CACHE_DIR') + self._state_file} was found."
-            )
+            logging.info(f"No queue state file {self._state_file} was found.")
 
     def _load_processed_events(self) -> None:
         """Load the processed events."""
         logging.info("-" * 79)
         logging.info("Loading processed events.")
-        assert (
-            os.getenv("CACHE_DIR") is not None
-        ), "CACHE_DIR environmental variable is not set."
 
-        if os.path.isfile(os.getenv("CACHE_DIR") + self._processed_events_file):
-            logging.info(
-                f"Found processed events file {os.getenv('CACHE_DIR') + self._processed_events_file}."
-            )
+        if os.path.isfile(self._processed_events_file):
+            logging.info(f"Found processed events file {self._processed_events_file}.")
 
             with open(os.getenv("CACHE_DIR") + self._processed_events_file, "rb") as f:
                 self._processed_events = pickle.load(f)
         else:
             logging.info(
-                f"No processed events file {os.getenv('CACHE_DIR') + self._processed_events_file} was found."
+                f"No processed events file {self._processed_events_file} was found."
             )
             self._processed_events = []
 
@@ -122,10 +113,8 @@ class EventsQueue(Queue):
         """Save the events processed so far in this session."""
         logging.info("-" * 79)
         logging.info("Saving processed events.")
-        assert (
-            os.getenv("CACHE_DIR") is not None
-        ), "CACHE_DIR environmental variable is not set."
-        with open(os.getenv("CACHE_DIR") + self._processed_events_file, "wb") as f:
+
+        with open(self._processed_events_file, "wb") as f:
             pickle.dump(self._processed_events, f)
 
     def enqueue(self, event) -> bool:
@@ -169,6 +158,9 @@ class EventsQueue(Queue):
             self._save_state(logging_prefix="Dequeuing event: ")
 
             # Set as processesed event
+            if self._processed_events is None:
+                self._processed_events = []
+
             self._processed_events.append(event)
             self._save_processed_events()
             return event

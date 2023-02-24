@@ -190,18 +190,18 @@ class Akita:
             logging.info(f"{event}")
 
         logging.info(
-            f"Events in the queue when the previou session terminated (n={len(q)}):"
+            f"Events in the queue when the previous session terminated (n={len(q)}):"
         )
         for event in q:
             logging.info(f"{event}")
 
         logging.info(
-            f"Events processed before previou session terminated (n={len(p)}):"
+            f"Events processed before the previous session terminated (n={len(p)}):"
         )
         for event in p:
             logging.info(f"{event}")
 
-        logging.info(f"Events unenqued (n={len(n)}):")
+        logging.info(f"Events unenqueued (n={len(n)}):")
         for event in n:
             logging.info(f"{event}")
 

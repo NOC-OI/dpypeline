@@ -1,3 +1,5 @@
+"""Akita dependency factory."""
+
 from watchdog.observers.polling import PollingObserver
 
 from .directory_state import DirectoryState
@@ -35,11 +37,10 @@ class AkitaFactory:
         glob_kwargs, optional
             Kwargs to pass to glob, by default None
         """
-
         self._path = path
         self._patterns = list(patterns) if patterns is str else patterns
         self._ignore_patterns = (
-            list(ignore_directories) if ignore_patterns is str else ignore_patterns
+            list(ignore_patterns) if ignore_patterns is str else ignore_patterns
         )
         self._ignore_directories = ignore_directories
         self._case_sensitive = case_sensitive
@@ -149,7 +150,7 @@ def get_akita_dependencies(
     ignore_directories: bool = True,
     case_sensitive: bool = True,
     glob_kwargs: dict = None,
-) -> tuple[str, EventsQueue, EventHandler, PollingObserver, DirectoryState]:
+) -> tuple[str, EventsQueue, EventHandler, DirectoryState, PollingObserver]:
     """
     Get the dependencies of Akita.
 

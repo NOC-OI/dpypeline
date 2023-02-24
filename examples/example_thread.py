@@ -39,6 +39,9 @@ if __name__ == "__main__":
     #    anon=False, store_credentials_json="utils/jasmin_object_store_credentials.json"
     # )
     # Create a job and add tasks to it
+    def dummy(event):
+        print(event)
+
     job = Job(name="send_to_jasmin_OS")
     job.add_task(Task(function=dummy, args=(), kwargs={}))
     # job.add_task(Task(function=dummy2, args=(), kwargs={}))

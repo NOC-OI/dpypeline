@@ -8,7 +8,7 @@ import pickle
 class DirectoryState:
     """DirectoryState class."""
 
-    _state_file: str = "directory_state.pickle"
+    _state_file: str = os.path.join(os.getenv("CACHE_DIR"), "directory_state.pickle")
 
     def __init__(
         self, path: str, patterns: str | list[str], glob_kwargs: dict = None
@@ -23,12 +23,16 @@ class DirectoryState:
         patterns
             Patterns for matching files.
         """
-        self._current_state = None
-        self._stored_state = None
+        self._current_state: list[str] = None
+        self._stored_state: list[str] = None
 
         self._path = path
         self._patterns = patterns if patterns else list(patterns)
         self._glob_kwargs = glob_kwargs if glob_kwargs is not None else {}
+
+        assert (
+            os.getenv("CACHE_DIR") is not None
+        ), "CACHE_DIR environmental variable is not set."
 
     @property
     def stored_state(self) -> list[str]:
@@ -58,31 +62,21 @@ class DirectoryState:
         """Save the state of the directory by only saving files that were already enqueued."""
         logging.info("-" * 79)
         logging.info("Saving state of the directory.")
-        assert (
-            os.getenv("CACHE_DIR") is not None
-        ), "CACHE_DIR environmental variable is not set."
 
-        with open(os.getenv("CACHE_DIR") + self._state_file, "wb") as f:
+        with open(self._state_file, "wb") as f:
             pickle.dump(self._current_state, f)
 
     def _load_state(self) -> None:
         """Load the stored state of the directory."""
         logging.info("-" * 79)
         logging.info("Loading state of the directory.")
-        assert (
-            os.getenv("CACHE_DIR") is not None
-        ), "CACHE_DIR environmental variable is not set."
 
-        if os.path.isfile(os.getenv("CACHE_DIR") + self._state_file):
-            logging.info(
-                f"Found stored directory state file {os.getenv('CACHE_DIR') + self._state_file}."
-            )
-            with open(os.getenv("CACHE_DIR") + self._state_file, "rb") as f:
+        if os.path.isfile(self._state_file):
+            logging.info(f"Found stored directory state file {self._state_file}.")
+            with open(self._state_file, "rb") as f:
                 self._stored_state = pickle.load(f)
         else:
-            logging.info(
-                f"No directory state file {os.getenv('CACHE_DIR') + self._state_file} was found."
-            )
+            logging.info(f"No directory state file {self._state_file} was found.")
             self._stored_state = []
 
     def _get_current_directory_state(self) -> list[str]:

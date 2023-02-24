@@ -85,7 +85,6 @@ class EventHandler(PatternMatchingEventHandler):
         logging_msg
             Message to be logged.
         """
-
         logging_msg = f"{event}"
         logging.info("-" * 79)
         logging.info(logging_msg)
