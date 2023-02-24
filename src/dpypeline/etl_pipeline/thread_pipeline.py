@@ -2,7 +2,7 @@
 import logging
 from typing import Any
 
-from etl_pipeline.etl_pipeline import ETLPipeline, Job
+from .core import ETLPipeline, Job
 
 
 class ThreadPipeline(ETLPipeline):
