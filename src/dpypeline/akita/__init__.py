@@ -1,2 +1,2 @@
 """Akita package."""
-__all__ = ["core", "queue_events", "file_handler"]
+__all__ = ["core", "queue_events", "event_handler", "directory_state", "factory"]

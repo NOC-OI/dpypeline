@@ -44,6 +44,7 @@ class ObjectStoreS3(s3fs.S3FileSystem):
             _description_, by default None
         """
         self._anon = anon
+        logging.info("-"*79)
         if store_credentials_json is None:
             logging.info(
                 "No JSON file was provided."
@@ -90,6 +91,7 @@ class ObjectStoreS3(s3fs.S3FileSystem):
 
         for key in ["token", "secret", "endpoint_url"]:
             if key not in store_credentials:
+                logging.info("-"*79)
                 logging.warning(
                     f'"{key}" is not a key in the JSON file provided. Its value will be set to None.'
                 )

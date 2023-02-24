@@ -18,5 +18,3 @@ Submodules
    celery_pipeline/index.rst
    core/index.rst
    thread_pipeline/index.rst
-
-

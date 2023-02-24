@@ -18,5 +18,3 @@ Submodules
    core/index.rst
    file_handler/index.rst
    queue_events/index.rst
-
-

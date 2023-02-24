@@ -75,6 +75,3 @@ Classes
 
       :param path: Absolute or relative filepath of the file to be written to the object store.
       :param bucket: Name of the bucket to place the file in.
-
-
-

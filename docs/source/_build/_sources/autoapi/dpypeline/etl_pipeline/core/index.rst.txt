@@ -36,17 +36,17 @@ Classes
    .. py:attribute:: function
       :type: Any
 
-      
+
 
    .. py:attribute:: args
       :type: tuple
 
-      
+
 
    .. py:attribute:: kwargs
       :type: dict
 
-      
+
 
 
 .. py:class:: Job
@@ -59,12 +59,12 @@ Classes
    .. py:attribute:: name
       :type: str
 
-      
+
 
    .. py:attribute:: tasks
       :type: list[Task]
 
-      
+
 
    .. py:method:: add_task(task: Task) -> None
 
@@ -118,6 +118,3 @@ Classes
       :abstractmethod:
 
       Abstraction for producing tasks triggered by an event.
-
-
-

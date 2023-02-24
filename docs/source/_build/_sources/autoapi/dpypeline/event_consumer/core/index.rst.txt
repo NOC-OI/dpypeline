@@ -97,6 +97,3 @@ Classes
    .. py:method:: run() -> None
 
       Run the event consumer.
-
-
-

@@ -31,19 +31,19 @@ Classes
    .. py:attribute:: _instance
       :type: EventsQueue
 
-      
+
 
    .. py:attribute:: _initialized
       :type: bool
       :value: False
 
-      
+
 
    .. py:attribute:: _state_file
       :type: str
       :value: 'queue_state.pickle'
 
-      
+
 
    .. py:method:: _save_state() -> None
 
@@ -95,6 +95,3 @@ Classes
       :classmethod:
 
       Clear the singleton instance.
-
-
-

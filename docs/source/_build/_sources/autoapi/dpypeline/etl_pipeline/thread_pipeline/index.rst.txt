@@ -33,6 +33,3 @@ Classes
       Produce tasks triggered by an event.
 
       :param event: Triggering event.
-
-
-

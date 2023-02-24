@@ -79,5 +79,6 @@ class CeleryPipeline(ETLPipeline):
             Triggering event.
         """
         group = self._group_jobs(event)
+        logging.info("-"*79)
         logging.info(f"Celery group created: {group}")
         return group.apply_async()

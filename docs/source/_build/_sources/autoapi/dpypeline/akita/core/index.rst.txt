@@ -59,6 +59,3 @@ Classes
    .. py:method:: run() -> None
 
       Run the Akita watchdog.
-
-
-

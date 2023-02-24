@@ -107,6 +107,3 @@ Classes
       :param event: Event representing file or directory move/renaming.
 
       :returns: *event*
-
-
-

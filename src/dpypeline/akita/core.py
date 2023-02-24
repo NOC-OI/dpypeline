@@ -1,14 +1,78 @@
 """Akita, the watchdog class."""
-
 import logging
 import time
+from typing import Any, Protocol
+from itertools import chain
 
-from watchdog.observers import Observer
-from watchdog.observers.polling import PollingObserver
+class Queue(Protocol):
+    """Queue class protocol."""
 
-from .file_handler import FileHandler
-from .directory_state import DirectoryState
-from .queue_events import EventsQueue
+    def enqueue(self, event: Any) -> bool:
+        """Enqueue an event."""
+        ...
+
+    @property
+    def queue_list(self) -> list[Any]:
+        """Return the list of events in the queue."""
+        ...
+
+    @property
+    def processed_events(self) -> list[Any]:
+        """Return the list of processed events."""
+        ...
+
+
+class DirectoryState(Protocol):
+    """DirectoryState class protocol."""
+
+    @property
+    def stored_state(self) -> list[str]:
+        """Return the stored state of the directory."""
+        ...
+
+    @property
+    def current_state(self) -> list[str]:
+        """Return the current state of the directory."""
+
+
+class EventHandler(Protocol):
+    """EventHandler class protocol."""
+
+    def on_created(self, event: Any) -> None:
+        """Return event when a file or directory is created."""
+        ...
+
+    def on_deleted(self, event: Any) -> None:
+        """Return event when a file or directory is deleted."""
+        ...
+
+    def on_modified(self, event: Any) -> None:
+        """Return event when a file or directory is modified."""
+        ...
+
+    def on_moved(self, event: Any) -> None:
+        """Return event when a file or directory is moved."""
+        ...
+
+
+class Observer(Protocol):
+    """Observer class protocol."""
+
+    def start(self) -> None:
+        """Start the obsever."""
+        ...
+
+    def stop(self) -> None:
+        """Stop the observer."""
+        ...
+
+    def join(self) -> None:
+        """Join the observer."""
+        ...
+
+    def schedule(self, event_handler: EventHandler, path: str, recursive: bool) -> None:
+        """Schedules watching a path."""
+        ...
 
 
 class Akita:
@@ -21,24 +85,27 @@ class Akita:
     Attributes
     ----------
     _path
-        Directory to watch.
+        Path to watch.
     _queue
-        Queue where events are placed by the FileHandler.
+        Queue where events are placed by the event handler.
+    _event_handler
+        Handler responsible for matching given patterns with file paths associated with occurring events.
+    _directory_state
+        Instance that holds the state of the directory.
     _observer
         Observer thread that schedules watching directories and dispatches calls to event handlers.
     _event_handler
         Handler responsible for matching given patterns with file paths associated with occurring events.
-    """
+    """    
 
     def __init__(
         self,
         path: str,
-        patterns: str | list[str],
-        queue: EventsQueue = None,
-        observer: Observer | PollingObserver = PollingObserver(),
+        queue: Queue,
+        event_handler: EventHandler,
+        directory_state: DirectoryState,
+        observer: Observer,
         run_init: bool = False,
-        create_event_handler_kwargs: dict = None,
-        create_queue_kwargs: dict = None,
     ) -> None:
         """
         Initialize the Akita watchdog.
@@ -46,34 +113,23 @@ class Akita:
         Parameters
         ----------
         path
-            Directory to watch.
-        patterns
-            Patterns for matching files.
+            Path to watch.
         queue
-            Queue where events are placed by the FileHandler.
+            Queue where events are placed by the event handler.
+        event_handler
+            Handler responsible for matching given patterns with file paths associated with occurring events.
+        directory_state
+            Instance that holds the state of the directory.
         observer
             Observer thread that schedules watching directories and dispatches calls to event handlers.
         run_init
             If `True` runs the watchdog. `False` otherwise.
-        create_event_handler_kwargs
-            Kwargs to pass to the _create_event_handler function.
-        create_queue_kwargs
-            Kwargs to use when creating the queue.
-        glob_kwargs
-            Glob kwargs.
         """
-        create_queue_kwargs = create_queue_kwargs if create_queue_kwargs is not None else {}
-        create_event_handler_kwargs = create_event_handler_kwargs if create_event_handler_kwargs is not None else {}
-        glob_kwargs = glob_kwargs if glob_kwargs is not None else {}
-
         self._path = path
-        self._patterns = patterns if patterns else list(patterns)
-        self._queue = (
-            queue if queue is not None else EventsQueue(**create_queue_kwargs)
-        )
+        self._queue = queue
         self._observer = observer
-        self._event_handler = self._create_event_handler(self._patterns, **create_event_handler_kwargs)
-        self._directory_state = self._create_directory_state(self._path, self._patterns)
+        self._event_handler = event_handler
+        self._directory_state = directory_state
 
         if run_init:
             self.run()
@@ -86,55 +142,86 @@ class Akita:
     @queue.deleter
     def queue(self):
         """Delete the queue."""
+        logging.info("-"*79)
         logging.info("Deleting in-memory queue.")
+        logging.info("-"*79)
+
         del self._queue
 
-    def _create_event_handler(
-        self,
-        patterns: str | list[str] = ["*.nc"],
-        ignore_patterns: str | list[str] | None = None,
-        ignore_directories: bool = True,
-        case_sensitive: bool = True,
-    ) -> FileHandler:
+    def _get_unenqueued_files(self) -> list[str]:
         """
-        Create the handler responsible for matching given patterns with file paths associated with occurring events.
+        Return a list of files that are not enqueued.
 
-        Parameters
-        ----------
-        patterns
-            Patterns to allow matching events.
-        ignore_patterns
-            Patterns to ignore matching event paths.
-        ignore_directories
-            If `True` directories are ignored; `False` otherwise.
-        case_sensitive
-            If `True` path names are matched sensitive to case; `False` otherwise.
+        Notes
+        -----
+        At the beggining of the run,
+          Akita determines which files in the the directory being monitored have never been enqueued.
+        This is done as follows:
+
+        n = d - (s V q V p) 
+
+        where
+
+        - n: events not enqueued.
+        - s: events in the stored directory state.
+        - d: events in the current directory state.
+        - q: events in the queue when the previous session terminated.
+        - p: events processed in the previous session.
 
         Returns
         -------
-            Instance of :obj:`FileHandler`.
+            List of files to enqueue.
         """
-        self._event_handler = FileHandler(
-            queue=self._queue,
-            patterns=patterns,
-            ignore_patterns=ignore_patterns,
-            ignore_directories=ignore_directories,
-            case_sensitive=case_sensitive,
+        s = self._directory_state.stored_state
+        d = self._directory_state.current_state
+        q = self._queue.queue_list
+        p = self._queue.processed_events
+        
+        n = set(d) - set(chain.from_iterable([s, q, p])) 
+
+        logging.info("-"*79)
+        logging.info(f"Events in the stored directory state (n={len(s)}):")
+        for event in s:
+            logging.info(f"{event}")
+
+        logging.info(f"Events in the current directory state (n={len(d)}):")
+        for event in d:
+            logging.info(f"{event}")
+
+        logging.info(f"Events in the queue when the previou session terminated (n={len(q)}):")
+        for event in q:
+            logging.info(f"{event}")
+
+        logging.info(f"Events processed before previou session terminated (n={len(p)}):")
+        for event in p:
+            logging.info(f"{event}")
+
+        logging.info(f"Events unenqued (n={len(n)}):")
+        for event in n:
+            logging.info(f"{event}")
+
+        logging.info(
+            f"Found {len(n)} files not enqueued in the current state of the directory."
         )
 
-        return self._event_handler
-    
-    def _create_directory_state(self, path: str, patterns: str | list[str] = ["*.nc"]) -> DirectoryState:
-        """
-        Create the state of the directory.
-        """
-        self._directory_state = DirectoryState(
-            path=path, patterns=patterns
-        )
-        return self._directory_state
+        logging.info("-"*79)
+
+        return list(n)
+
+    def _enqueue_new_files(self) -> None:
+        """Enqueue events previously unqueued."""
+        # Get current state of the directory
+        not_enqueued_state = sorted(self._get_unenqueued_files())
+
+        for event in not_enqueued_state:
+            self._queue.enqueue(event)
 
     def run(self) -> None:
         """Run the Akita watchdog."""
+        # Add new files found in the directory since the last time the watchdog was run.
+        self._enqueue_new_files()
+
+        logging.info("Starting the Akita watchdog.")
         self._observer.schedule(self._event_handler, self._path, recursive=True)
         self._observer.start()
 

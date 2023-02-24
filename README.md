@@ -1,4 +1,4 @@
-# dpypeline 
+# dpypeline
 ![Continuous Integration](https://github.com/NOC-OI/object-store-project/actions/workflows/main.yml/badge.svg)
 
 Program for creating data pipelines triggered by file creation events.
@@ -49,7 +49,7 @@ Set up a local instance of RabbitMQ using Docker:
 
 ``` bash
 docker pull rabbitmq:3-management
-docker run --rm -it -p 15672:15672 -p 5672:5672  dadrabbitmq:3-management
+docker run --rm -it -p 15672:15672 -p 5672:5672  rabbitmq:3-management
 ```
 
 The rabbitMQ management interface can be access on the url http://localhost:15672

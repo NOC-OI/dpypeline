@@ -1,9 +1,11 @@
 """Celery app configuration."""
 import os
 
+assert os.getenv("BROKER_URL") is not None, "BROKER_URL environmental variable is not set."
+
 broker_url = os.getenv("BROKER_URL")
-result_backend = "db+sqlite:///a.sqlite/"
-imports = ("celery_app.tasks.xarray",)
+#result_backend = "db+sqlite:///etl_pipeline.sqlite/"
+imports = ("dpypeline.celery.tasks.xarray",)
 
 task_serializer = "pickle"
 result_serializer = "pickle"

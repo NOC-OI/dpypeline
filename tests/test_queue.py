@@ -8,6 +8,7 @@ from dpypeline.akita.queue_events import EventsQueue
 def delete_cache_file() -> None:
     """Delete the cache file containg the queue."""
     os.environ["CACHE_DIR"] = "tests/"
+
     state_file = os.getenv("CACHE_DIR") + "queue_state.pickle"
     if os.path.isfile(state_file):
         os.remove(state_file)

@@ -26,13 +26,13 @@ class Queue(Protocol):
         ...
 
 
-class FileHandler(PatternMatchingEventHandler):
+class EventHandler(PatternMatchingEventHandler):
     """
-    Filehandler for the watchdog.
+    EventHandler for the watchdog.
 
     Child class of PatternMatchingEventHandler.
     PatternMatchingEventHandler matches given patterns with file paths associated with occurring events.
-    Whenever a file in the target path is modified, FileHandler puts the associated event in a queue.
+    Whenever a file in the target path is modified, EventHandler puts the associated event in a queue.
     """
 
     def __init__(
@@ -85,7 +85,9 @@ class FileHandler(PatternMatchingEventHandler):
         logging_msg
             Message to be logged.
         """
+
         logging_msg = f"{event}"
+        logging.info("-"*79)
         logging.info(logging_msg)
 
         return logging_msg
