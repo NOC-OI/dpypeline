@@ -204,17 +204,17 @@ def match_to_template(ds: xr.Dataset, template: xr.Dataset):
     -------
         Combined dataset.
     """
-    # Store the time counter
-    temp = ds["time_counter"]
-    ds["time_counter"] = [np.nan]
-
     # Match dataset to template
     # Reset non-matching coords to become variables
     ds = ds.reset_coords([coord for coord in ds.coords if coord not in template.coords])
     # Drop non-matching dims
     ds = ds.drop_dims([dim for dim in ds.dims if dim not in template.dims])
     # Drop non-matching vars
-    ds = ds.drop([var for var in ds.variables if var not in template.variables])
+    ds = ds.drop_vars([var for var in ds.variables if var not in template.variables])
+
+    # Store the time counter
+    temp = ds["time_counter"]
+    ds["time_counter"] = [np.nan]
 
     ds = template.combine_first(ds)
 
