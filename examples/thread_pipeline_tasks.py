@@ -36,7 +36,7 @@ def clean_dataset(
 
 
 def to_zarr(dataset: xr.Dataset, *args, **kwargs):
-    """to_zarr wrapper"""
+    """to_zarr wrapper."""
     return dataset.to_zarr(*args, **kwargs)
 
 
