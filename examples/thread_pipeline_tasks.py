@@ -184,7 +184,7 @@ def fix_name_vars(ds: xr.Dataset, reference_names: dict):
     return ds
 
 
-def combine_first_with_template(ds: xr.Dataset, template: xr.Dataset):
+def match_to_template(ds: xr.Dataset, template: xr.Dataset):
     """
     Combine a dataset with a template.
 
@@ -199,4 +199,16 @@ def combine_first_with_template(ds: xr.Dataset, template: xr.Dataset):
     -------
         Combined dataset.
     """
-    return template.combine_first(ds)
+    # Store the time counter
+    temp = ds["time_counter"]
+    ds["time_counter"] = [np.nan]
+
+    # Match dataset to template
+    ds = ds.drop([var for var in ds.variables if var not in template.variables])
+    ds = ds.drop_dims([dim for dim in ds.dims if dim not in template.dims])
+    ds = template.combine_first(ds)
+
+    # Recover the time counter
+    ds["time_counter"] = temp
+
+    return ds

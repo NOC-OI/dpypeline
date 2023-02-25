@@ -13,8 +13,8 @@ from dpypeline.filesystems.object_store import ObjectStoreS3
 from .thread_pipeline_tasks import (
     clean_cache_dir,
     clean_dataset,
-    combine_first_with_template,
     fix_name_vars,
+    match_to_template,
     to_zarr,
 )
 
@@ -67,7 +67,12 @@ if __name__ == "__main__":
     )
     job.add_task(Task(function=fix_name_vars))
     job.add_task(Task(function=clean_dataset))
-    job.add_task(Task(function=combine_first_with_template))
+    job.add_task(
+        Task(
+            function=match_to_template,
+            kwargs={"template": xr.open_dataset("template.nc")},
+        )
+    )
     job.add_task(
         Task(
             function=to_zarr,
