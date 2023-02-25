@@ -37,7 +37,12 @@ def clean_dataset(
 
 def to_zarr(dataset: xr.Dataset, *args, **kwargs):
     """to_zarr wrapper."""
-    return dataset.to_zarr(*args, **kwargs)
+    try:
+        return dataset.to_zarr(*args, **kwargs)
+    except ValueError:
+        new_kwargs = kwargs.copy()
+        del new_kwargs["append_dim"]
+        return dataset.to_zarr(*args, **new_kwargs)
 
 
 def clean_cache_dir(_):
@@ -204,8 +209,13 @@ def match_to_template(ds: xr.Dataset, template: xr.Dataset):
     ds["time_counter"] = [np.nan]
 
     # Match dataset to template
-    ds = ds.drop([var for var in ds.variables if var not in template.variables])
+    # Reset non-matching coords to become variables
+    ds = ds.reset_coords([coord for coord in ds.coords if coord not in template.coords])
+    # Drop non-matching dims
     ds = ds.drop_dims([dim for dim in ds.dims if dim not in template.dims])
+    # Drop non-matching vars
+    ds = ds.drop([var for var in ds.variables if var not in template.variables])
+
     ds = template.combine_first(ds)
 
     # Recover the time counter
