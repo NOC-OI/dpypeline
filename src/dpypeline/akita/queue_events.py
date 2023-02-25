@@ -101,7 +101,7 @@ class EventsQueue(Queue):
         if os.path.isfile(self._processed_events_file):
             logging.info(f"Found processed events file {self._processed_events_file}.")
 
-            with open(os.getenv("CACHE_DIR") + self._processed_events_file, "rb") as f:
+            with open(self._processed_events_file, "rb") as f:
                 self._processed_events = pickle.load(f)
         else:
             logging.info(
