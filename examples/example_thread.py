@@ -2,6 +2,14 @@
 import logging
 
 import xarray as xr
+from thread_pipeline_tasks import (
+    clean_cache_dir,
+    clean_dataset,
+    create_reference_names_dict,
+    fix_name_vars,
+    match_to_template,
+    to_zarr,
+)
 
 from dpypeline.akita.core import Akita
 from dpypeline.akita.factory import get_akita_dependencies
@@ -9,14 +17,6 @@ from dpypeline.etl_pipeline.core import Job, Task
 from dpypeline.etl_pipeline.thread_pipeline import ThreadPipeline
 from dpypeline.event_consumer.core import EventConsumer
 from dpypeline.filesystems.object_store import ObjectStoreS3
-
-from .thread_pipeline_tasks import (
-    clean_cache_dir,
-    clean_dataset,
-    fix_name_vars,
-    match_to_template,
-    to_zarr,
-)
 
 if __name__ == "__main__":
     logging.basicConfig(
@@ -51,6 +51,8 @@ if __name__ == "__main__":
     # jasmin.rm("dpypline-test/*", recursive=True)
     #   jasmin.mkdir(bucket)
 
+    template = xr.open_dataset("template.nc")
+
     # Define the jobs and respective tasks
     # 1. Open the data set
     # 2. Fix variables' names
@@ -65,12 +67,17 @@ if __name__ == "__main__":
             kwargs={"chunks": {"x": 577, "y": 577, "time_counter": 1, "deptht": 5}},
         )
     )
-    job.add_task(Task(function=fix_name_vars))
+    job.add_task(
+        Task(
+            function=fix_name_vars,
+            kwargs={"reference_names": create_reference_names_dict(template)},
+        )
+    )
     job.add_task(Task(function=clean_dataset))
     job.add_task(
         Task(
             function=match_to_template,
-            kwargs={"template": xr.open_dataset("template.nc")},
+            kwargs={"template": template},
         )
     )
     job.add_task(
