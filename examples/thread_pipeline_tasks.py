@@ -22,12 +22,25 @@ def clean_dataset(
 
     for var in dataset.keys():
         tmp = dataset[var].load()
-        tmp.values = tmp.fillna(fill_value)
-        tmp.values = xr.where(
-            np.abs(tmp - supression_value) < threshold, fill_value, tmp
-        )
-        tmp.encoding["_FillValue"] = fill_value
-        tmp.encoding["missing_value"] = fill_value
+
+        try:
+            tmp.values = tmp.fillna(fill_value)
+            tmp.encoding["_FillValue"] = fill_value
+        except TypeError:
+            logging.warning(
+                f"Cannot fill variable {var} with NA/NaN values. Skiping this step and leaving the _Fillvalue attribute unchanged."
+            )
+
+        try:
+            # missing_value is originally the supression_value
+            tmp.values = xr.where(
+                np.abs(tmp - supression_value) < threshold, fill_value, tmp
+            )
+            tmp.encoding["missing_value"] = fill_value
+        except TypeError:
+            logging.warning(
+                f"Cannot change variable {var} missing values values. Skiping this step and leaving the missing_value attribute unchanged."
+            )
 
     # cached_file = f"{os.environ['CACHE_DIR']}/transformed_{dataset.encoding['source'].rsplit('/', 1)[-1].rsplit('.', 1)[-2]}.nc"
     # dataset.to_netcdf(cached_file)
