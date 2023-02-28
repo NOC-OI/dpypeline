@@ -149,9 +149,9 @@ def create_reference_names_dict(ds: xr.Dataset) -> dict:
     return ref_names_dict
 
 
-def fix_name_vars(ds: xr.Dataset, reference_names: dict):
+def rename_vars(ds: xr.Dataset, reference_names: dict):
     """
-    Fix the names of variables in a dataset.
+    Rename the names of variables in a dataset.
 
     Parameters
     ----------
@@ -168,21 +168,25 @@ def fix_name_vars(ds: xr.Dataset, reference_names: dict):
     rename_dict = {}
     for var in ds.keys():
         found = False
-        long_name = ds[var].attrs["long_name"]
-        for ref_var in reference_names.keys():
-            similarity = similar(long_name.lower(), ref_var.lower())
-            if similarity > 0.9:
-                logging.info("")
-                logging.info(
-                    f"Renaming var: {long_name.lower()} = {ref_var.lower()} with similarity {similarity}."
-                )
-                logging.info(f"Renaming var: {var} -> {reference_names[ref_var]}")
-                rename_dict[var] = reference_names[ref_var]
-                found = True
-                break
+        if "long_name" in ds[var].attrs.keys():
+            long_name = ds[var].attrs["long_name"]
+            for ref_var in reference_names.keys():
+                similarity = similar(long_name.lower(), ref_var.lower())
+                if similarity > 0.9:
+                    logging.info("")
+                    logging.info(
+                        f"Renaming var: {long_name.lower()} = {ref_var.lower()} with similarity {similarity}."
+                    )
+                    logging.info(f"Renaming var: {var} -> {reference_names[ref_var]}")
+                    rename_dict[var] = reference_names[ref_var]
+                    found = True
+                    break
 
-        if not found:
-            logging.info(f"{long_name} has no correspondence in reference names.")
+            if not found:
+                logging.info(f"{long_name} has no correspondence in reference names.")
+
+        else:
+            logging.info(f"{var} has no long_name attribute. Renaming is not possible.")
 
     ds = ds.rename_vars(rename_dict)
 
@@ -191,7 +195,7 @@ def fix_name_vars(ds: xr.Dataset, reference_names: dict):
 
 def match_to_template(ds: xr.Dataset, template: xr.Dataset):
     """
-    Combine a dataset with a template.
+    Match a dataset to a template.
 
     Parameters
     ----------

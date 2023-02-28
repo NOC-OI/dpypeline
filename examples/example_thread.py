@@ -6,8 +6,8 @@ from thread_pipeline_tasks import (
     clean_cache_dir,
     clean_dataset,
     create_reference_names_dict,
-    fix_name_vars,
     match_to_template,
+    rename_vars,
     to_zarr,
 )
 
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     )
     job.add_task(
         Task(
-            function=fix_name_vars,
+            function=rename_vars,
             kwargs={"reference_names": create_reference_names_dict(template)},
         )
     )
