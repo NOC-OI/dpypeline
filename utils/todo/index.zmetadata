@@ -1,0 +1,789 @@
+{
+    "metadata": {
+        ".zattrs": {
+            "DOMAIN_number_total": 80,
+            "DOMAIN_size_global": [
+                4322,
+                3059
+            ],
+            "conventions": "CF-1.1",
+            "description": "ocean T grid variables",
+            "ibegin": 1,
+            "jbegin": 1,
+            "name": "ORCA0083-N06_1m_19580101_19581231",
+            "ni": 4322,
+            "nj": 39,
+            "production": "An IPSL model",
+            "timeStamp": "2014-Nov-25 21:17:06 GMT"
+        },
+        ".zgroup": {
+            "zarr_format": 2
+        },
+        "deptht/.zarray": {
+            "chunks": [
+                75
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                75
+            ],
+            "zarr_format": 2
+        },
+        "deptht/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "deptht"
+            ],
+            "axis": "Z",
+            "long_name": "Vertical T levels",
+            "positive": "down",
+            "units": "m"
+        },
+        "e3t/.zarray": {
+            "chunks": [
+                1,
+                5,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                75,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "e3t/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "deptht",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_centered deptht nav_lon nav_lat",
+            "interval_operation": "300s",
+            "interval_write": "1mo",
+            "long_name": "Cell thickness",
+            "online_operation": "average",
+            "units": "m"
+        },
+        "mldkz5/.zarray": {
+            "chunks": [
+                1,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "mldkz5/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_centered nav_lon nav_lat",
+            "interval_operation": "300s",
+            "interval_write": "1mo",
+            "long_name": "mixing layer depth (Turbocline)",
+            "online_operation": "average",
+            "units": "m"
+        },
+        "mldr10_1/.zarray": {
+            "chunks": [
+                1,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "mldr10_1/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_centered nav_lon nav_lat",
+            "interval_operation": "300s",
+            "interval_write": "1mo",
+            "long_name": "Mixed Layer Depth 0.01 ref.10m",
+            "online_operation": "average",
+            "units": "m"
+        },
+        "nav_lat/.zarray": {
+            "chunks": [
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "nav_lat/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "y",
+                "x"
+            ],
+            "axis": "Y",
+            "long_name": "Latitude",
+            "nav_model": "grid_T",
+            "standard_name": "latitude",
+            "units": "degrees_north"
+        },
+        "nav_lon/.zarray": {
+            "chunks": [
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "nav_lon/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "y",
+                "x"
+            ],
+            "axis": "X",
+            "long_name": "Longitude",
+            "nav_model": "grid_T",
+            "standard_name": "longitude",
+            "units": "degrees_east"
+        },
+        "potemp/.zarray": {
+            "chunks": [
+                1,
+                5,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                75,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "potemp/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "deptht",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_instant deptht nav_lon nav_lat",
+            "interval_operation": "1mo",
+            "interval_write": "1mo",
+            "long_name": "sea_water_potential_temperature",
+            "online_operation": "instant",
+            "units": "degC"
+        },
+        "rsntds/.zarray": {
+            "chunks": [
+                1,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "rsntds/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_centered nav_lon nav_lat",
+            "interval_operation": "300s",
+            "interval_write": "1mo",
+            "long_name": "surface_net_downward_shortwave_flux",
+            "online_operation": "average",
+            "units": "W/m2"
+        },
+        "salin/.zarray": {
+            "chunks": [
+                1,
+                5,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                75,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "salin/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "deptht",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_instant deptht nav_lon nav_lat",
+            "interval_operation": "1mo",
+            "interval_write": "1mo",
+            "long_name": "sea_water_salinity",
+            "online_operation": "instant",
+            "units": "psu"
+        },
+        "soprecip/.zarray": {
+            "chunks": [
+                1,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "soprecip/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_centered nav_lon nav_lat",
+            "interval_operation": "300s",
+            "interval_write": "1mo",
+            "long_name": "Total precipitation",
+            "online_operation": "average",
+            "units": "kg/m2/s"
+        },
+        "sosflxdo/.zarray": {
+            "chunks": [
+                1,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "sosflxdo/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_centered nav_lon nav_lat",
+            "interval_operation": "300s",
+            "interval_write": "1mo",
+            "long_name": "Downward salt flux",
+            "online_operation": "average",
+            "units": "PSU/m2/s"
+        },
+        "sowindsp/.zarray": {
+            "chunks": [
+                1,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "sowindsp/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_centered nav_lon nav_lat",
+            "interval_operation": "300s",
+            "interval_write": "1mo",
+            "long_name": "Wind speed module at 10 m",
+            "online_operation": "average",
+            "units": "m/s"
+        },
+        "ssh/.zarray": {
+            "chunks": [
+                1,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "ssh/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_centered nav_lon nav_lat",
+            "interval_operation": "300s",
+            "interval_write": "1mo",
+            "long_name": "sea_surface_height_above_geoid",
+            "online_operation": "average",
+            "units": "m"
+        },
+        "sss/.zarray": {
+            "chunks": [
+                1,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "sss/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_instant nav_lon nav_lat",
+            "interval_operation": "1mo",
+            "interval_write": "1mo",
+            "long_name": "sea_surface_salinity",
+            "online_operation": "instant",
+            "units": "psu"
+        },
+        "sst/.zarray": {
+            "chunks": [
+                1,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "sst/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_instant nav_lon nav_lat",
+            "interval_operation": "1mo",
+            "interval_write": "1mo",
+            "long_name": "sea_surface_temperature",
+            "online_operation": "instant",
+            "units": "degC"
+        },
+        "taum/.zarray": {
+            "chunks": [
+                1,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "taum/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_centered nav_lon nav_lat",
+            "interval_operation": "300s",
+            "interval_write": "1mo",
+            "long_name": "wind stress module",
+            "online_operation": "average",
+            "units": "N/m2"
+        },
+        "time_counter/.zarray": {
+            "chunks": [
+                1
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f8",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404
+            ],
+            "zarr_format": 2
+        },
+        "time_counter/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter"
+            ],
+            "axis": "T",
+            "calendar": "gregorian",
+            "long_name": "Time axis",
+            "standard_name": "time",
+            "time_origin": "1950-01-01 00:00:00",
+            "title": "Time",
+            "units": "seconds since 1950-01-01"
+        },
+        "tohfls/.zarray": {
+            "chunks": [
+                1,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "tohfls/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_centered nav_lon nav_lat",
+            "interval_operation": "300s",
+            "interval_write": "1mo",
+            "long_name": "surface_net_downward_total_heat_flux",
+            "online_operation": "average",
+            "units": "W/m2"
+        },
+        "tossq/.zarray": {
+            "chunks": [
+                1,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "tossq/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_centered nav_lon nav_lat",
+            "interval_operation": "300s",
+            "interval_write": "1mo",
+            "long_name": "square_of_sea_surface_temperature",
+            "online_operation": "average",
+            "units": "degC2"
+        },
+        "wfo/.zarray": {
+            "chunks": [
+                1,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "wfo/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_centered nav_lon nav_lat",
+            "interval_operation": "300s",
+            "interval_write": "1mo",
+            "long_name": "water_flux_into_sea_water",
+            "online_operation": "average",
+            "units": "kg/m2/s"
+        },
+        "zossq/.zarray": {
+            "chunks": [
+                1,
+                383,
+                541
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f4",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                404,
+                3059,
+                4322
+            ],
+            "zarr_format": 2
+        },
+        "zossq/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "time_counter",
+                "y",
+                "x"
+            ],
+            "coordinates": "time_centered nav_lon nav_lat",
+            "interval_operation": "300s",
+            "interval_write": "1mo",
+            "long_name": "square_of_sea_surface_height_above_geoid",
+            "online_operation": "average",
+            "units": "m2"
+        }
+    },
+    "zarr_consolidated_format": 1
+}

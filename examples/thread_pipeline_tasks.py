@@ -58,6 +58,11 @@ def to_zarr(dataset: xr.Dataset, *args, **kwargs):
         return dataset.to_zarr(*args, **new_kwargs)
 
 
+def to_netcdf(dataset: xr.Dataset, *args, **kwargs):
+    """to_netcdf wrapper."""
+    dataset.to_netcdf(*args, **kwargs)
+
+
 def clean_cache_dir(_):
     """Clean the cache directory."""
     import glob
