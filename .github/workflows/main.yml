@@ -50,9 +50,9 @@ jobs:
       - name: Create the Badge
         uses: schneegans/dynamic-badges-action@v1.6.0
         with:
-          auth: ${{ secrets.PYTEST_COVERAGE_COMMENT }}
-          gistID: 5e90d640f8c212ab7bbac38f72323f80
-          filename: pytest-coverage-comment__main.json
+          auth: ${{ secrets.PYTEST_COVERAGE }}
+          gistID: c20a3ec5262f14d970a462403316a547
+          filename: pytest_coverage_report_main.json
           label: Coverage Report
           message: ${{ steps.coverage-comment.outputs.coverage }}
           color: ${{ steps.coverage-comment.outputs.color }}
