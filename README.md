@@ -1,5 +1,6 @@
 # dpypeline
 ![Continuous Integration](https://github.com/NOC-OI/object-store-project/actions/workflows/main.yml/badge.svg)
+[![PyPI version](https://badge.fury.io/py/dpypeline.svg)](https://badge.fury.io/py/dpypeline)
 ![Test Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/JMorado/c20a3ec5262f14d970a462403316a547/raw/pytest_coverage_report_main.json)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -14,7 +15,7 @@ Program for creating data pipelines triggered by file creation events.
 
 Setup the environment using conda (or mamba):
 
-```
+```bash
 conda create --name <environment_name> python=3.10
 conda activate <environment_name>
 ```
@@ -28,7 +29,7 @@ source <envionment_name>/bin/activate
 
 # Installation
 
-Install `dpypeline` package using pip:
+Install the `dpypeline` package using pip:
 
 ```bash
 pip install dpypeline
