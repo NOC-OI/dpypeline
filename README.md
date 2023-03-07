@@ -8,7 +8,7 @@ Program for creating data pipelines triggered by file creation events.
 
 # Version
 
-0.0.1-beta.1
+0.1.0-beta.1
 
 # Pipeline architecture
 
