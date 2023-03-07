@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - "*"
+      - main
   pull_request:
     branches:
       - "*"
@@ -47,7 +47,7 @@ jobs:
     strategy:
       matrix:
           os: [ubuntu-latest]
-          python-version: ["3.9", "3.10"]
+          python-version: ["3.10"]
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -61,11 +61,10 @@ jobs:
 
       - name: Install release dependencies
         run: |
-          python3 -m pip install build
-          python3 -m pip install twine
+          python3 -m pip install build --user
 
       - name: Generate distribution wheel
-        run: python3 -m build
+        run: python3 -m build --sdist --wheel --outdir dist/
 
       - name: Publish the package to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
