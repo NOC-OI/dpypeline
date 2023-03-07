@@ -13,7 +13,14 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Intended Audience :: Science/Research"
 ]
-dependencies = []
+dependencies = [
+  "xarray[complete]>=2023.2.0",
+  "s3fs>=2023.3.0",
+  "celery==5.2.7",
+  "fsspec>=2023.3.0",
+  "watchdog==2.3.1",
+  "numpy==1.23.5"]
+
 dynamic = ["version"]
 
 [project.readme]
@@ -34,7 +41,7 @@ exclude = ["*__pycache__*"]
 namespaces = true
 
 [project.optional-dependencies]
-test = []
+test = ["pytest >= 7.2.0"]
 
 [project.urls]
 repository = "https://github.com/NOC-OI/data-pypeline"

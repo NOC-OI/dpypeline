@@ -4,7 +4,9 @@ import time
 from typing import Any, Callable
 
 
-def retry(_func=None, *, max_retries: int = 3, sleep_time: int = 5) -> Callable:
+def retry(
+    _func: Callable | None = None, *, max_retries: int = 3, sleep_time: int = 5
+) -> Callable:
     """
     Retry decorator for thread-based tasks.
 
@@ -23,7 +25,7 @@ def retry(_func=None, *, max_retries: int = 3, sleep_time: int = 5) -> Callable:
     """
 
     def decorator_retry(
-        func: Callable, max_retries=max_retries, sleep_time=sleep_time
+        func: Callable, max_retries: int = max_retries, sleep_time: int = sleep_time
     ) -> Callable:
         @functools.wraps(func)
         def wrapper_retry(*args, **kwargs) -> Any:
