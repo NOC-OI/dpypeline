@@ -2,23 +2,53 @@
 import logging
 import os
 from difflib import SequenceMatcher
-from typing import Iterable, Sequence
+from typing import Any, Iterable, Sequence
 
 import numpy as np
 import xarray as xr
 
+from dpypeline.etl_pipeline.decorators import retry
 
+
+@retry(max_retries=3, sleep_time=5)
 def clean_dataset(
     dataset: xr.Dataset,
     fill_value=np.nan,
-    supression_value: float = 1e20,
+    missing_value: float = 1e20,
     threshold: float = 1e-6,
+    write_file: bool = False,
     *args,
     **kwargs,
-) -> xr.Dataset:
-    """Clean a dataset."""
+) -> xr.Dataset | str:
+    """
+    Clean a dataset.
+
+    Set both the missings and fill values equal to the provided fill value.
+
+    Notes
+    -----
+    If write_file is True, the name of the file is returned.
+    If write_file is False, the cleaned dataset is returned.
+
+    Parameters
+    ----------
+    dataset
+        Dataset to be cleaned.
+    fill_value, optional
+        Fill value to be used, , by default np.nan
+    missing_value, optional
+        Missing value, by default 1e20
+    threshold, optional
+        Supression value threshold, by default 1e-6
+    write_file, optional
+        If True writes the cleaned dataset to a file, by default False
+
+    Returns
+    -------
+        Name of the file if write_file is True, else the cleaned dataset.
+    """
     fill_value = fill_value if fill_value is not None else np.NaN
-    supression_value = supression_value if supression_value is not None else np.NaN
+    missing_value = missing_value if missing_value is not None else np.NaN
 
     for var in dataset.keys():
         tmp = dataset[var].load()
@@ -32,9 +62,8 @@ def clean_dataset(
             )
 
         try:
-            # missing_value is originally the supression_value
             tmp.values = xr.where(
-                np.abs(tmp - supression_value) < threshold, fill_value, tmp
+                np.abs(tmp - missing_value) < threshold, fill_value, tmp
             )
             tmp.encoding["missing_value"] = fill_value
         except TypeError:
@@ -42,14 +71,19 @@ def clean_dataset(
                 f"Cannot change variable {var} missing values values. Skiping this step and leaving the missing_value attribute unchanged."
             )
 
-    # cached_file = f"{os.environ['CACHE_DIR']}/transformed_{dataset.encoding['source'].rsplit('/', 1)[-1].rsplit('.', 1)[-2]}.nc"
-    # dataset.to_netcdf(cached_file)
+    if write_file:
+        cached_file = f"{os.environ['CACHE_DIR']}/transformed_{dataset.encoding['source'].rsplit('/', 1)[-1].rsplit('.', 1)[-2]}.nc"
+        dataset.to_netcdf(cached_file)
+        return cached_file
 
     return dataset
 
 
-def to_zarr(dataset: xr.Dataset, *args, **kwargs):
-    """to_zarr wrapper."""
+def to_zarr(dataset: xr.Dataset, *args, **kwargs) -> Any:
+    """
+    Xarray to_zarr wrapper.
+
+    """
     try:
         return dataset.to_zarr(*args, **kwargs)
     except ValueError:
@@ -118,12 +152,6 @@ def create_template(
     if drop_vars is not None:
         template = template.drop_vars(drop_vars)
 
-    # Set all time coordinates to np.NaT
-    """
-    for coord in template.coords.keys():
-        if coord.startswith("time"):
-            template [xr.where(template.coords[coord] == np.datetime64('NaT'), template.coords[coord], np.datetime64('NaT'))
-    """
     template.to_netcdf(output_file)
 
     return template
@@ -150,6 +178,10 @@ def similar(a: Sequence, b: Sequence) -> float:
 def create_reference_names_dict(ds: xr.Dataset) -> dict:
     """
     Create a dictionary of reference names.
+
+    Notes
+    -----
+    long_name keys are mapped to variables names.
 
     Parameters
     ----------
