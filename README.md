@@ -20,7 +20,7 @@ v0.1.0
 Setup the environment using conda (or mamba):
 
 ```
-conda create --name <environment_name> --file requirements.txt -c conda-forge python=3.11.0
+conda create --name <environment_name> --file requirements.txt -c conda-forge python=3.10
 conda activate <environment_name>
 ```
 
@@ -29,7 +29,7 @@ Alternatively, use `virtualenv` and `pip` to setup the environment:
 ```bash
 python -m venv <environment_name>
 source <envionment_name>/bin/activate
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 # How to use
