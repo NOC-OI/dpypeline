@@ -29,6 +29,8 @@ jobs:
         uses: pre-commit/action@v3.0.0
 
   build:
+    needs: pre-commit
+
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -38,6 +40,7 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
+          pwd
           python3 -m pip install --upgrade pip
           python3 -m pip install .
           python3 -m pip install -r requirements.txt
