@@ -1,5 +1,6 @@
 # dpypeline
 ![Continuous Integration](https://github.com/NOC-OI/object-store-project/actions/workflows/main.yml/badge.svg)
+![Test Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/JMorado/c20a3ec5262f14d970a462403316a547/raw/pytest_coverage_report_main.json )
 
 Program for creating data pipelines triggered by file creation events.
 
