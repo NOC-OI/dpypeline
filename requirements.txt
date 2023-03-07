@@ -1,6 +1,6 @@
-xarray[complete]>=2023.1.0
-s3fs>=2023.1.0
+xarray[complete]>=2023.2.0
+s3fs>=2023.3.0
 celery==5.2.7
 fsspec>=2023.1.0
-watchdog>=2.3.1
+watchdog==2.3.1
 numpy==1.23.5
