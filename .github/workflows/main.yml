@@ -40,3 +40,33 @@ jobs:
         run: |
           python3 -m pip install pytest
           python3 -m pytest
+
+  release:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    strategy:
+      matrix:
+          os: [ubuntu-latest, macos-latest, windows-latest]
+          python-version: ["3.9", "3.10"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install release dependencies
+        run: |
+          python3 -m pip install build
+          python3 -m pip install twine
+
+      - name: Generate distribution wheel
+        run: python3 -m build
+
+      - name: Publish the package to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
