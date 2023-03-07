@@ -10,14 +10,6 @@ Program for creating data pipelines triggered by file creation events.
 
 0.1.0-beta.1
 
-# Pipeline architecture
-
-## Celery-based pipeline
-![Celery-based pipeline architecture](/images/celery_pipeline.png "Celery-based pipeline architecture")
-
-## Thread-based pipeline
-![Thread-based pipeline architecture](/images/thread_pipeline.png "Thread-based pipeline architecture")
-
 # Python enviroment setup
 
 Setup the environment using conda (or mamba):
@@ -58,6 +50,14 @@ There are a few environment variables that need to be set so that the applicatio
 - `CACHE_DIR`: Path to the cache directory.
 - `BROKER_URL`: URL of the rabbitMQ broker to connect to (only required when using the celery-based pipeline).
 
+
+# Pipeline architectures
+
+## Celery-based pipeline
+![Celery-based pipeline architecture](/images/celery_pipeline.png "Celery-based pipeline architecture")
+
+## Thread-based pipeline
+![Thread-based pipeline architecture](/images/thread_pipeline.png "Thread-based pipeline architecture")
 
 # How to use the celery-based pipeline
 
