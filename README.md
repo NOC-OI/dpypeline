@@ -23,34 +23,49 @@ Program for creating data pipelines triggered by file creation events.
 Setup the environment using conda (or mamba):
 
 ```
-conda create --name <environment_name> --file requirements.txt -c conda-forge python=3.10
+conda create --name <environment_name> python=3.10
 conda activate <environment_name>
 ```
 
-Alternatively, use `virtualenv` and `pip` to setup the environment:
+Alternatively, use `virtualenv` to setup the environment:
 
 ```bash
 python -m venv <environment_name>
 source <envionment_name>/bin/activate
-pip install -r requirements.txt
 ```
 
-# How to use
+# Installation
 
-## 1. Install the dpypeline package
-
-Install dpypeline using pip:
+Install `dpypeline` package using pip:
 
 ```bash
-pip install -i https://test.pypi.org/simple/ dpypeline
+pip install dpypeline
 ```
 
+# Unit tests
 
-## 2. Start RabbitMQ locally (Optional)
+Run tests using `pytest` in the main directory:
+
+```
+pip install pytest
+pytest
+```
+
+# Environment variables
+
+There are a few environment variables that need to be set so that the application can run correctly:
+
+- `CACHE_DIR`: Path to the cache directory.
+- `BROKER_URL`: URL of the rabbitMQ broker to connect to (only required when using the celery-based pipeline).
+
+
+# How to use the celery-based pipeline
+
+## 1. Start RabbitMQ locally (Optional)
 
 Set up a local instance of RabbitMQ using Docker:
 
-``` bash
+```bash
 docker pull rabbitmq:3-management
 docker run --rm -it -p 15672:15672 -p 5672:5672  rabbitmq:3-management
 ```
@@ -61,7 +76,7 @@ The rabbitMQ management interface can be access on the url http://localhost:1567
 NOTE: If RabbitMQ is run locally, set the BROKER_URL env variable to amqp://guest:guest@localhost. The default username and password are uest.
 
 
-## 3. Start a celery worker
+## 2. Start a celery worker
 
 Start a celery worker:
 
@@ -105,21 +120,6 @@ docker run -p 5555:5555 mher/flower
 
 Access Flower on the url http://localhost:5555/
 
-## Unit tests
-
-Run tests using `pytest` in the main directory:
-
-```
-pip install pytest
-pytest
-```
-
-## Environment variables
-
-There are a few env variables that need to be set so that the application can run correctly:
-
-- `BROKER_URL`: URL of the rabbitMQ broker to connect to.
-- `CACHE_DIR`: Path to the cache directory.
 
 
 
