@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dpypeline"
 description = "Program for creating data pipelines triggered by file creation events."
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 keywords = ["data", "pipeline", "data-pypeline", "dpypeline", "pypeline", "noc"]
 authors = [{email = "joao.morado@noc.ac.uk"},{name = "Joao Morado"}]
 maintainers = [{name = "Joao Morado", email = "joao.morado@noc.ac.uk"}]
