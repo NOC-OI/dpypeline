@@ -49,8 +49,10 @@ def retry(_func=None, *, max_retries: int = 3, sleep_time: int = 5) -> Callable:
         return wrapper_retry
 
     if _func is None:
-        # when using @retry(...), the decorated function is not passed as the first argument, and _func is None
+        # when using @retry(...), the decorated function
+        # is not passed as the first argument, and _func is None
         return decorator_retry
     else:
-        # when simply using @retry without arguments, the decorated function is passed as the _func argument
+        # when simply using @retry without arguments,
+        # the decorated function is passed as the _func argument
         return decorator_retry(_func, max_retries=max_retries, sleep_time=sleep_time)
