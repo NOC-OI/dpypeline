@@ -41,10 +41,23 @@ jobs:
           pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=dpypeline tests/ | tee pytest-coverage.txt
 
       - name: Pytest coverage comment
+        id: coverage-comment
         uses: MishaKav/pytest-coverage-comment@main
         with:
           pytest-coverage-path: ./pytest-coverage.txt
           junitxml-path: ./pytest.xml
+
+      - name: Create the Badge
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.PYTEST_COVERAGE_COMMENT }}
+          gistID: 5e90d640f8c212ab7bbac38f72323f80
+          filename: pytest-coverage-comment__main.json
+          label: Coverage Report
+          message: ${{ steps.coverage-comment.outputs.coverage }}
+          color: ${{ steps.coverage-comment.outputs.color }}
+          namedLogo: python
+
 
   release:
     needs: build
@@ -76,7 +89,7 @@ jobs:
       #- name: Publish distrbution to TestPyPI
       #  uses: pypa/gh-action-pypi-publish@release/v1
       #  with:
-      #    password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      #    password: ${{ secrets.TEST_PYPI_API_TOKEN   }}
       #    repository_url: https://test.pypi.org/legacy/
 
       - name: Publish distribution to PyPI
