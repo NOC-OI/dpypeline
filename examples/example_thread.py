@@ -45,14 +45,18 @@ if __name__ == "__main__":
     # Create the jasmin instance
     logging.info("Jasmin OS")
     jasmin = ObjectStoreS3(
-        anon=False, store_credentials_json="jasmin_object_store_credentials.json"
+        anon=False,
+        store_credentials_json="/home/joaomorado/git_repos/mynamespace/dpypeline/examples/credentials.json",
     )
     bucket = "n06-dataset"
-    # jasmin.rm("dpypline-test/*", recursive=True)
-    #   jasmin.mkdir(bucket)
+    jasmin.rm("dpypline-test/*", recursive=True)
+    jasmin.mkdir(bucket)
 
-    template = xr.open_dataset("template.nc")
+    print(akita.queue.queue_list)
+    template = xr.open_mfdataset(akita.queue.queue_list)
+    template.to_zarr(jasmin.get_mapper(bucket + "/n06.zarr"), compute=False)
 
+    exit()
     # Define the jobs and respective tasks
     # 1. Open the data set
     # 2. Fix variables' names

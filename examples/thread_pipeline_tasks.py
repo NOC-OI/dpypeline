@@ -10,7 +10,7 @@ import xarray as xr
 from dpypeline.etl_pipeline.decorators import retry
 
 
-@retry(max_retries=3, sleep_time=5)
+# @retry(max_retries=3, sleep_time=5)
 def clean_dataset(
     dataset: xr.Dataset,
     fill_value=np.nan,
@@ -84,12 +84,22 @@ def to_zarr(dataset: xr.Dataset, *args, **kwargs) -> Any:
     Xarray to_zarr wrapper.
 
     """
+    if "region_dict" in kwargs:
+        event = dataset.encoding["source"]
+        idx = kwargs["region_dict"][event]
+        region = {"time_counter": slice(idx, idx + 1)}
+        del kwargs["region_dict"]
+        print(region)
+        exit()
+    else:
+        region = None
+
     try:
-        return dataset.to_zarr(*args, **kwargs)
+        return dataset.to_zarr(*args, region=region, **kwargs)
     except ValueError:
         new_kwargs = kwargs.copy()
         del new_kwargs["append_dim"]
-        return dataset.to_zarr(*args, **new_kwargs)
+        return dataset.to_zarr(*args, region=region, **new_kwargs)
 
 
 def to_netcdf(dataset: xr.Dataset, *args, **kwargs):
