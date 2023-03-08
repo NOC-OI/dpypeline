@@ -233,7 +233,7 @@ class Akita:
         try:
             while True:
                 time.sleep(1)
-        finally:
+        except Exception:
             self._observer.stop()
-
-        self._observer.join()
+        finally:
+            self._observer.join()

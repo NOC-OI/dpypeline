@@ -103,12 +103,18 @@ class EventConsumer:
 
         return self._worker
 
-    def run(self) -> None:
-        """Run the event consumer."""
+    def run(self, daemon: bool = True) -> None:
+        """Run the event consumer.
+
+        daemon
+            If `True` and the worker has not been passed to self
+              runs the thread as a daemon; otherwise thread is non-daemon.
+        """
         try:
             if self._worker is None:
-                self._create_worker()
+                self._create_worker(daemon=daemon)
 
             self._worker.start()
+
         except Exception:
             self._worker.join()
