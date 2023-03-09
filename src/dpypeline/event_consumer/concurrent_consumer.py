@@ -20,9 +20,7 @@ class ConcurrentConsumer(EventConsumer):
     Whenever new events are added to the queue, they are put in the local list and processed to produce futures.
     """
 
-    _events_dict_file: str = os.path.join(
-        os.getenv("CACHE_DIR"), "consumer_dict.pickle"
-    )
+    _events_dict_file_suffix: str = "consumer_dict.pickle"
 
     def __init__(self, client: Client, *args, **kwargs) -> None:
         """
@@ -40,6 +38,14 @@ class ConcurrentConsumer(EventConsumer):
         super().__init__(*args, **kwargs)
         self._client = client
         self._events_dict: dict[Any, str] = None
+
+        assert (
+            os.getenv("CACHE_DIR") is not None
+        ), "CACHE_DIR environmental variable is not set."
+
+        self._events_dict_file = str = os.path.join(
+            os.getenv("CACHE_DIR"), self._events_dict_file_suffix
+        )
 
     def _load_events_dict(self) -> None:
         """Load the events dictionary."""

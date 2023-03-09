@@ -13,23 +13,28 @@ class EventsQueue(Queue):
 
     _instance: EventsQueue = None
     _initialized: bool = False
-    _state_file: str = os.path.join(os.getenv("CACHE_DIR"), "queue_state.pickle")
-    _processed_events_file: str = os.path.join(
-        os.getenv("CACHE_DIR"), "processed_events.pickle"
-    )
+    _state_file_suffix: str = "queue_state.pickle"
+    _processed_events_file_suffix: str = "processed_events.pickle"
 
     def __init__(self, maxsize: int = 0) -> None:
         """Initiate the EventsQueue singleton."""
+        assert (
+            os.getenv("CACHE_DIR") is not None
+        ), "CACHE_DIR environmental variable is not set."
+
         if not self._initialized:
             logging.info("Initializing singleton instance of EventsQueue.")
             super().__init__(maxsize=maxsize)
             self._initialized: bool = True
             self._processed_events: list[str] = None
+            self._state_file = os.path.join(
+                os.getenv("CACHE_DIR"), self._state_file_suffix
+            )
             self._load_state()
 
-        assert (
-            os.getenv("CACHE_DIR") is not None
-        ), "CACHE_DIR environmental variable is not set."
+        self._processed_events_file = str = os.path.join(
+            os.getenv("CACHE_DIR"), self._processed_events_file_suffix
+        )
 
     def __new__(cls, maxsize: int = 0) -> EventsQueue:
         """
