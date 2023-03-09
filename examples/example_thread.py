@@ -48,11 +48,12 @@ if __name__ == "__main__":
         anon=False,
         store_credentials_json="/home/joaomorado/git_repos/mynamespace/dpypeline/examples/credentials.json",
     )
+
     bucket = "dpypline-test/"
-    jasmin.rm("dpypline-test/*", recursive=True)
+    # jasmin.rm("dpypline-test/*", recursive=True)
     jasmin.mkdir(bucket)
-    template = xr.open_mfdataset(akita.queue.queue_list)
-    template.to_zarr(jasmin.get_mapper(bucket + "/n06.zarr"), compute=False)
+
+    template = xr.open_dataset("template.nc")
 
     # Define the jobs and respective tasks
     # 1. Open the data set
@@ -98,4 +99,4 @@ if __name__ == "__main__":
 
     # Run the EventConsumer and Akita (must be in this order)
     event_consumer.run()
-    akita.run()
+    # akita.run()

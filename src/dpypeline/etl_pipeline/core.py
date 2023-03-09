@@ -1,5 +1,4 @@
 """ETL pipeline definitions."""
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -22,6 +21,31 @@ class Task:
     function: Any
     args: tuple = field(default_factory=tuple)
     kwargs: dict = field(default_factory=dict)
+
+    def run(self, *args, **kwargs) -> Any:
+        """
+        Run the task.
+
+        Notes
+        -----
+        Args passed upon instantiation are passed first to the function.
+
+        Parameters
+        ----------
+        args
+            Further arguments to be passed to the function.
+        kwargs
+            Furhter keyword arguments to be passed to the function.
+
+        Returns
+        -------
+            Result of the task.
+        """
+        # Combine args and kwargs
+        new_args = self.args + args
+        new_kwargs = {**self.kwargs, **kwargs}
+
+        return self.function(*new_args, **new_kwargs)
 
 
 @dataclass
@@ -72,8 +96,8 @@ class Job:
             return self.tasks.pop(index)
 
 
-class ETLPipeline(ABC):
-    """Abstract base class for ETL pipelines."""
+class ETLPipeline:
+    """Base class for ETL pipelines."""
 
     def __init__(self, jobs: list[Job] = None) -> None:
         """Initialize the ETL pipeline."""
@@ -115,7 +139,6 @@ class ETLPipeline(ABC):
         else:
             return self._jobs.pop(index)
 
-    @abstractmethod
     def produce_jobs(self, event: Any) -> Any:
-        """Abstraction for producing tasks triggered by an event."""
-        pass
+        """Produce jobs triggered by an event."""
+        raise NotImplementedError("produce_jobs must be implemented.")
