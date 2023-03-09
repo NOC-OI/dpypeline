@@ -43,7 +43,7 @@ class ConcurrentConsumer(EventConsumer):
             os.getenv("CACHE_DIR") is not None
         ), "CACHE_DIR environmental variable is not set."
 
-        self._events_dict_file = str = os.path.join(
+        self._events_dict_file: str = os.path.join(
             os.getenv("CACHE_DIR"), self._events_dict_file_suffix
         )
 
