@@ -116,5 +116,6 @@ class EventConsumer:
 
             self._worker.start()
 
-        except Exception:
+        except Exception as e:
+            print(e)
             self._worker.join()
