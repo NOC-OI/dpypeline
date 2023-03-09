@@ -82,6 +82,8 @@ if __name__ == "__main__":
     total_template.to_zarr(jasmin.get_mapper(bucket+ "/n06.zarr"), compute=False)
     """
 
+    print(template["sst"].dims)
+    exit()
     # Create a job and add tasks to it
     job = Job(name="job_test")
 

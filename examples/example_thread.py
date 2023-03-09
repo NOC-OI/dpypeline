@@ -15,7 +15,7 @@ from dpypeline.akita.core import Akita
 from dpypeline.akita.factory import get_akita_dependencies
 from dpypeline.etl_pipeline.core import Job, Task
 from dpypeline.etl_pipeline.thread_pipeline import ThreadPipeline
-from dpypeline.event_consumer.core import EventConsumer
+from dpypeline.event_consumer.serial_consumer import SerialConsumer
 from dpypeline.filesystems.object_store import ObjectStoreS3
 
 if __name__ == "__main__":
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     etl_pipeline = ThreadPipeline()
 
     # Create the event consumer that bridges Akita and the data pipeline
-    event_consumer = EventConsumer(queue=akita.queue, job_producer=etl_pipeline)
+    event_consumer = SerialConsumer(queue=akita.queue, job_producer=etl_pipeline)
 
     # Create the jasmin instance
     logging.info("Jasmin OS")
@@ -48,15 +48,12 @@ if __name__ == "__main__":
         anon=False,
         store_credentials_json="/home/joaomorado/git_repos/mynamespace/dpypeline/examples/credentials.json",
     )
-    bucket = "n06-dataset"
+    bucket = "dpypline-test/"
     jasmin.rm("dpypline-test/*", recursive=True)
     jasmin.mkdir(bucket)
-
-    print(akita.queue.queue_list)
     template = xr.open_mfdataset(akita.queue.queue_list)
     template.to_zarr(jasmin.get_mapper(bucket + "/n06.zarr"), compute=False)
 
-    exit()
     # Define the jobs and respective tasks
     # 1. Open the data set
     # 2. Fix variables' names
