@@ -276,13 +276,16 @@ def match_to_template(ds: xr.Dataset, template: xr.Dataset):
     # Drop non-matching vars
     ds = ds.drop_vars([var for var in ds.variables if var not in template.variables])
 
-    # Store the time counter
-    temp = ds["time_counter"]
-    ds["time_counter"] = [np.nan]
+    # Set the correct time_counter
+    template["time_counter"] = ds["time_counter"]
 
+    # Store the source
+    source = ds.encoding["source"]
+
+    # Project ds onto template
     ds = template.combine_first(ds)
 
     # Recover the time counter
-    ds["time_counter"] = temp
+    ds.encoding["source"] = source
 
     return ds

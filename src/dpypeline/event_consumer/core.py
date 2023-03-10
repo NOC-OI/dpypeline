@@ -30,6 +30,10 @@ class Queue(Protocol):
         """Add an event to the queue."""
         ...
 
+    def remove(self, event: Any) -> bool:
+        """Remove an event from the queue."""
+        ...
+
 
 class EventConsumer:
     """
@@ -117,5 +121,4 @@ class EventConsumer:
             self._worker.start()
 
         except Exception as e:
-            print(e)
             self._worker.join()

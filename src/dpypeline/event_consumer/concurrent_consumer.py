@@ -105,7 +105,7 @@ class ConcurrentConsumer(EventConsumer):
         sleep_time
             Sleep time in seconds for which the thread is idle.
         """
-        futures = []
+        futures: list[str] = []
         self._load_events_dict()
 
         while True:
@@ -119,12 +119,13 @@ class ConcurrentConsumer(EventConsumer):
                 # process the local list of events and check for finished futures
                 for event, future_key in self._events_dict.items():
                     if future_key is None:
-                        logging.info(f"Creating future for: {event}")
-                        future = self._client.submit(
-                            self._job_producer.produce_jobs, event
-                        )
-                        futures.append(future)
-                        self._events_dict[event] = future.key
+                        if len(futures) < 20:
+                            logging.info(f"Creating future for: {event}")
+                            future = self._client.submit(
+                                self._job_producer.produce_jobs, event
+                            )
+                            futures.append(future)
+                            self._events_dict[event] = future.key
 
                 for batch in as_completed(futures, with_results=True).batches():
                     for future, result in batch:

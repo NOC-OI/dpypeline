@@ -99,4 +99,4 @@ if __name__ == "__main__":
 
     # Run the EventConsumer and Akita (must be in this order)
     event_consumer.run()
-    # akita.run()
+    akita.run()

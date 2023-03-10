@@ -122,7 +122,7 @@ class EventsQueue(Queue):
         with open(self._processed_events_file, "wb") as f:
             pickle.dump(self._processed_events, f)
 
-    def enqueue(self, event) -> bool:
+    def enqueue(self, event: Any) -> bool:
         """Add an event to the queue.
 
         Everytime an event is added to the queue, the state of the queue is saved.
@@ -196,6 +196,35 @@ class EventsQueue(Queue):
         Number of events in the queue.
         """
         return self.qsize()
+
+    def remove(self, event: Any) -> int:
+        """
+        Remove an event from the queue.
+
+        Notes
+        -----
+        Removing elments from arbitrary positions in the queue should be avoided.
+        However, this method is useful for removing events from the queue
+        that have been processed by parallel workers.
+
+        Parameters
+        ----------
+        event
+            Event to add to the queue.
+
+        Returns
+        -------
+            True if the event was removed from the queue, False otherwise.
+        """
+        try:
+            logging.info("-" * 79)
+            logging.info(f"Removing event: {event}.")
+            self.queue.remove(event)
+            self._save_state(logging_prefix="Removing event: ")
+            return True
+        except ValueError as e:
+            logging.error(f"{e}")
+            return False
 
     @classmethod
     def clear_instance(cls):

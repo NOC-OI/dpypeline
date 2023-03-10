@@ -98,6 +98,22 @@ class ObjectStoreS3(s3fs.S3FileSystem):
 
         return store_credentials
 
+    def mkdir(self, path: str, create_parents: bool = True, **kwargs) -> None:
+        """
+        Create a bucket in the object store.
+
+        Parameters
+        ----------
+        path
+            Bucket to create.
+        create_parents, optional
+            If True, create the parent folders if they don't exist.
+        """
+        try:
+            return super().mkdir(path, create_parents, **kwargs)
+        except FileExistsError:
+            logging.info(f"Bucket {path} already exists.")
+
     def get_remote_options(self, override: bool = False) -> dict:
         """
         Get the remote options of the object store.
