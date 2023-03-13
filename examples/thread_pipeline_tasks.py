@@ -27,7 +27,24 @@ def open_dataset(filename_or_obj: str, persist: bool = False, *args, **kwargs):
     if persist:
         return xr.open_dataset(filename_or_obj, *args, **kwargs).persist()
     else:
-        return xr.open_dataset(filename_or_obj, *args, **kwargs).persist()
+        return xr.open_dataset(filename_or_obj, *args, **kwargs)
+
+
+def drop_vars(ds: xr.Dataset, names: Iterable = None) -> xr.Dataset:
+    """_summary_
+
+    Parameters
+    ----------
+    ds
+        Dataset from which to drop variables.
+    names
+        Variables to drop from the dataset.
+
+    Returns
+    -------
+    xr.Dataset
+    """
+    return ds.drop_vars(names)
 
 
 # @retry(max_retries=3, sleep_time=5)

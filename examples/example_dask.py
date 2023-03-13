@@ -115,6 +115,7 @@ if __name__ == "__main__":
             kwargs={"template": template},
         )
     )
+
     job.add_task(
         Task(
             function=to_zarr,

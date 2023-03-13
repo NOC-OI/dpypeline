@@ -6,6 +6,7 @@ from thread_pipeline_tasks import (
     clean_cache_dir,
     clean_dataset,
     create_reference_names_dict,
+    drop_vars,
     match_to_template,
     rename_vars,
     to_zarr,
@@ -82,6 +83,20 @@ if __name__ == "__main__":
             kwargs={"template": template},
         )
     )
+
+    job.add_task(
+        Task(
+            function=drop_vars,
+            kwargs={
+                "name": [
+                    var
+                    for var in template.variables
+                    if "time_counter" not in template.variables[var].dims
+                ]
+            },
+        )
+    )
+
     job.add_task(
         Task(
             function=to_zarr,
