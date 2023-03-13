@@ -94,6 +94,18 @@ class ConcurrentConsumer(EventConsumer):
                 del self._events_dict[event]
                 return event
 
+    def _get_worker(self):
+        """
+        Get a idle worker.
+        """
+        self._workers = self._client.scheduler_info()["workers"]
+
+        for worker in self._workers:
+            if self._workers["worker"] == "None":
+                return worker
+
+        return False
+
     def _run_worker(self, sleep_time: int = 1) -> None:
         """
         Run the worker thread.
@@ -107,6 +119,8 @@ class ConcurrentConsumer(EventConsumer):
         """
         futures: list[str] = []
         self._load_events_dict()
+
+        workers = self._client.scheduler_info()["workers"]
 
         while True:
             if self._queue.get_queue_size():
