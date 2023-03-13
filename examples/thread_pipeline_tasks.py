@@ -10,7 +10,44 @@ import xarray as xr
 from dpypeline.etl_pipeline.decorators import retry
 
 
-@retry(max_retries=3, sleep_time=5)
+def open_dataset(filename_or_obj: str, persist: bool = False, *args, **kwargs):
+    """Open an xarray.Dataset from a file or file-like object.
+
+    Parameters
+    ----------
+    filename_or_obj
+        File name or file-like object.
+    persist
+        Whether to persist the dataset in memory.
+
+    Returns
+    -------
+    xarray.Dataset
+    """
+    if persist:
+        return xr.open_dataset(filename_or_obj, *args, **kwargs).persist()
+    else:
+        return xr.open_dataset(filename_or_obj, *args, **kwargs)
+
+
+def drop_vars(ds: xr.Dataset, names: Iterable = None) -> xr.Dataset:
+    """_summary_
+
+    Parameters
+    ----------
+    ds
+        Dataset from which to drop variables.
+    names
+        Variables to drop from the dataset.
+
+    Returns
+    -------
+    xr.Dataset
+    """
+    return ds.drop_vars(names)
+
+
+# @retry(max_retries=3, sleep_time=5)
 def clean_dataset(
     dataset: xr.Dataset,
     fill_value=np.nan,
@@ -51,7 +88,7 @@ def clean_dataset(
     missing_value = missing_value if missing_value is not None else np.NaN
 
     for var in dataset.keys():
-        tmp = dataset[var].load()
+        tmp = dataset[var]
 
         try:
             tmp.values = tmp.fillna(fill_value)
@@ -84,6 +121,16 @@ def to_zarr(dataset: xr.Dataset, *args, **kwargs) -> Any:
     Xarray to_zarr wrapper.
 
     """
+    if "region_dict" in kwargs:
+        event = dataset.encoding["source"]
+        idx = kwargs["region_dict"][event]
+        region = {"time_counter": slice(idx, idx + 1)}
+        new_kwargs = kwargs.copy()
+        new_kwargs["region"] = region
+        del kwargs["region_dict"]
+    else:
+        region = None
+
     try:
         return dataset.to_zarr(*args, **kwargs)
     except ValueError:
@@ -266,13 +313,16 @@ def match_to_template(ds: xr.Dataset, template: xr.Dataset):
     # Drop non-matching vars
     ds = ds.drop_vars([var for var in ds.variables if var not in template.variables])
 
-    # Store the time counter
-    temp = ds["time_counter"]
-    ds["time_counter"] = [np.nan]
+    # Set the correct time_counter
+    template["time_counter"] = ds["time_counter"]
 
+    # Store the source
+    source = ds.encoding["source"]
+
+    # Project ds onto template
     ds = template.combine_first(ds)
 
     # Recover the time counter
-    ds["time_counter"] = temp
+    ds.encoding["source"] = source
 
     return ds

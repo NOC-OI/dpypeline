@@ -1,3 +1,4 @@
+"""Decorators for thread-based tasks."""
 import functools
 import logging
 import time
