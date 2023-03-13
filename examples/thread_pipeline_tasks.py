@@ -71,7 +71,7 @@ def clean_dataset(
     missing_value = missing_value if missing_value is not None else np.NaN
 
     for var in dataset.keys():
-        tmp = dataset[var].load()
+        tmp = dataset[var]
 
         try:
             tmp.values = tmp.fillna(fill_value)
@@ -108,18 +108,18 @@ def to_zarr(dataset: xr.Dataset, *args, **kwargs) -> Any:
         event = dataset.encoding["source"]
         idx = kwargs["region_dict"][event]
         region = {"time_counter": slice(idx, idx + 1)}
+        new_kwargs = kwargs.copy()
+        new_kwargs["region"] = region
         del kwargs["region_dict"]
-        print(region)
-        exit()
     else:
         region = None
 
     try:
-        return dataset.to_zarr(*args, region=region, **kwargs)
+        return dataset.to_zarr(*args, **kwargs)
     except ValueError:
         new_kwargs = kwargs.copy()
         del new_kwargs["append_dim"]
-        return dataset.to_zarr(*args, region=region, **new_kwargs)
+        return dataset.to_zarr(*args, **new_kwargs)
 
 
 def to_netcdf(dataset: xr.Dataset, *args, **kwargs):
