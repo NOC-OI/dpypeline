@@ -8,6 +8,7 @@ from dask_jobqueue import SLURMCluster
 from thread_pipeline_tasks import (
     clean_dataset,
     create_reference_names_dict,
+    drop_vars,
     match_to_template,
     open_dataset,
     rename_vars,
@@ -115,7 +116,18 @@ if __name__ == "__main__":
             kwargs={"template": template},
         )
     )
-
+    job.add_task(
+        Task(
+            function=drop_vars,
+            kwargs={
+                "name": [
+                    var
+                    for var in template.variables
+                    if "time_counter" not in template.variables[var].dims
+                ]
+            },
+        )
+    )
     job.add_task(
         Task(
             function=to_zarr,

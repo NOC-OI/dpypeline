@@ -3,10 +3,8 @@ import logging
 
 import xarray as xr
 from thread_pipeline_tasks import (
-    clean_cache_dir,
     clean_dataset,
     create_reference_names_dict,
-    drop_vars,
     match_to_template,
     rename_vars,
     to_zarr,
@@ -62,7 +60,6 @@ if __name__ == "__main__":
     # 3. Clean the dataset
     # 4. Combine dataset with template
     # 5. Send to zarr
-    # 6. Clean cache directory
     job = Job(name="send_to_jasmin_OS")
     job.add_task(
         Task(
@@ -83,20 +80,6 @@ if __name__ == "__main__":
             kwargs={"template": template},
         )
     )
-
-    job.add_task(
-        Task(
-            function=drop_vars,
-            kwargs={
-                "name": [
-                    var
-                    for var in template.variables
-                    if "time_counter" not in template.variables[var].dims
-                ]
-            },
-        )
-    )
-
     job.add_task(
         Task(
             function=to_zarr,
@@ -107,7 +90,6 @@ if __name__ == "__main__":
             },
         )
     )
-    job.add_task(Task(function=clean_cache_dir))
 
     # Add job to pipeline
     etl_pipeline.add_job(job)
