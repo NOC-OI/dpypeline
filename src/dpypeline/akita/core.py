@@ -216,7 +216,10 @@ class Akita:
     def enqueue_new_files(self) -> None:
         """Enqueue events previously unqueued."""
         # Get current state of the directory
-        not_enqueued_state = sorted(self._get_unenqueued_files())
+        # TODO: Check if delimiter has to be "\" when running on Windows.
+        not_enqueued_state = sorted(
+            self._get_unenqueued_files(), key=lambda f: f.rsplit("/", 1)[-1]
+        )
 
         for event in not_enqueued_state:
             self._queue.enqueue(event)
