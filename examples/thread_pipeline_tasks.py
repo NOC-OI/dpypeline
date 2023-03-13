@@ -10,6 +10,26 @@ import xarray as xr
 from dpypeline.etl_pipeline.decorators import retry
 
 
+def open_dataset(filename_or_obj: str, persist: bool = False, *args, **kwargs):
+    """Open an xarray.Dataset from a file or file-like object.
+
+    Parameters
+    ----------
+    filename_or_obj
+        File name or file-like object.
+    persist
+        Whether to persist the dataset in memory.
+
+    Returns
+    -------
+    xarray.Dataset
+    """
+    if persist:
+        return xr.open_dataset(filename_or_obj, *args, **kwargs).persist()
+    else:
+        return xr.open_dataset(filename_or_obj, *args, **kwargs).persist()
+
+
 # @retry(max_retries=3, sleep_time=5)
 def clean_dataset(
     dataset: xr.Dataset,

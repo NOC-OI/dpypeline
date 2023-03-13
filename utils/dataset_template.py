@@ -63,8 +63,10 @@ def create_template(
 def create_template_new(
     files, store, coords_list, dims_list, vars_list, chunks, fill_val=np.nan
 ):
+    """Create template."""
+
     def preprocess_template(coords_list, dims_list, vars_list, ds):
-        """ """
+        """Preprocess template callback."""
         # Drop non-matching coords
         ds = ds.set_coords([coord for coord in coords_list if coord in ds.variables])
         ds = ds.reset_coords([coord for coord in ds.coords if coord not in coords_list])
