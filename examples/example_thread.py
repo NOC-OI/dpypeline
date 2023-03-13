@@ -3,7 +3,6 @@ import logging
 
 import xarray as xr
 from thread_pipeline_tasks import (
-    clean_cache_dir,
     clean_dataset,
     create_reference_names_dict,
     match_to_template,
@@ -15,7 +14,7 @@ from dpypeline.akita.core import Akita
 from dpypeline.akita.factory import get_akita_dependencies
 from dpypeline.etl_pipeline.core import Job, Task
 from dpypeline.etl_pipeline.thread_pipeline import ThreadPipeline
-from dpypeline.event_consumer.core import EventConsumer
+from dpypeline.event_consumer.serial_consumer import SerialConsumer
 from dpypeline.filesystems.object_store import ObjectStoreS3
 
 if __name__ == "__main__":
@@ -40,16 +39,18 @@ if __name__ == "__main__":
     etl_pipeline = ThreadPipeline()
 
     # Create the event consumer that bridges Akita and the data pipeline
-    event_consumer = EventConsumer(queue=akita.queue, job_producer=etl_pipeline)
+    event_consumer = SerialConsumer(queue=akita.queue, job_producer=etl_pipeline)
 
     # Create the jasmin instance
     logging.info("Jasmin OS")
     jasmin = ObjectStoreS3(
-        anon=False, store_credentials_json="jasmin_object_store_credentials.json"
+        anon=False,
+        store_credentials_json="/home/joaomorado/git_repos/mynamespace/dpypeline/examples/credentials.json",
     )
-    bucket = "n06-dataset"
+
+    bucket = "dpypline-test/"
     # jasmin.rm("dpypline-test/*", recursive=True)
-    #   jasmin.mkdir(bucket)
+    jasmin.mkdir(bucket)
 
     template = xr.open_dataset("template.nc")
 
@@ -59,7 +60,6 @@ if __name__ == "__main__":
     # 3. Clean the dataset
     # 4. Combine dataset with template
     # 5. Send to zarr
-    # 6. Clean cache directory
     job = Job(name="send_to_jasmin_OS")
     job.add_task(
         Task(
@@ -90,7 +90,6 @@ if __name__ == "__main__":
             },
         )
     )
-    job.add_task(Task(function=clean_cache_dir))
 
     # Add job to pipeline
     etl_pipeline.add_job(job)

@@ -178,7 +178,7 @@ class Akita:
         q = self._queue.queue_list
         p = self._queue.processed_events
 
-        n = set(d) - set(chain.from_iterable([s, q, p]))
+        n = set(d) - set(chain.from_iterable([q, p]))
 
         logging.info("-" * 79)
         logging.info(f"Events in the stored directory state (n={len(s)}):")
@@ -213,18 +213,29 @@ class Akita:
 
         return list(n)
 
-    def _enqueue_new_files(self) -> None:
+    def enqueue_new_files(self) -> None:
         """Enqueue events previously unqueued."""
         # Get current state of the directory
-        not_enqueued_state = sorted(self._get_unenqueued_files())
+        # TODO: Check if delimiter has to be "\" when running on Windows.
+        not_enqueued_state = sorted(
+            self._get_unenqueued_files(), key=lambda f: f.rsplit("/", 1)[-1]
+        )
 
         for event in not_enqueued_state:
             self._queue.enqueue(event)
 
-    def run(self) -> None:
-        """Run the Akita watchdog."""
-        # Add new files found in the directory since the last time the watchdog was run.
-        self._enqueue_new_files()
+    def run(self, enqueue_new_files: bool = True) -> None:
+        """
+        Run the Akita watchdog.
+
+        Parameters
+        ----------
+        enqueue_new_files
+            If True, enqueues events previously unqueued.
+        """
+        if enqueue_new_files:
+            # Add new files found in the directory since the last time the watchdog was run.
+            self.enqueue_new_files()
 
         logging.info("Starting the Akita watchdog.")
         self._observer.schedule(self._event_handler, self._path, recursive=True)
@@ -233,7 +244,7 @@ class Akita:
         try:
             while True:
                 time.sleep(1)
-        finally:
+        except Exception:
             self._observer.stop()
-
-        self._observer.join()
+        finally:
+            self._observer.join()
