@@ -3,8 +3,7 @@ import logging
 import time
 from typing import Any
 
-import dask
-from dask.distributed import Client  # , as_completed
+from dask.distributed import Client, Future  # , as_completed
 
 from .core import EventConsumer
 
@@ -41,7 +40,7 @@ class ConsumerParallel(EventConsumer):
             len(self._client.scheduler_info()["workers"]) // self._workers_per_future
         )
 
-    def _purge_future(self, future: dask.Future) -> None:
+    def _purge_future(self, future: Future) -> None:
         """Purge a future.
 
         Parameters
@@ -51,7 +50,7 @@ class ConsumerParallel(EventConsumer):
         """
         del self._futures[future]
 
-    def _submit_future(self, event: Any) -> dask.Future:
+    def _submit_future(self, event: Any) -> Future:
         """
         Submit a future to the Dask cluster.
 
@@ -62,7 +61,7 @@ class ConsumerParallel(EventConsumer):
 
         Returns
         -------
-        dask.Future
+        Future
         """
         if self._futures is None:
             self._futures = {}
@@ -85,7 +84,7 @@ class ConsumerParallel(EventConsumer):
             if len(self._futures) < self._max_futures:
                 self._submit_future(event)
 
-    def _process_succeeded_future(self, future: dask.Future) -> None:
+    def _process_succeeded_future(self, future: Future) -> None:
         """
         Process a future that has succeeded.
 
@@ -101,7 +100,7 @@ class ConsumerParallel(EventConsumer):
         self._queue.remove(event)
         self._purge_future(future)
 
-    def _process_failed_future(self, future: dask.Future) -> None:
+    def _process_failed_future(self, future: Future) -> None:
         """
         Process a future that has failed.
 
@@ -116,7 +115,7 @@ class ConsumerParallel(EventConsumer):
         )
         future.retry()
 
-    def _process_finished_future(self, future: dask.Future) -> None:
+    def _process_finished_future(self, future: Future) -> None:
         """
         Process a future that has finished.
 
