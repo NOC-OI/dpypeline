@@ -63,9 +63,6 @@ class ConsumerParallel(EventConsumer):
         -------
         Future
         """
-        if self._futures is None:
-            self._futures = {}
-
         logging.info(f"Submitting future for: {event}")
 
         # Submit the future to the Dask cluster
@@ -79,6 +76,9 @@ class ConsumerParallel(EventConsumer):
     def _create_futures(self) -> None:
         """Create futures."""
         # Get the events from the queue for which a future has not yet been created
+        if self._futures is None:
+            self._futures = {}
+
         diff = set(self._queue.queue_list) - set(self._futures.values())
         for event in diff:
             if len(self._futures) < self._max_futures:
@@ -131,7 +131,6 @@ class ConsumerParallel(EventConsumer):
         """
         if future.status == "finished":
             self._process_succeeded_future(future)
-            # self._submit_future(future)
         elif future.status == "error":
             self._process_failed_future(future)
         elif future.status == "pending":
