@@ -1,2 +1,2 @@
 """Event consumer package."""
-__all__ = ["serial_consumer", "concurrent_consumer"]
+__all__ = ["consumer_serial", "consumer_parallel"]

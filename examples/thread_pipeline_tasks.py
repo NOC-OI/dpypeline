@@ -121,21 +121,20 @@ def to_zarr(dataset: xr.Dataset, *args, **kwargs) -> Any:
     Xarray to_zarr wrapper.
 
     """
+    new_kwargs = kwargs.copy()
+
     if "region_dict" in kwargs:
         event = dataset.encoding["source"]
         idx = kwargs["region_dict"][event]
         region = {"time_counter": slice(idx, idx + 1)}
-        new_kwargs = kwargs.copy()
         new_kwargs["region"] = region
-        del kwargs["region_dict"]
-    else:
-        region = None
-
+        del new_kwargs["region_dict"]
     try:
-        return dataset.to_zarr(*args, **kwargs)
+        return dataset.to_zarr(*args, **new_kwargs)
     except ValueError:
-        new_kwargs = kwargs.copy()
-        del new_kwargs["append_dim"]
+        if "append_dim" in new_kwargs:
+            new_kwargs = kwargs.copy()
+            del new_kwargs["append_dim"]
         return dataset.to_zarr(*args, **new_kwargs)
 
 

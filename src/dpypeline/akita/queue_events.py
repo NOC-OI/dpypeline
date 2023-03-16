@@ -203,9 +203,10 @@ class EventsQueue(Queue):
 
         Notes
         -----
-        Removing elments from arbitrary positions in the queue should be avoided.
-        However, this method is useful for removing events from the queue
-        that have been processed by parallel workers.
+        Removing elments from arbitrary positions in the queue should be avoided,
+        as it goes against the FIFO principle.
+        However, this method is useful for removing events processed by
+        parallel workers.
 
         Parameters
         ----------

@@ -14,6 +14,11 @@ class JobProducer(Protocol):
 class Queue(Protocol):
     """Queue interface."""
 
+    @property
+    def queue_list(self) -> list[Any]:
+        """Return list of events in the queue."""
+        ...
+
     def dequeue(self) -> Any:
         """Remove and return an event from the queue."""
         ...
@@ -120,5 +125,5 @@ class EventConsumer:
 
             self._worker.start()
 
-        except Exception as e:
+        except Exception:
             self._worker.join()

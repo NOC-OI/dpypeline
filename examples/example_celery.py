@@ -6,7 +6,7 @@ from dpypeline.akita.factory import get_akita_dependencies
 from dpypeline.celery.tasks.xarray import clean_dataset, open_dataset, to_zarr
 from dpypeline.etl_pipeline.celery_pipeline import CeleryPipeline
 from dpypeline.etl_pipeline.core import Job, Task
-from dpypeline.event_consumer.serial_consumer import SerialConsumer
+from dpypeline.event_consumer.consumer_serial import ConsumerSerial
 from dpypeline.filesystems.object_store import ObjectStoreS3
 
 if __name__ == "__main__":
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     etl_pipeline = CeleryPipeline()
 
     # Create the event consumer that bridges Akita and the data pipeline
-    event_consumer = SerialConsumer(queue=akita.queue, job_producer=etl_pipeline)
+    event_consumer = ConsumerSerial(queue=akita.queue, job_producer=etl_pipeline)
 
     # Create the jasmin instance
     # jasmin = ObjectStoreS3(

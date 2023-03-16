@@ -19,8 +19,8 @@ from dpypeline.akita.core import Akita
 from dpypeline.akita.factory import get_akita_dependencies
 from dpypeline.etl_pipeline.core import Job, Task
 from dpypeline.etl_pipeline.thread_pipeline import ThreadPipeline
-from dpypeline.event_consumer.concurrent_consumer import ConcurrentConsumer
-from dpypeline.event_consumer.serial_consumer import SerialConsumer
+from dpypeline.event_consumer.consumer_parallel import ConsumerParallel
+from dpypeline.event_consumer.consumer_serial import ConsumerSerial
 from dpypeline.filesystems.object_store import ObjectStoreS3
 
 if __name__ == "__main__":
@@ -60,8 +60,8 @@ if __name__ == "__main__":
     client = Client(cluster)
 
     # Create the event consumer that links Akita and the data pipeline
-    # Since we are using a Dask Cluster, we need to use the ConcurrentConsumer and not the SerialConsumer
-    event_consumer = ConcurrentConsumer(
+    # Since we are using a Dask Cluster, we need to use the ConsumerParallel and not the ConsumerSerial
+    event_consumer = ConsumerParallel(
         client=client, queue=akita.queue, job_producer=etl_pipeline
     )
 
@@ -120,7 +120,7 @@ if __name__ == "__main__":
         Task(
             function=drop_vars,
             kwargs={
-                "name": [
+                "names": [
                     var
                     for var in template.variables
                     if "time_counter" not in template.variables[var].dims

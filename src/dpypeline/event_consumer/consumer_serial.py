@@ -1,13 +1,13 @@
-"""SerialConsumer. Acts as an interface between Akita and the ETL pipeline."""
+"""ConsumerSerial. Acts as an interface between Akita and the ETL pipeline."""
 import logging
 import time
 
 from .core import EventConsumer
 
 
-class SerialConsumer(EventConsumer):
+class ConsumerSerial(EventConsumer):
     """
-    SerialConsumer that runs on a thread as a daemon process.
+    ConsumerSerial that runs on a thread as a daemon process.
 
     This event consumer consumes events from an in-memory queue and processes them to produce jobs that are run in serial.
     """

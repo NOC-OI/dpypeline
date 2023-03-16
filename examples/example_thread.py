@@ -14,7 +14,7 @@ from dpypeline.akita.core import Akita
 from dpypeline.akita.factory import get_akita_dependencies
 from dpypeline.etl_pipeline.core import Job, Task
 from dpypeline.etl_pipeline.thread_pipeline import ThreadPipeline
-from dpypeline.event_consumer.serial_consumer import SerialConsumer
+from dpypeline.event_consumer.consumer_serial import ConsumerSerial
 from dpypeline.filesystems.object_store import ObjectStoreS3
 
 if __name__ == "__main__":
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     etl_pipeline = ThreadPipeline()
 
     # Create the event consumer that bridges Akita and the data pipeline
-    event_consumer = SerialConsumer(queue=akita.queue, job_producer=etl_pipeline)
+    event_consumer = ConsumerSerial(queue=akita.queue, job_producer=etl_pipeline)
 
     # Create the jasmin instance
     logging.info("Jasmin OS")
