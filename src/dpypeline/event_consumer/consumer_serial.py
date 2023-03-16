@@ -12,6 +12,19 @@ class ConsumerSerial(EventConsumer):
     This event consumer consumes events from an in-memory queue and processes them to produce jobs that are run in serial.
     """
 
+    def _consume_event(self, event) -> None:
+        """
+        Consume event by producing jobs.
+
+        Parameters
+        ----------
+        event
+            Event representing file or directory creation, deletion, modification or moving.
+        """
+        logging.info(f"Consuming event: {event}")
+        self._job_producer.produce_jobs(event=event)
+        logging.info(f"Event consumed: {event}")
+
     def _run_worker(self, sleep_time: int = 1) -> None:
         """
         Run the worker thread.
@@ -27,9 +40,7 @@ class ConsumerSerial(EventConsumer):
             if self._queue.get_queue_size():
                 event = self._queue.peek()
                 logging.info("-" * 79)
-                logging.info(f"Consuming event: {event}")
                 self._consume_event(event)
-                logging.info(f"Event consumed: {event}")
                 self._queue.dequeue()
             else:
                 time.sleep(sleep_time)

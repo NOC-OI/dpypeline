@@ -12,8 +12,25 @@ class ConsumerParallel(EventConsumer):
     """
     ConsumerParallel that runs on a thread as a daemon process.
 
-    This event consumer produce futures that are consumed by multiple Dask workers in parallel.
-    Each future corresponds to one or multiple jobs that are run in serial by each worker.
+    This event consumer produce futures that are consumed in parallel by multiple Dask workers.
+    Each future corresponds to one or multiple jobs.
+
+    Attributes
+    ----------
+    _queue
+        Queue where events are placed.
+    _job_producer
+        Producer of jobs.
+    _worker, optional
+        Worker thread that consumes events from the and processes them to produce jobs.
+    _client
+        Dask client.
+    _workers_per_future
+        Number of Dask workers per future.
+    _futures
+        List of Dask futures.
+    _max_futures
+        Maximum number of simultaneous Dask futures.
     """
 
     def __init__(
@@ -35,10 +52,8 @@ class ConsumerParallel(EventConsumer):
 
         self._client = client
         self._workers_per_future = workers_per_future
+        self._max_futures: int = None
         self._futures: dict[str, Any] = None
-        self._max_futures: int = (
-            len(self._client.scheduler_info()["workers"]) // self._workers_per_future
-        )
 
     def _purge_future(self, future: Future) -> None:
         """Purge a future.
@@ -48,7 +63,7 @@ class ConsumerParallel(EventConsumer):
         future
             Future that has succeeded.
         """
-        del self._futures[future]
+        del self._futures[future], future
 
     def _submit_future(self, event: Any) -> Future:
         """
@@ -159,6 +174,13 @@ class ConsumerParallel(EventConsumer):
             Sleep time in seconds for which the thread is idle.
         """
         while True:
+            # Calculate maximum number of futures given the
+            # number of workers currently running
+            self._max_futures = (
+                len(self._client.scheduler_info()["workers"])
+                // self._workers_per_future
+            )
+
             # Create futures if there are events in the queue
             # that have not been 'futurized' yet and if the current number of futures
             # is less than the maximum number of futures
