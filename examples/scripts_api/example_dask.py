@@ -17,8 +17,8 @@ from thread_pipeline_tasks import (
 
 from dpypeline.akita.core import Akita
 from dpypeline.akita.factory import get_akita_dependencies
+from dpypeline.etl_pipeline.basic_pipeline import BasicPipeline
 from dpypeline.etl_pipeline.core import Job, Task
-from dpypeline.etl_pipeline.thread_pipeline import ThreadPipeline
 from dpypeline.event_consumer.consumer_parallel import ConsumerParallel
 from dpypeline.event_consumer.consumer_serial import ConsumerSerial
 from dpypeline.filesystems.object_store import ObjectStoreS3
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     akita.enqueue_new_files()
 
     # Create the data pipeline
-    etl_pipeline = ThreadPipeline()
+    etl_pipeline = BasicPipeline()
 
     # Create the DASK LocalCluster and Client
     # cluster = LocalCluster(n_workers=12, threads_per_worker=2)

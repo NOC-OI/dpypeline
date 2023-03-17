@@ -1,4 +1,4 @@
-"""Tasks for use by thread-based data pipelines."""
+"""Pipelines tasks."""
 import logging
 import os
 from difflib import SequenceMatcher
@@ -7,7 +7,19 @@ from typing import Any, Iterable, Sequence
 import numpy as np
 import xarray as xr
 
+from dpypeline.akita.core import Akita
 from dpypeline.etl_pipeline.decorators import retry
+
+
+def create_regions_dict(akita: Akita) -> dict:
+    """Create regions dictionary."""
+    region_dict = {}
+    idx = 0
+    for event in akita.queue.queue_list:
+        region_dict[event] = idx
+        idx += 1
+
+    return region_dict
 
 
 def open_dataset(filename_or_obj: str, persist: bool = False, *args, **kwargs):

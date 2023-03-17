@@ -5,8 +5,8 @@ from typing import Any
 from .core import ETLPipeline, Job
 
 
-class ThreadPipeline(ETLPipeline):
-    """Thread-based ETL pipeline."""
+class BasicPipeline(ETLPipeline):
+    """Basic ETL pipeline."""
 
     def __init__(self, jobs: list[Job] = None) -> None:
         """Initialize the ETL pipeline."""
@@ -21,6 +21,7 @@ class ThreadPipeline(ETLPipeline):
         event
             Triggering event.
         """
+        # TODO: change to use job.run()
         for job in self._jobs:
             logging.info(f"Running job {job.name}.")
             logging.info(f"Running function {job.tasks[0].function.__name__}.")
@@ -30,3 +31,5 @@ class ThreadPipeline(ETLPipeline):
             for task in job.tasks[1:]:
                 logging.info(f"Running function {task.function.__name__}.")
                 result = task.function(result, *task.args, **task.kwargs)
+
+        return result

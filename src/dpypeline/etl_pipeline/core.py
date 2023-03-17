@@ -95,6 +95,21 @@ class Job:
         else:
             return self.tasks.pop(index)
 
+    def run(self, *args, **kwargs) -> Any:
+        """
+        Run the job.
+
+        Returns
+        -------
+            Result of the job.
+        """
+        result = self.tasks[0].run(*args, **kwargs)
+
+        for task in self.tasks[1:]:
+            result = task.run(result)
+
+        return result
+
 
 class ETLPipeline:
     """Base class for ETL pipelines."""

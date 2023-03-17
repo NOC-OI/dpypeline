@@ -1,6 +1,7 @@
 """ConsumerParallel. Acts as an interface between Akita and the ETL pipeline."""
 import logging
 import time
+from collections import OrderedDict
 from typing import Any
 
 from dask.distributed import Client, Future  # , as_completed
@@ -25,7 +26,7 @@ class ConsumerParallel(EventConsumer):
         Worker thread that consumes events from the and processes them to produce jobs.
     _client
         Dask client.
-    _workers_per_future
+    _workers_per_event
         Number of Dask workers per future.
     _futures
         List of Dask futures.
@@ -34,7 +35,7 @@ class ConsumerParallel(EventConsumer):
     """
 
     def __init__(
-        self, client: Client, workers_per_future: int = 1, *args, **kwargs
+        self, cluster_client: Client, workers_per_event: int = 1, *args, **kwargs
     ) -> None:
         """
         Initialize the event consumer.
@@ -50,10 +51,10 @@ class ConsumerParallel(EventConsumer):
         """
         super().__init__(*args, **kwargs)
 
-        self._client = client
-        self._workers_per_future = workers_per_future
+        self._client = cluster_client
+        self._workers_per_event = workers_per_event
         self._max_futures: int = None
-        self._futures: dict[str, Any] = None
+        self._futures: OrderedDict[str, Any] = None
 
     def _purge_future(self, future: Future) -> None:
         """Purge a future.
@@ -92,7 +93,7 @@ class ConsumerParallel(EventConsumer):
         """Create futures."""
         # Get the events from the queue for which a future has not yet been created
         if self._futures is None:
-            self._futures = {}
+            self._futures = OrderedDict()
 
         diff = set(self._queue.queue_list) - set(self._futures.values())
         for event in diff:
@@ -177,8 +178,7 @@ class ConsumerParallel(EventConsumer):
             # Calculate maximum number of futures given the
             # number of workers currently running
             self._max_futures = (
-                len(self._client.scheduler_info()["workers"])
-                // self._workers_per_future
+                len(self._client.scheduler_info()["workers"]) // self._workers_per_event
             )
 
             # Create futures if there are events in the queue

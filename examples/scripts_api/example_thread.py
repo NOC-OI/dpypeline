@@ -12,8 +12,8 @@ from thread_pipeline_tasks import (
 
 from dpypeline.akita.core import Akita
 from dpypeline.akita.factory import get_akita_dependencies
+from dpypeline.etl_pipeline.basic_pipeline import BasicPipeline
 from dpypeline.etl_pipeline.core import Job, Task
-from dpypeline.etl_pipeline.thread_pipeline import ThreadPipeline
 from dpypeline.event_consumer.consumer_serial import ConsumerSerial
 from dpypeline.filesystems.object_store import ObjectStoreS3
 
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     akita = Akita(*akita_dep)
 
     # Create the data pipeline
-    etl_pipeline = ThreadPipeline()
+    etl_pipeline = BasicPipeline()
 
     # Create the event consumer that bridges Akita and the data pipeline
     event_consumer = ConsumerSerial(queue=akita.queue, job_producer=etl_pipeline)

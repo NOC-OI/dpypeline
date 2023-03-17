@@ -1,0 +1,40 @@
+akita:
+  &akita !Akita
+    path: "./"
+    patterns: ['*.nc']
+    ignore_patterns: null
+    ignore_directories: true
+    case_sensitive: true
+
+jobs:
+  &job_os !Job
+    name: "send-to-object-store"
+    tasks:
+      - !Task
+          function: thread_pipeline_tasks.open_dataset
+      - !Task
+          function: thread_pipeline_tasks.rename_vars
+          reference_names: null
+      - !Task
+          function: thread_pipeline_tasks.clean_dataset
+          fill_value: null
+          supression_value: 1e20
+          threshold: 1e-6
+      - !Task
+          function: thread_pipeline_tasks.match_to_template
+          template: null
+      - !Task
+          function: thread_pipeline_tasks.to_zarr
+          store:
+          mode: a
+          region_dict: null
+
+pipeline:
+  &pipeline !BasicPipeline
+    jobs:
+      - *job_os
+
+event_consumer:
+  !ConsumerSerial
+    akita: *akita
+    job_producer: *pipeline
