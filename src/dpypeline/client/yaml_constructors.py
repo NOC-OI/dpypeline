@@ -3,14 +3,14 @@ import importlib
 import yaml
 from dask.distributed import Client
 
-from dpypeline.akita.core import Akita
-from dpypeline.akita.factory import get_akita_dependencies
-from dpypeline.etl_pipeline.basic_pipeline import BasicPipeline
-from dpypeline.etl_pipeline.celery_pipeline import CeleryPipeline
-from dpypeline.etl_pipeline.core import Job, Task
-from dpypeline.event_consumer.consumer_parallel import ConsumerParallel
-from dpypeline.event_consumer.consumer_serial import ConsumerSerial
-from dpypeline.filesystems.object_store import ObjectStoreS3
+from ..akita.core import Akita
+from ..akita.factory import get_akita_dependencies
+from ..etl_pipeline.basic_pipeline import BasicPipeline
+from ..etl_pipeline.celery_pipeline import CeleryPipeline
+from ..etl_pipeline.core import Job, Task
+from ..event_consumer.consumer_parallel import ConsumerParallel
+from ..event_consumer.consumer_serial import ConsumerSerial
+from ..filesystems.object_store import ObjectStoreS3
 
 
 def dask_client_constructor(loader: yaml.SafeLoader, node: yaml.MappingNode) -> Client:
