@@ -90,7 +90,12 @@ def task_constructor(loader: yaml.SafeLoader, node: yaml.nodes.MappingNode) -> T
     """Construct a Job."""
     params = loader.construct_mapping(node)
     kwargs = {key: params[key] for key in params if key != "function"}
-    return Task(function=params["function"], kwargs=kwargs)
+
+    params = loader.construct_mapping(node)
+    module_name, func_name = params["function"].rsplit(".", 1)
+    module = importlib.import_module(module_name)
+
+    return Task(function=getattr(module, func_name), kwargs=kwargs)
 
 
 constructors_dict = {

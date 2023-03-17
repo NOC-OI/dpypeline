@@ -27,7 +27,7 @@ class DirectoryState:
         self._stored_state: list[str] = None
 
         self._path = path
-        self._patterns = patterns if patterns else list(patterns)
+        self._patterns = [patterns] if isinstance(patterns, str) else patterns
         self._glob_kwargs = glob_kwargs if glob_kwargs is not None else {}
 
         assert (

@@ -22,4 +22,5 @@ def method_executer(loader, node):
 
 returners_dict = {
     "!Function": function_executer,
+    "!Method": method_executer,
 }

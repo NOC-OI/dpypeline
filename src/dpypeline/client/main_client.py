@@ -45,10 +45,7 @@ def load_pipeline_yaml(pipeline_file: str) -> dict:
             pipeline_settings = yaml.load(stream, Loader=get_loader())
         except yaml.YAMLError as exc:
             raise yaml.YAMLError(exc)
-
-    for key, val in pipeline_settings.items():
-        print(key, val)
-
+        
     return pipeline_settings
 
 
