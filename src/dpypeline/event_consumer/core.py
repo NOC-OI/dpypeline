@@ -14,6 +14,11 @@ class JobProducer(Protocol):
 class Queue(Protocol):
     """Queue interface."""
 
+    @property
+    def queue_list(self) -> list[Any]:
+        """Return list of events in the queue."""
+        ...
+
     def dequeue(self) -> Any:
         """Remove and return an event from the queue."""
         ...
@@ -37,9 +42,7 @@ class Queue(Protocol):
 
 class EventConsumer:
     """
-    Event consumer that runs on a thread as a daemon process.
-
-    This event consumer consumes events from an in-memory queue and processes them to produce jobs.
+    Base class for event consumers.
 
     Attributes
     ----------
@@ -69,17 +72,6 @@ class EventConsumer:
         self._job_producer = job_producer
         self._queue = queue
         self._worker = worker
-
-    def _consume_event(self, event) -> None:
-        """
-        Consume event by producing jobs.
-
-        Parameters
-        ----------
-        event
-            Event representing file or directory creation, deletion, modification or moving.
-        """
-        self._job_producer.produce_jobs(event=event)
 
     def _run_worker(self, *args, **kwargs) -> None:
         """
@@ -120,5 +112,5 @@ class EventConsumer:
 
             self._worker.start()
 
-        except Exception as e:
+        except Exception:
             self._worker.join()

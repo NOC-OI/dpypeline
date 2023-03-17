@@ -1,0 +1,79 @@
+# Akita configuration
+akita:
+  &akita !Akita
+    path: "./"
+    patterns: ['*.nc']
+    ignore_patterns: null
+    ignore_directories: true
+    case_sensitive: true
+
+# Destination servers configuration
+servers:
+  &jasmin_os !ObjectStoreS3
+    anon: False
+    store_credentials_json: credentials.json
+
+# Single-run functions create data required by the pipeline
+single_run_functions:
+  &template !Function
+    function: xarray.open_zarr
+    filename_or_obj: template.zarr
+
+  &reference_names !Function
+    function: thread_pipeline_tasks.create_reference_names_dict
+    dataset: *template
+
+  &regions !Function
+    function: create_region_dictionary
+    akita: *akita
+
+  &bucket_mapper !Method
+    instance: *jasmin_os
+    method: get_mapper
+    bucket: joaomorado/n06.zarr
+
+# Pipeline jobs configuration
+jobs:
+  &job_os !Job
+    name: "send-to-object-store"
+    tasks:
+      - !Task
+          function: thread_pipeline_tasks.open_dataset
+      - !Task
+          function: thread_pipeline_tasks.rename_vars
+          reference_names: *reference_names
+      - !Task
+          function: thread_pipeline_tasks.clean_dataset
+          fill_value: null
+          supression_value: 1e20
+          threshold: 1e-6
+      - !Task
+          function: thread_pipeline_tasks.match_to_template
+          template: *template
+      - !Task
+          function: thread_pipeline_tasks.to_zarr
+          store: *bucket_mapper
+          mode: a
+          region_dict: *regions
+
+# Pipeline configuration
+pipeline:
+  &pipeline !BasicPipeline
+    jobs:
+      - *job_os
+
+# Dask client/cluster configuration
+dask_client:
+  &cluster_client !DaskClient
+    cluster: dask.distributed.LocalCluster
+    scale: 1
+    n_workers: 4
+    threads_per_worker: 1
+
+# Event consumer configuration
+event_consumer:
+  !ConsumerParallel
+    akita: *akita
+    job_producer: *pipeline
+    cluster_client: *cluster_client
+    workers_per_event: 2

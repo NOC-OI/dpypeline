@@ -1,0 +1,5 @@
+imports:
+  thread_pipeline_tasks: /home/joaomorado/git_repos/mynamespace/dpypeline/examples/scripts_api/thread_pipeline_tasks.py
+
+environment_variables:
+  CACHE_DIR: /home/joaomorado/git_repos/mynamespace/dpypeline/examples/cmd_line_inputs
