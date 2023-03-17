@@ -45,3 +45,6 @@ test = ["pytest >= 7.2.0"]
 
 [project.urls]
 repository = "https://github.com/NOC-OI/data-pypeline"
+
+[project.scripts]
+dpypeline = "dpypeline.client.main_client:dpypeline"
