@@ -13,23 +13,28 @@ class EventsQueue(Queue):
 
     _instance: EventsQueue = None
     _initialized: bool = False
-    _state_file: str = os.path.join(os.getenv("CACHE_DIR"), "queue_state.pickle")
-    _processed_events_file: str = os.path.join(
-        os.getenv("CACHE_DIR"), "processed_events.pickle"
-    )
+    _state_file_suffix: str = "queue_state.pickle"
+    _processed_events_file_suffix: str = "processed_events.pickle"
 
     def __init__(self, maxsize: int = 0) -> None:
         """Initiate the EventsQueue singleton."""
+        assert (
+            os.getenv("CACHE_DIR") is not None
+        ), "CACHE_DIR environmental variable is not set."
+
         if not self._initialized:
             logging.info("Initializing singleton instance of EventsQueue.")
             super().__init__(maxsize=maxsize)
             self._initialized: bool = True
             self._processed_events: list[str] = None
+            self._state_file = os.path.join(
+                os.getenv("CACHE_DIR"), self._state_file_suffix
+            )
             self._load_state()
 
-        assert (
-            os.getenv("CACHE_DIR") is not None
-        ), "CACHE_DIR environmental variable is not set."
+        self._processed_events_file = str = os.path.join(
+            os.getenv("CACHE_DIR"), self._processed_events_file_suffix
+        )
 
     def __new__(cls, maxsize: int = 0) -> EventsQueue:
         """
@@ -117,7 +122,7 @@ class EventsQueue(Queue):
         with open(self._processed_events_file, "wb") as f:
             pickle.dump(self._processed_events, f)
 
-    def enqueue(self, event) -> bool:
+    def enqueue(self, event: Any) -> bool:
         """Add an event to the queue.
 
         Everytime an event is added to the queue, the state of the queue is saved.
@@ -191,6 +196,35 @@ class EventsQueue(Queue):
         Number of events in the queue.
         """
         return self.qsize()
+
+    def remove(self, event: Any) -> int:
+        """
+        Remove an event from the queue.
+
+        Notes
+        -----
+        Removing elments from arbitrary positions in the queue should be avoided.
+        However, this method is useful for removing events from the queue
+        that have been processed by parallel workers.
+
+        Parameters
+        ----------
+        event
+            Event to add to the queue.
+
+        Returns
+        -------
+            True if the event was removed from the queue, False otherwise.
+        """
+        try:
+            logging.info("-" * 79)
+            logging.info(f"Removing event: {event}.")
+            self.queue.remove(event)
+            self._save_state(logging_prefix="Removing event: ")
+            return True
+        except ValueError as e:
+            logging.error(f"{e}")
+            return False
 
     @classmethod
     def clear_instance(cls):

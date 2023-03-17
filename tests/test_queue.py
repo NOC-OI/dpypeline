@@ -2,8 +2,9 @@
 import os
 import random
 
-os.environ["CACHE_DIR"] = "tests/"
 from dpypeline.akita.queue_events import EventsQueue
+
+os.environ["CACHE_DIR"] = "tests/"
 
 
 def delete_cache_file() -> None:

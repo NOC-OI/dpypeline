@@ -1,6 +1,4 @@
 """Event consumer. Acts as an interface between Akita and the ETL pipeline."""
-import logging
-import time
 from threading import Thread
 from typing import Any, Protocol
 
@@ -26,6 +24,14 @@ class Queue(Protocol):
 
     def get_queue_size(self) -> int:
         """Return the size of the queue."""
+        ...
+
+    def enqueue(self, event: Any) -> bool:
+        """Add an event to the queue."""
+        ...
+
+    def remove(self, event: Any) -> bool:
+        """Remove an event from the queue."""
         ...
 
 
@@ -75,27 +81,13 @@ class EventConsumer:
         """
         self._job_producer.produce_jobs(event=event)
 
-    def _run_worker(self, sleep_time: int = 1) -> None:
+    def _run_worker(self, *args, **kwargs) -> None:
         """
         Run the worker thread.
 
         Callback function to be used as a target by Thread.
-
-        Parameters
-        ----------
-        sleep_time
-            Sleep time in seconds for which the thread is idle.
         """
-        while True:
-            if self._queue.get_queue_size():
-                event = self._queue.peek()
-                logging.info("-" * 79)
-                logging.info(f"Consuming event: {event}")
-                self._consume_event(event)
-                logging.info(f"Event consumed: {event}")
-                self._queue.dequeue()
-            else:
-                time.sleep(sleep_time)
+        raise NotImplementedError("Run worker not implemented.")
 
     def _create_worker(self, daemon: bool = True) -> Thread:
         """
@@ -115,12 +107,18 @@ class EventConsumer:
 
         return self._worker
 
-    def run(self) -> None:
-        """Run the event consumer."""
+    def run(self, daemon: bool = True) -> None:
+        """Run the event consumer.
+
+        daemon
+            If `True` and the worker has not been passed to self
+              runs the thread as a daemon; otherwise thread is non-daemon.
+        """
         try:
             if self._worker is None:
-                self._create_worker()
+                self._create_worker(daemon=daemon)
 
             self._worker.start()
-        except Exception:
+
+        except Exception as e:
             self._worker.join()

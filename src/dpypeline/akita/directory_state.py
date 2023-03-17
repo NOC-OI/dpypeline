@@ -8,7 +8,7 @@ import pickle
 class DirectoryState:
     """DirectoryState class."""
 
-    _state_file: str = os.path.join(os.getenv("CACHE_DIR"), "directory_state.pickle")
+    _state_file_suffix: str = "directory_state.pickle"
 
     def __init__(
         self, path: str, patterns: str | list[str], glob_kwargs: dict = None
@@ -33,6 +33,8 @@ class DirectoryState:
         assert (
             os.getenv("CACHE_DIR") is not None
         ), "CACHE_DIR environmental variable is not set."
+
+        self._state_file = os.path.join(os.getenv("CACHE_DIR"), self._state_file_suffix)
 
     @property
     def stored_state(self) -> list[str]:
