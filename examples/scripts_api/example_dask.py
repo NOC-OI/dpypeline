@@ -62,7 +62,7 @@ if __name__ == "__main__":
     # Create the event consumer that links Akita and the data pipeline
     # Since we are using a Dask Cluster, we need to use the ConsumerParallel and not the ConsumerSerial
     event_consumer = ConsumerParallel(
-        client=client, queue=akita.queue, job_producer=etl_pipeline
+        cluster_client=client, queue=akita.queue, job_producer=etl_pipeline
     )
 
     # Create dicitonary that contains the index of the region to write to on the destination zarr store
