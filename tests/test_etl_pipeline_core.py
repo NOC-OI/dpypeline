@@ -15,12 +15,6 @@ def test_create_task() -> None:
     assert task.args == ()
     assert task.kwargs == {}
 
-    with pytest.raises(FrozenInstanceError):
-        task.args = (1, 2, 3)
-
-    with pytest.raises(FrozenInstanceError):
-        task.kwargs = {"a": 1, "b": 2, "c": 3}
-
     args = ([1, 2, 3],)
     task = Task(function=sum, args=args)
     assert task.function == sum

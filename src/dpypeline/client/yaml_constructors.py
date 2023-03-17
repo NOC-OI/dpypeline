@@ -31,12 +31,14 @@ def object_store_constructor(
     loader: yaml.SafeLoader, node: yaml.MappingNode
 ) -> ObjectStoreS3:
     """Construct an Object Store S3 instance."""
-    return ObjectStoreS3(**loader.construct_mapping(node))
+    kwargs = {str(key): val for key, val in loader.construct_mapping(node).items()}
+    return ObjectStoreS3(**kwargs)
 
 
 def akita_constructor(loader: yaml.SafeLoader, node: yaml.nodes.MappingNode) -> Akita:
     """Construct an Akita instance."""
-    dependencies = get_akita_dependencies(**loader.construct_mapping(node))
+    kwargs = {str(key): val for key, val in loader.construct_mapping(node).items()}
+    dependencies = get_akita_dependencies(**kwargs)
     return Akita(*dependencies)
 
 
@@ -44,9 +46,13 @@ def consumer_serial_constructor(
     loader: yaml.SafeLoader, node: yaml.nodes.MappingNode
 ) -> ConsumerSerial:
     """Construct a ConsumerSerial instance."""
-    params = loader.construct_mapping(node)
-    kwargs = {key: params[key] for key in params if key != "akita"}
-    return ConsumerSerial(queue=params["akita"].queue, **kwargs)
+    akita = loader.construct_mapping(node)["akita"]
+    kwargs = {
+        str(key): val
+        for key, val in loader.construct_mapping(node).items()
+        if key != "akita"
+    }
+    return ConsumerSerial(queue=akita.queue, **kwargs)
 
 
 def consumer_parallel_constructor(
@@ -54,7 +60,7 @@ def consumer_parallel_constructor(
 ) -> ConsumerParallel:
     """Construct a ConsumerParallel instance."""
     params = loader.construct_mapping(node)
-    kwargs = {key: params[key] for key in params if key != "akita"}
+    kwargs = {str(key): params[key] for key in params if key != "akita"}
     return ConsumerParallel(queue=params["akita"].queue, **kwargs)
 
 
@@ -62,19 +68,22 @@ def celery_pipeline_constructor(
     loader: yaml.SafeLoader, node: yaml.nodes.MappingNode
 ) -> CeleryPipeline:
     """Construct a CeleryPipeline instance."""
-    return CeleryPipeline(**loader.construct_mapping(node))
+    kwargs = {str(key): val for key, val in loader.construct_mapping(node).items()}
+    return CeleryPipeline(**kwargs)
 
 
 def basic_pipeline_constructor(
     loader: yaml.SafeLoader, node: yaml.nodes.MappingNode
 ) -> BasicPipeline:
     """Construct a BasicPipeline instance."""
-    return BasicPipeline(**loader.construct_mapping(node))
+    kwargs = {str(key): val for key, val in loader.construct_mapping(node).items()}
+    return BasicPipeline(**kwargs)
 
 
 def job_constructor(loader: yaml.SafeLoader, node: yaml.nodes.MappingNode) -> Job:
     """Construct a Job."""
-    return Job(**loader.construct_mapping(node))
+    kwargs = {str(key): val for key, val in loader.construct_mapping(node).items()}
+    return Job(**kwargs)
 
 
 def task_constructor(loader: yaml.SafeLoader, node: yaml.nodes.MappingNode) -> Task:
