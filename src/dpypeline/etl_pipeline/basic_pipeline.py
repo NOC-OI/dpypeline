@@ -4,6 +4,7 @@ from typing import Any
 
 from .core import ETLPipeline, Job
 
+logger = logging.getLogger(__name__)
 
 class BasicPipeline(ETLPipeline):
     """Basic ETL pipeline."""
@@ -12,7 +13,7 @@ class BasicPipeline(ETLPipeline):
         """Initialize the ETL pipeline."""
         super().__init__(jobs)
 
-    def produce_jobs(self, event: Any) -> Any:
+    def produce_jobs(self, event: Any) -> list[Any]:
         """
         Produce tasks triggered by an event.
 
@@ -20,16 +21,15 @@ class BasicPipeline(ETLPipeline):
         ----------
         event
             Triggering event.
-        """
-        # TODO: change to use job.run()
-        for job in self._jobs:
-            logging.info(f"Running job {job.name}.")
-            logging.info(f"Running function {job.tasks[0].function.__name__}.")
-            result = job.tasks[0].function(
-                event, *job.tasks[0].args, **job.tasks[0].kwargs
-            )
-            for task in job.tasks[1:]:
-                logging.info(f"Running function {task.function.__name__}.")
-                result = task.function(result, *task.args, **task.kwargs)
 
-        return result
+        Returns
+        -------
+            List of results of the jobs.
+        """
+        results = []
+        for job in self._jobs:
+            logger.debug(f"Running job {job.name} for event {event}.")
+            results.append(job.run(event))
+            logger.debug(f"Job {job.name} for event {event} has run successfully.")
+
+        return results
