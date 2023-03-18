@@ -6,6 +6,7 @@ from .core import ETLPipeline, Job
 
 logger = logging.getLogger(__name__)
 
+
 class BasicPipeline(ETLPipeline):
     """Basic pipeline class."""
 
