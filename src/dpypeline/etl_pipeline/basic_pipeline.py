@@ -1,4 +1,4 @@
-"""Basic ETL pipeline."""
+"""Basic pipeline module."""
 import logging
 from typing import Any
 
@@ -7,7 +7,7 @@ from .core import ETLPipeline, Job
 logger = logging.getLogger(__name__)
 
 class BasicPipeline(ETLPipeline):
-    """Basic pipeline."""
+    """Basic pipeline class."""
 
     def __init__(self, jobs: list[Job] = None) -> None:
         """Initialise the pipeline."""
@@ -15,7 +15,7 @@ class BasicPipeline(ETLPipeline):
 
     def produce_jobs(self, event: Any) -> list[Any]:
         """
-        Run the jobs sequentially.
+        Produce jobs to be run sequentially.
 
         Parameters
         ----------
@@ -26,10 +26,8 @@ class BasicPipeline(ETLPipeline):
         -------
             List of results of the jobs.
         """
-        results = []
-        for job in self._jobs:
-            logger.debug(f"Running job {job.name} for event {event}.")
-            results.append(job.run(event))
-            logger.debug(f"Job {job.name} for event {event} has run successfully.")
+        logger.debug(f"Producing jobs for event {event}.")
+        results = [job.run(event) for job in self.jobs]
+        logger.debug(f"Jobs for event {event} have been produced successfully.")
 
         return results

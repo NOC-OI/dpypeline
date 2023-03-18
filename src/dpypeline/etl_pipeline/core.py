@@ -1,7 +1,9 @@
 """ETL pipeline definitions."""
 from dataclasses import dataclass, field
 from typing import Any
+import logging
 
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class Task:
@@ -103,10 +105,13 @@ class Job:
         -------
             Result of the job.
         """
+        logger.debug(f"Running job {self.name}.")
         result = self.tasks[0].run(*args, **kwargs)
 
         for task in self.tasks[1:]:
             result = task.run(result)
+        
+        logger.debug(f"Job {self.name} has run successfully.")
 
         return result
 
