@@ -15,7 +15,7 @@ class BasicPipeline(ETLPipeline):
 
     def produce_jobs(self, event: Any) -> list[Any]:
         """
-        Produce tasks triggered by an event.
+        Run the jobs sequentially.
 
         Parameters
         ----------
