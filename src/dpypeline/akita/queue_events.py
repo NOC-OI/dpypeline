@@ -7,6 +7,8 @@ import pickle
 from queue import Empty, Full, Queue
 from typing import Any
 
+logger = logging.getLogger(__name__)
+
 
 class EventsQueue(Queue):
     """EventsQueue singleton class."""
@@ -23,7 +25,7 @@ class EventsQueue(Queue):
         ), "CACHE_DIR environmental variable is not set."
 
         if not self._initialized:
-            logging.info("Initializing singleton instance of EventsQueue.")
+            logger.debug("Initializing singleton instance of EventsQueue.")
             super().__init__(maxsize=maxsize)
             self._initialized: bool = True
             self._processed_events: list[str] = None
@@ -45,9 +47,11 @@ class EventsQueue(Queue):
             Instance of the EventsQueue class.
         """
         if cls._instance is None:
-            logging.info("-" * 79)
-            logging.info("Creating singleton instance of EventsQueue.")
+            logger.debug("Creating singleton instance of EventsQueue.")
             cls._instance = super(EventsQueue, cls).__new__(cls)
+            logger.debug(
+                "Creation of singleton instance of EventsQueue has been succesful."
+            )
 
         return cls._instance
 
@@ -77,50 +81,50 @@ class EventsQueue(Queue):
 
         return self._processed_events
 
-    def _save_state(self, logging_prefix="") -> None:
+    def _save_state(self, logger_prefix="") -> None:
         """Save the state of the queue."""
-        logging.info("-" * 79)
-        logging.info(f"{logging_prefix}Saving state of the queue.")
+        logger.debug(f"{logger_prefix}Saving state of the queue.")
 
         with open(self._state_file, "wb") as f:
             pickle.dump(self.queue, f)
 
+        logger.debug(
+            f"{logger_prefix}Save of the state of the queue has been saved succesful."
+        )
+
     def _load_state(self) -> None:
         """Load the state of the queue."""
-        logging.info("-" * 79)
-        logging.info("Loading state of the queue.")
+        logger.debug("Loading state of the queue.")
 
         if os.path.isfile(self._state_file):
-            logging.info(f"Found queue state file {self._state_file}")
+            logger.debug(f"Found queue state file {self._state_file}")
 
             with open(self._state_file, "rb") as f:
                 self.queue = pickle.load(f)
         else:
-            logging.info(f"No queue state file {self._state_file} was found.")
+            logger.debug(f"No queue state file {self._state_file} was found.")
 
     def _load_processed_events(self) -> None:
         """Load the processed events."""
-        logging.info("-" * 79)
-        logging.info("Loading processed events.")
+        logger.debug("Loading processed events.")
 
         if os.path.isfile(self._processed_events_file):
-            logging.info(f"Found processed events file {self._processed_events_file}.")
+            logger.debug(f"Found processed events file {self._processed_events_file}.")
 
             with open(self._processed_events_file, "rb") as f:
                 self._processed_events = pickle.load(f)
         else:
-            logging.info(
+            logger.debug(
                 f"No processed events file {self._processed_events_file} was found."
             )
             self._processed_events = []
 
     def _save_processed_events(self) -> None:
         """Save the events processed so far in this session."""
-        logging.info("-" * 79)
-        logging.info("Saving processed events.")
-
+        logger.debug("Saving processed events.")
         with open(self._processed_events_file, "wb") as f:
             pickle.dump(self._processed_events, f)
+        logger.debug("Save of processed events has been successful.")
 
     def enqueue(self, event: Any) -> bool:
         """Add an event to the queue.
@@ -137,10 +141,10 @@ class EventsQueue(Queue):
         True if the event was added to the queue.
         """
         try:
-            logging.info("-" * 79)
-            logging.info(f"Enqueuing event: {event}.")
+            logger.debug(f"Enqueuing event: {event}.")
             self.put(event, block=False)
-            self._save_state(logging_prefix="Enqueueing event: ")
+            self._save_state(logger_prefix="Enqueueing event: ")
+
             return True
         except Full:
             raise Full("Queue is full.")
@@ -156,11 +160,11 @@ class EventsQueue(Queue):
         First event in the queue or None if the queue is empty.
         """
         try:
-            logging.info("-" * 79)
-            logging.info("Dequeuing event: Starting.")
+            logger.debug("-" * 79)
+            logger.debug("Dequeuing event: Starting.")
             event = self.get(block=False)
-            logging.info(f"Dequeued event: {event}.")
-            self._save_state(logging_prefix="Dequeuing event: ")
+            logger.debug(f"Dequeued event: {event}.")
+            self._save_state(logger_prefix="Dequeuing event: ")
 
             # Set as processesed event
             if self._processed_events is None:
@@ -183,8 +187,8 @@ class EventsQueue(Queue):
         First event in the queue or None if the queue is empty.
         """
         if self.get_queue_size():
-            logging.info("-" * 79)
-            logging.info("Peeking first item in the queue.")
+            logger.debug("-" * 79)
+            logger.debug("Peeking first item in the queue.")
             return self.queue[0]
 
     def get_queue_size(self) -> int:
@@ -218,13 +222,13 @@ class EventsQueue(Queue):
             True if the event was removed from the queue, False otherwise.
         """
         try:
-            logging.info("-" * 79)
-            logging.info(f"Removing event: {event}.")
+            logger.debug("-" * 79)
+            logger.debug(f"Removing event: {event}.")
             self.queue.remove(event)
-            self._save_state(logging_prefix="Removing event: ")
+            self._save_state(logger_prefix="Removing event: ")
             return True
         except ValueError as e:
-            logging.error(f"{e}")
+            logger.error(f"{e}")
             return False
 
     @classmethod
