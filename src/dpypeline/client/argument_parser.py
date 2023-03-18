@@ -5,6 +5,7 @@ from ..__init__ import __version__
 
 
 def create_parser():
+    """Create the argument parser."""
     parser = argparse.ArgumentParser(
         description=f"dpypeline {__version__} command line interface",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

@@ -1,3 +1,4 @@
+"""pyyaml constructors."""
 import importlib
 
 import yaml
@@ -14,7 +15,7 @@ from ..filesystems.object_store import ObjectStoreS3
 
 
 def dask_client_constructor(loader: yaml.SafeLoader, node: yaml.MappingNode) -> Client:
-    """Dask client constructor."""
+    """Create a Dask client bound to a cluster ."""
     params = loader.construct_mapping(node)
     module_name, func_name = params["cluster"].rsplit(".", 1)
     module = importlib.import_module(module_name)
@@ -28,16 +29,18 @@ def dask_client_constructor(loader: yaml.SafeLoader, node: yaml.MappingNode) -> 
 
     return Client(cluster)
 
+
 def object_constructor(loader: yaml.SafeLoader, node: yaml.MappingNode) -> object:
-    """Generic object constructor."""
+    """Create an object."""
     params = loader.construct_mapping(node)
     kwargs = {key: params[key] for key in params if key != "class"}
 
     params = loader.construct_mapping(node)
     module_name, class_name = params["class"].rsplit(".", 1)
     module = importlib.import_module(module_name)
-    
+
     return getattr(module, class_name)(**kwargs)
+
 
 def object_store_constructor(
     loader: yaml.SafeLoader, node: yaml.MappingNode

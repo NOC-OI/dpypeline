@@ -1,7 +1,5 @@
-import importlib.util
+"""dpypeline command line interface."""
 import logging
-import os
-import sys
 
 import yaml
 
@@ -12,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def banner():
+    """Log the dpypeline banner."""
     logger.info(
         r"""
       _                             _  _
@@ -55,7 +54,7 @@ def dpypeline():
 
     akita = pipeline_settings["akita"]
     event_consumer = pipeline_settings["event_consumer"]
-    pipeline = pipeline_settings["pipeline"]
+    pipeline_settings["pipeline"]
 
     # Run the EventConsumer and Akita (must be in this order)
     event_consumer.run()

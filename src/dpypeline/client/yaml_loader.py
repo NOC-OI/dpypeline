@@ -1,3 +1,4 @@
+"""pyyaml loader."""
 import yaml
 
 from .yaml_constructors import constructors_dict
