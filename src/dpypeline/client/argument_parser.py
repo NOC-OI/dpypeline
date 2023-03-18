@@ -19,14 +19,6 @@ def create_parser():
     )
 
     parser.add_argument(
-        "-m",
-        "--imports",
-        dest="imports_file",
-        default="imports.yaml",
-        help="filepath to the imports YAML file",
-    )
-
-    parser.add_argument(
         "-v",
         "--version",
         action="version",

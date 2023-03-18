@@ -22,10 +22,22 @@ def dask_client_constructor(loader: yaml.SafeLoader, node: yaml.MappingNode) -> 
     cluster = getattr(module, func_name)
     kwargs = {key: params[key] for key in params if key not in ["cluster", "scale"]}
     cluster = cluster(**kwargs)
-    cluster.scale(params["scale"])
+
+    if "scale" in params:
+        cluster.scale(params["scale"])
 
     return Client(cluster)
 
+def object_constructor(loader: yaml.SafeLoader, node: yaml.MappingNode) -> object:
+    """Generic object constructor."""
+    params = loader.construct_mapping(node)
+    kwargs = {key: params[key] for key in params if key != "class"}
+
+    params = loader.construct_mapping(node)
+    module_name, class_name = params["class"].rsplit(".", 1)
+    module = importlib.import_module(module_name)
+    
+    return getattr(module, class_name)(**kwargs)
 
 def object_store_constructor(
     loader: yaml.SafeLoader, node: yaml.MappingNode
