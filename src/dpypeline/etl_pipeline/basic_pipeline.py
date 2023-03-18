@@ -1,4 +1,4 @@
-"""Thread-based ETL pipeline."""
+"""Basic ETL pipeline."""
 import logging
 from typing import Any
 
@@ -7,10 +7,10 @@ from .core import ETLPipeline, Job
 logger = logging.getLogger(__name__)
 
 class BasicPipeline(ETLPipeline):
-    """Basic ETL pipeline."""
+    """Basic pipeline."""
 
     def __init__(self, jobs: list[Job] = None) -> None:
-        """Initialize the ETL pipeline."""
+        """Initialise the pipeline."""
         super().__init__(jobs)
 
     def produce_jobs(self, event: Any) -> list[Any]:
