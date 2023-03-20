@@ -1,8 +1,5 @@
 """Test suite for the ETLPipeline core."""
 from dataclasses import FrozenInstanceError
-
-import pytest
-
 from dpypeline.etl_pipeline.core import ETLPipeline, Job, Task
 
 
