@@ -185,7 +185,9 @@ class Akita:
         queue = self._queue.queue_list
         prev_sess_states = self._queue.processed_events
 
-        unqueued_events = set(curr_states) - set(chain.from_iterable([q, p]))
+        unqueued_events = set(curr_states) - set(
+            chain.from_iterable([queue, prev_sess_states])
+        )
 
         logging.info("-" * 79)
 
