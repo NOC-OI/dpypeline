@@ -170,55 +170,59 @@ class Akita:
 
         where
 
-        - n: events not enqueued.
-        - s: events in the stored directory state.
-        - d: events in the current directory state.
-        - q: events in the queue when the previous session terminated.
-        - p: events processed in the previous session.
+        - n / unqueued_events: events not enqueued.
+        - s / stored_states: events in the stored directory state.
+        - d / curr_states: events in the current directory state.
+        - q / queue: events in the queue when the previous session terminated.
+        - p / prev_sess_states: events processed in the previous session.
 
         Returns
         -------
             List of files to enqueue.
         """
-        s = self._directory_state.stored_state
-        d = self._directory_state.current_state
-        q = self._queue.queue_list
-        p = self._queue.processed_events
+        stored_states = self._directory_state.stored_state
+        curr_states = self._directory_state.current_state
+        queue = self._queue.queue_list
+        prev_sess_states = self._queue.processed_events
 
-        n = set(d) - set(chain.from_iterable([q, p]))
-
-        logging.info("-" * 79)
-        logging.info(f"Events in the stored directory state (n={len(s)}):")
-        for event in s:
-            logging.info(f"{event}")
-
-        logging.info(f"Events in the current directory state (n={len(d)}):")
-        for event in d:
-            logging.info(f"{event}")
-
-        logging.info(
-            f"Events in the queue when the previous session terminated (n={len(q)}):"
-        )
-        for event in q:
-            logging.info(f"{event}")
-
-        logging.info(
-            f"Events processed before the previous session terminated (n={len(p)}):"
-        )
-        for event in p:
-            logging.info(f"{event}")
-
-        logging.info(f"Events unenqueued (n={len(n)}):")
-        for event in n:
-            logging.info(f"{event}")
-
-        logging.info(
-            f"Found {len(n)} files not enqueued in the current state of the directory."
-        )
+        unqueued_events = set(curr_states) - set(chain.from_iterable([q, p]))
 
         logging.info("-" * 79)
 
-        return list(n)
+        logging.info(f"Events in the stored directory state (n={len(stored_states)}):")
+        for event in stored_states:
+            logging.info(f"{event}")
+
+        logging.info(f"Events in the current directory state (n={len(curr_states)}):")
+        for event in curr_states:
+            logging.info(f"{event}")
+
+        logging.info(
+            "Events in the queue when the previous session terminated "
+            + f"(n={len(queue)}):"
+        )
+        for event in queue:
+            logging.info(f"{event}")
+
+        logging.info(
+            "Events processed before the previous session terminated "
+            f"(n={len(prev_sess_states)}):"
+        )
+        for event in prev_sess_states:
+            logging.info(f"{event}")
+
+        logging.info(f"Events unenqueued (n={len(unqueued_events)}):")
+        for event in unqueued_events:
+            logging.info(f"{event}")
+
+        logging.info(
+            f"Found {len(unqueued_events)} files not enqueued "
+            + "in the current state of the directory."
+        )
+
+        logging.info("-" * 79)
+
+        return list(unqueued_events)
 
     def enqueue_new_files(self) -> None:
         """Enqueue events previously unqueued."""
