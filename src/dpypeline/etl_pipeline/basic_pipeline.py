@@ -1,35 +1,34 @@
-"""Thread-based ETL pipeline."""
+"""Basic pipeline module."""
 import logging
 from typing import Any
 
 from .core import ETLPipeline, Job
 
+logger = logging.getLogger(__name__)
+
 
 class BasicPipeline(ETLPipeline):
-    """Basic ETL pipeline."""
+    """Basic pipeline class."""
 
     def __init__(self, jobs: list[Job] = None) -> None:
-        """Initialize the ETL pipeline."""
+        """Initialise the pipeline."""
         super().__init__(jobs)
 
-    def produce_jobs(self, event: Any) -> Any:
+    def produce_jobs(self, event: Any) -> list[Any]:
         """
-        Produce tasks triggered by an event.
+        Produce jobs to be run sequentially.
 
         Parameters
         ----------
         event
             Triggering event.
-        """
-        # TODO: change to use job.run()
-        for job in self._jobs:
-            logging.info(f"Running job {job.name}.")
-            logging.info(f"Running function {job.tasks[0].function.__name__}.")
-            result = job.tasks[0].function(
-                event, *job.tasks[0].args, **job.tasks[0].kwargs
-            )
-            for task in job.tasks[1:]:
-                logging.info(f"Running function {task.function.__name__}.")
-                result = task.function(result, *task.args, **task.kwargs)
 
-        return result
+        Returns
+        -------
+            List of results of the jobs.
+        """
+        logger.debug(f"Producing jobs for event {event}.")
+        results = [job.run(event) for job in self.jobs]
+        logger.debug(f"Jobs for event {event} have been produced successfully.")
+
+        return results

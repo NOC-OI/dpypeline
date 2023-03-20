@@ -5,6 +5,7 @@ from ..__init__ import __version__
 
 
 def create_parser():
+    """Create the argument parser."""
     parser = argparse.ArgumentParser(
         description=f"dpypeline {__version__} command line interface",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -16,14 +17,6 @@ def create_parser():
         dest="input_file",
         default="pipeline.yaml",
         help="filepath to the pipeline YAML file",
-    )
-
-    parser.add_argument(
-        "-m",
-        "--imports",
-        dest="imports_file",
-        default="imports.yaml",
-        help="filepath to the imports YAML file",
     )
 
     parser.add_argument(

@@ -1,6 +1,9 @@
 """ETL pipeline definitions."""
+import logging
 from dataclasses import dataclass, field
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -41,11 +44,15 @@ class Task:
         -------
             Result of the task.
         """
-        # Combine args and kwargs
+        logger.debug(
+            f"Running task {self.function} with args {args} and kwargs {kwargs}"
+        )
         new_args = self.args + args
         new_kwargs = {**self.kwargs, **kwargs}
+        result = self.function(*new_args, **new_kwargs)
+        logger.debug(f"Task {self.function} has been run successfully.")
 
-        return self.function(*new_args, **new_kwargs)
+        return result
 
 
 @dataclass
@@ -73,7 +80,9 @@ class Job:
         task
             Task to add.
         """
+        logger.debug(f"Adding task {task} to job {self.name}.")
         self.tasks.append(task)
+        logger.debug(f"Task {task} has been successfully added to job {self.name}.")
 
     def remove_task(self, index: int, task: Task = None) -> Task:
         """
@@ -103,10 +112,13 @@ class Job:
         -------
             Result of the job.
         """
-        result = self.tasks[0].run(*args, **kwargs)
+        logger.debug(f"Running job {self.name}.")
 
+        result = self.tasks[0].run(*args, **kwargs)
         for task in self.tasks[1:]:
             result = task.run(result)
+
+        logger.debug(f"Job {self.name} has run successfully.")
 
         return result
 
@@ -123,7 +135,7 @@ class ETLPipeline:
         """List of jobs."""
         return self._jobs
 
-    def add_job(self, job: Job) -> None:
+    def add_job(self, job: Job) -> list[Job]:
         """
         Add a job to the pipeline.
 
@@ -131,8 +143,15 @@ class ETLPipeline:
         ----------
         job
             Job to add.
+
+        Returns
+        -------
+            List of jobs.
         """
-        return self._jobs.append(job)
+        logger.debug(f"Adding job {job.name} to pipeline.")
+        self._jobs.append(job)
+        logger.debug(f"Job {job.name} has been successfully added to pipeline.")
+        return self._jobs
 
     def remove_job(self, index: int, job: Job = None) -> Any:
         """
