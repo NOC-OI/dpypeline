@@ -1,10 +1,8 @@
 """dpypeline command line interface."""
 import logging
 
-import yaml
-
 from .argument_parser import __version__, create_parser
-from .yaml_loader import get_loader
+from .yaml_loader import load_yaml, get_loader
 
 logger = logging.getLogger(__name__)
 
@@ -27,17 +25,6 @@ def banner():
     logger.info(f"version: {__version__}\n", extra={"simple": True})
 
 
-def load_pipeline_yaml(pipeline_file: str) -> dict:
-    """Load the pipeline yaml file."""
-    with open(pipeline_file, "r") as stream:
-        try:
-            pipeline_settings = yaml.load(stream, Loader=get_loader())
-        except yaml.YAMLError as exc:
-            raise yaml.YAMLError(exc)
-
-    return pipeline_settings
-
-
 def dpypeline():
     """Run the dpypeline."""
     logging.basicConfig(
@@ -50,7 +37,7 @@ def dpypeline():
     parser = create_parser()
     args = parser.parse_args()
 
-    pipeline_settings = load_pipeline_yaml(args.input_file)
+    pipeline_settings = load_yaml(args.input_file, loader=get_loader())
 
     akita = pipeline_settings["akita"]
     event_consumer = pipeline_settings["event_consumer"]

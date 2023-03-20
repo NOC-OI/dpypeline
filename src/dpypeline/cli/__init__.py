@@ -1,1 +1,1 @@
-"""dpypeline command-line interface (CLI)."""
+    """dpypeline command-line interface (CLI)."""
