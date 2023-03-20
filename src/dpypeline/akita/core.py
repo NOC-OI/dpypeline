@@ -81,7 +81,8 @@ class Akita:
     Akita, the watchdog.
 
     The Akita watchdog holds the queue, observer, and event handler instances.
-    The in-memory Queue is created upon instantiation and should be a singleton to provide a global point of access.
+    The in-memory Queue is created upon instantiation and should be a singleton
+    to provide a global point of access.
 
     Attributes
     ----------
@@ -90,13 +91,16 @@ class Akita:
     _queue
         Queue where events are placed by the event handler.
     _event_handler
-        Handler responsible for matching given patterns with file paths associated with occurring events.
+        Handler responsible for matching given patterns with file paths associated
+        with occurring events.
     _directory_state
         Instance that holds the state of the directory.
     _observer
-        Observer thread that schedules watching directories and dispatches calls to event handlers.
+        Observer thread that schedules watching directories and dispatches calls to
+        event handlers.
     _event_handler
-        Handler responsible for matching given patterns with file paths associated with occurring events.
+        Handler responsible for matching given patterns with file paths associated with
+        occurring events.
     """
 
     def __init__(
@@ -118,11 +122,13 @@ class Akita:
         queue
             Queue where events are placed by the event handler.
         event_handler
-            Handler responsible for matching given patterns with file paths associated with occurring events.
+            Handler responsible for matching given patterns with file paths
+            associated with occurring events.
         directory_state
             Instance that holds the state of the directory.
         observer
-            Observer thread that schedules watching directories and dispatches calls to event handlers.
+            Observer thread that schedules watching directories and dispatches
+            calls to event handlers.
         run_init
             If `True` runs the watchdog. `False` otherwise.
         """
@@ -156,7 +162,8 @@ class Akita:
         Notes
         -----
         At the beggining of the run,
-          Akita determines which files in the the directory being monitored have never been enqueued.
+          Akita determines which files in the the directory being
+          monitored have never been enqueued.
         This is done as follows:
 
         n = d - (s V q V p)
@@ -234,7 +241,8 @@ class Akita:
             If True, enqueues events previously unqueued.
         """
         if enqueue_new_files:
-            # Add new files found in the directory since the last time the watchdog was run.
+            # Add new files found in the directory since the last
+            # time the watchdog was run.
             self.enqueue_new_files()
 
         logging.info("Starting the Akita watchdog.")

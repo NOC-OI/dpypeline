@@ -13,7 +13,8 @@ class ConsumerParallel(EventConsumer):
     """
     ConsumerParallel that runs on a thread as a daemon process.
 
-    This event consumer produce futures that are consumed in parallel by multiple Dask workers.
+    This event consumer produce futures that are consumed in parallel
+        by multiple Dask workers.
     Each future corresponds to one or multiple jobs.
 
     Attributes
@@ -127,7 +128,8 @@ class ConsumerParallel(EventConsumer):
         """
         event = self._futures[future]
         logging.warning(
-            f"Event {event} finished with error: {future.result()}. Future will be retried.."
+            f"Event {event} finished with error: "
+            + f"{future.result()}. Future will be retried.."
         )
         future.retry()
 
@@ -156,7 +158,8 @@ class ConsumerParallel(EventConsumer):
 
     def _process_futures(self) -> None:
         """Process futures as they finish."""
-        # completed_futures = as_completed(self._futures, with_results=True, raise_errors=False)
+        # completed_futures =
+        #   as_completed(self._futures, with_results=True, raise_errors=False)
         # for future in completed_futures:
         #    self._process_finished_future(future)
 

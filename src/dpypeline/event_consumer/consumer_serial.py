@@ -9,7 +9,8 @@ class ConsumerSerial(EventConsumer):
     """
     ConsumerSerial that runs on a thread as a daemon process.
 
-    This event consumer consumes events from an in-memory queue and processes them to produce jobs that are run in serial.
+    This event consumer consumes events from an in-memory queue and processes
+    them to produce jobs that are run in serial.
     """
 
     def _consume_event(self, event) -> None:
@@ -19,7 +20,8 @@ class ConsumerSerial(EventConsumer):
         Parameters
         ----------
         event
-            Event representing file or directory creation, deletion, modification or moving.
+            Event representing file or directory creation, deletion,
+            modification or moving.
         """
         logging.info(f"Consuming event: {event}")
         self._job_producer.produce_jobs(event=event)

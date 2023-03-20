@@ -67,7 +67,8 @@ class EventConsumer:
         job_producer
             Producer of jobs.
         worker, optional
-            Worker thread that consumes events from the and processes them to produce jobs.
+            Worker thread that consumes events from the and
+            processes them to produce jobs.
         """
         self._job_producer = job_producer
         self._queue = queue
@@ -88,11 +89,13 @@ class EventConsumer:
         Parameters
         ----------
         daemon
-            If `True`, runs the thread as a daemon; otherwise thread is not created as a daemon.
+            If `True`, runs the thread as a daemon; otherwise
+            thread is not created as a daemon.
 
         Returns
         -------
-            Worker thread that consumes events from the in-memory queue and processes them to produce jobs.
+            Worker thread that consumes events from the in-memory queue
+            and processes them to produce jobs.
         """
         # Set up a worker thread to process database load
         self._worker = Thread(target=self._run_worker, daemon=daemon)
