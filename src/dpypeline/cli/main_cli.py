@@ -2,7 +2,7 @@
 import logging
 
 from .argument_parser import __version__, create_parser
-from .yaml_loader import load_yaml, get_loader
+from .yaml_loader import get_loader, load_yaml
 
 logger = logging.getLogger(__name__)
 

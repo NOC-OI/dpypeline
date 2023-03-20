@@ -44,7 +44,9 @@ class Task:
         -------
             Result of the task.
         """
-        logger.debug(f"Running task {self.function} with args {args} and kwargs {kwargs}")
+        logger.debug(
+            f"Running task {self.function} with args {args} and kwargs {kwargs}"
+        )
         new_args = self.args + args
         new_kwargs = {**self.kwargs, **kwargs}
         result = self.function(*new_args, **new_kwargs)
@@ -82,7 +84,6 @@ class Job:
         self.tasks.append(task)
         logger.debug(f"Task {task} has been successfully added to job {self.name}.")
 
-
     def remove_task(self, index: int, task: Task = None) -> Task:
         """
         Remove a task from the job.
@@ -102,7 +103,7 @@ class Job:
             return self.tasks.pop(self.tasks.index(task))
         else:
             return self.tasks.pop(index)
-        
+
     def run(self, *args, **kwargs) -> Any:
         """
         Run the job.
@@ -116,7 +117,7 @@ class Job:
         result = self.tasks[0].run(*args, **kwargs)
         for task in self.tasks[1:]:
             result = task.run(result)
-            
+
         logger.debug(f"Job {self.name} has run successfully.")
 
         return result
@@ -134,7 +135,7 @@ class ETLPipeline:
         """List of jobs."""
         return self._jobs
 
-    def add_job(self, job: Job) -> None:
+    def add_job(self, job: Job) -> list[Job]:
         """
         Add a job to the pipeline.
 
@@ -142,6 +143,10 @@ class ETLPipeline:
         ----------
         job
             Job to add.
+
+        Returns
+        -------
+            List of jobs.
         """
         logger.debug(f"Adding job {job.name} to pipeline.")
         self._jobs.append(job)

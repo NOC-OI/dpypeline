@@ -1,5 +1,6 @@
 """pyyaml loader."""
 from typing import Any
+
 import yaml
 
 from .yaml_constructors import constructors_dict
@@ -18,10 +19,11 @@ def get_loader():
 
     return loader
 
-def load_yaml(yaml_file: str, loader = yaml.SafeLoader) -> Any:
+
+def load_yaml(yaml_file: str, loader=yaml.SafeLoader) -> Any:
     """
     Load an yaml yaml file.
-    
+
     Parameters
     ----------
     yaml_file
