@@ -22,7 +22,7 @@ def banner():
 """,
         extra={"simple": True},
     )
-    logger.info(f"version: {__version__}\n", extra={"simple": True})
+    logger.info(f"version: {__version__}", extra={"simple": True})
 
 
 def dpypeline():
