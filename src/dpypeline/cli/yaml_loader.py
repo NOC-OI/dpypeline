@@ -9,7 +9,7 @@ from .yaml_executers import returners_dict
 
 def get_loader():
     """Add constructors and returners to PyYAML loader."""
-    loader = yaml.SafeLoader
+    loader = yaml.UnsafeLoader
 
     for tag, constructor in constructors_dict.items():
         loader.add_constructor(tag, constructor)
