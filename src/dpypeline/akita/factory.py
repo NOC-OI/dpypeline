@@ -70,7 +70,8 @@ class AkitaFactory:
         case_sensitive: bool = None,
     ) -> EventHandler:
         """
-        Create the handler responsible for matching given patterns with file paths associated with occurring events.
+        Create the handler responsible for matching given patterns with file paths
+        associated with occurring events.
 
         Parameters
         ----------

@@ -61,7 +61,10 @@ class DirectoryState:
         return self._current_state
 
     def _save_state(self) -> None:
-        """Save the state of the directory by only saving files that were already enqueued."""
+        """
+        Save the state of the directory by only saving
+        files that were already enqueued.
+        """
         logging.info("-" * 79)
         logging.info("Saving state of the directory.")
 

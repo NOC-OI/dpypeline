@@ -31,8 +31,10 @@ class EventHandler(PatternMatchingEventHandler):
     EventHandler for the watchdog.
 
     Child class of PatternMatchingEventHandler.
-    PatternMatchingEventHandler matches given patterns with file paths associated with occurring events.
-    Whenever a file in the target path is modified, EventHandler puts the associated event in a queue.
+    PatternMatchingEventHandler matches given patterns with file paths
+    associated with occurring events.
+    Whenever a file in the target path is modified, EventHandler puts the
+    associated event in a queue.
     """
 
     def __init__(
@@ -44,7 +46,8 @@ class EventHandler(PatternMatchingEventHandler):
         case_sensitive: bool = True,
     ) -> None:
         """
-        Call the init method of the `PatternMatchingEventHandler` class and sets the queue.
+        Call the init method of the `PatternMatchingEventHandler`
+        class and sets the queue.
 
         Parameters
         ----------
@@ -78,7 +81,8 @@ class EventHandler(PatternMatchingEventHandler):
         Parameters
         ----------
         event
-            Event representing file or directory creation, deletion, modification or moving.
+            Event representing file or directory creation, deletion,
+            modification or moving.
 
         Returns
         -------
@@ -122,7 +126,8 @@ class EventHandler(PatternMatchingEventHandler):
         Parameters
         ----------
         event
-            Event representing file or directory creation, deletion, modification or moving.
+            Event representing file or directory creation, deletion,
+            modification or moving.
         """
         self._queue.enqueue(event.src_path)
 

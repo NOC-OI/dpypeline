@@ -57,7 +57,8 @@ class ObjectStoreS3(s3fs.S3FileSystem):
             }
         else:
             logging.info(
-                f"Object store credentials will be read from the JSON file '{store_credentials_json}'"
+                "Object store credentials will be read from the JSON file "
+                + f"{store_credentials_json}"
             )
             self._store_credentials = self.load_store_credentials(
                 store_credentials_json
@@ -75,12 +76,14 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         Parameters
         ----------
         path
-            Absolute or relative filepath to the JSON file containing the object store credentials.
+            Absolute or relative filepath to the JSON file containing
+            the object store credentials.
 
         Returns
         -------
         store_credentials
-            Dictionary containing the values of the `token`, `secret` and `endpoint_url` keys used
+            Dictionary containing the values of the `token`,
+                `secret` and `endpoint_url` keys used
             to access the object store.
         """
         try:
@@ -93,7 +96,8 @@ class ObjectStoreS3(s3fs.S3FileSystem):
             if key not in store_credentials:
                 logging.info("-" * 79)
                 logging.warning(
-                    f'"{key}" is not a key in the JSON file provided. Its value will be set to None.'
+                    f'"{key}" is not a key in the JSON file provided. '
+                    + "Its value will be set to None."
                 )
 
         return store_credentials
@@ -121,7 +125,8 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         Parameters
         ----------
         override
-            Flag to create remote_options from scratch (True) or to simply retrieve the current dict (False).
+            Flag to create remote_options from scratch (True)
+            or to simply retrieve the current dict (False).
 
         Returns
         -------
@@ -160,7 +165,7 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         -------
         mapper
             Dict-like key-value store.
-        """
+        """  # noqa adamwa
         mapper = fsspec.get_mapper(
             prefix + bucket, **self._remote_options, **get_mapper_kwargs
         )
