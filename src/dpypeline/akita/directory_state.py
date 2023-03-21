@@ -98,7 +98,9 @@ class DirectoryState:
         """
         self._current_state = []
         for pattern in self._patterns:
-            found_files = glob.glob(self._path + pattern, **self._glob_kwargs)
+            found_files = glob.glob(
+                os.path.join(self._path, pattern), **self._glob_kwargs
+            )
             self._current_state.extend(found_files)
 
         self._save_state()
