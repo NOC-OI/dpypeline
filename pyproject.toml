@@ -14,7 +14,8 @@ classifiers = [
   "Intended Audience :: Science/Research"
 ]
 dependencies = [
-  "xarray[complete]>=2023.2.0",
+  "dask>=2023.3.0",
+  "dask-jobqueue>=0.8.1",
   "s3fs>=2023.3.0",
   "celery==5.2.7",
   "fsspec>=2023.3.0",
