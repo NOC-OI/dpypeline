@@ -21,7 +21,7 @@ def method_executer(loader, node):
     return method(**kwargs)
 
 
-returners_dict = {
+executers_dict = {
     "!Function": function_executer,
     "!Method": method_executer,
 }

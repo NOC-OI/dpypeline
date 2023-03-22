@@ -25,7 +25,12 @@ def dask_client_constructor(loader: yaml.SafeLoader, node: yaml.MappingNode) -> 
     cluster = cluster(**kwargs)
 
     if "scale" in params:
-        cluster.scale(params["scale"])
+        if isinstance(params["scale"], dict):
+            cluster.scale(**params["scale"])
+        elif isinstance(params["scale"], list):
+            cluster.scale(*params["scale"])
+        else:
+            cluster.scale(params["scale"])
 
     return Client(cluster)
 

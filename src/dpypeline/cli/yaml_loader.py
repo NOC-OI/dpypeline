@@ -4,18 +4,18 @@ from typing import Any
 import yaml
 
 from .yaml_constructors import constructors_dict
-from .yaml_executers import returners_dict
+from .yaml_executers import executers_dict
 
 
 def get_loader():
-    """Add constructors and returners to PyYAML loader."""
+    """Add constructors and executors to PyYAML loader."""
     loader = yaml.UnsafeLoader
 
     for tag, constructor in constructors_dict.items():
         loader.add_constructor(tag, constructor)
 
-    for tag, returner in returners_dict.items():
-        loader.add_constructor(tag, returner)
+    for tag, executer in executers_dict.items():
+        loader.add_constructor(tag, executer)
 
     return loader
 
