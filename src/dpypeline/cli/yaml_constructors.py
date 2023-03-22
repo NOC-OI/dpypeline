@@ -16,7 +16,7 @@ from ..filesystems.object_store import ObjectStoreS3
 
 def dask_client_constructor(loader: yaml.SafeLoader, node: yaml.MappingNode) -> Client:
     """Create a Dask client bound to a cluster ."""
-    params = loader.construct_mapping(node)
+    params = loader.construct_mapping(node, deep=True)
     module_name, func_name = params["cluster"].rsplit(".", 1)
     module = importlib.import_module(module_name)
 
@@ -32,10 +32,10 @@ def dask_client_constructor(loader: yaml.SafeLoader, node: yaml.MappingNode) -> 
 
 def object_constructor(loader: yaml.SafeLoader, node: yaml.MappingNode) -> object:
     """Create an object."""
-    params = loader.construct_mapping(node)
+    params = loader.construct_mapping(node, deep=True)
     kwargs = {key: params[key] for key in params if key != "class"}
 
-    params = loader.construct_mapping(node)
+    params = loader.construct_mapping(node, deep=True)
     module_name, class_name = params["class"].rsplit(".", 1)
     module = importlib.import_module(module_name)
 
@@ -46,13 +46,13 @@ def object_store_constructor(
     loader: yaml.SafeLoader, node: yaml.MappingNode
 ) -> ObjectStoreS3:
     """Construct an Object Store S3 instance."""
-    kwargs = {str(key): val for key, val in loader.construct_mapping(node).items()}
+    kwargs = {str(key): val for key, val in loader.construct_mapping(node, deep=True).items()}
     return ObjectStoreS3(**kwargs)
 
 
 def akita_constructor(loader: yaml.SafeLoader, node: yaml.nodes.MappingNode) -> Akita:
     """Construct an Akita instance."""
-    kwargs = {str(key): val for key, val in loader.construct_mapping(node).items()}
+    kwargs = {str(key): val for key, val in loader.construct_mapping(node, deep=True).items()}
     dependencies = get_akita_dependencies(**kwargs)
     return Akita(*dependencies)
 
@@ -61,10 +61,10 @@ def consumer_serial_constructor(
     loader: yaml.SafeLoader, node: yaml.nodes.MappingNode
 ) -> ConsumerSerial:
     """Construct a ConsumerSerial instance."""
-    akita = loader.construct_mapping(node)["akita"]
+    akita = loader.construct_mapping(node, deep=True)["akita"]
     kwargs = {
         str(key): val
-        for key, val in loader.construct_mapping(node).items()
+        for key, val in loader.construct_mapping(node, deep=True).items()
         if key != "akita"
     }
     return ConsumerSerial(queue=akita.queue, **kwargs)
@@ -74,7 +74,7 @@ def consumer_parallel_constructor(
     loader: yaml.SafeLoader, node: yaml.nodes.MappingNode
 ) -> ConsumerParallel:
     """Construct a ConsumerParallel instance."""
-    params = loader.construct_mapping(node)
+    params = loader.construct_mapping(node, deep=True)
     kwargs = {str(key): params[key] for key in params if key != "akita"}
     return ConsumerParallel(queue=params["akita"].queue, **kwargs)
 
@@ -83,7 +83,7 @@ def celery_pipeline_constructor(
     loader: yaml.SafeLoader, node: yaml.nodes.MappingNode
 ) -> CeleryPipeline:
     """Construct a CeleryPipeline instance."""
-    kwargs = {str(key): val for key, val in loader.construct_mapping(node).items()}
+    kwargs = {str(key): val for key, val in loader.construct_mapping(node, deep=True).items()}
     return CeleryPipeline(**kwargs)
 
 
@@ -91,22 +91,22 @@ def basic_pipeline_constructor(
     loader: yaml.SafeLoader, node: yaml.nodes.MappingNode
 ) -> BasicPipeline:
     """Construct a BasicPipeline instance."""
-    kwargs = {str(key): val for key, val in loader.construct_mapping(node).items()}
+    kwargs = {str(key): val for key, val in loader.construct_mapping(node, deep=True.items()}
     return BasicPipeline(**kwargs)
 
 
 def job_constructor(loader: yaml.SafeLoader, node: yaml.nodes.MappingNode) -> Job:
     """Construct a Job."""
-    kwargs = {str(key): val for key, val in loader.construct_mapping(node).items()}
+    kwargs = {str(key): val for key, val in loader.construct_mapping(node, deep=True).items()}
     return Job(**kwargs)
 
 
 def task_constructor(loader: yaml.SafeLoader, node: yaml.nodes.MappingNode) -> Task:
     """Construct a Job."""
-    params = loader.construct_mapping(node)
+    params = loader.construct_mapping(node, deep=True)
     kwargs = {key: params[key] for key in params if key != "function"}
 
-    params = loader.construct_mapping(node)
+    params = loader.construct_mapping(node, deep=True)
     module_name, func_name = params["function"].rsplit(".", 1)
     module = importlib.import_module(module_name)
 
