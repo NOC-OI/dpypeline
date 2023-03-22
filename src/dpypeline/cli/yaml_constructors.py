@@ -46,13 +46,17 @@ def object_store_constructor(
     loader: yaml.SafeLoader, node: yaml.MappingNode
 ) -> ObjectStoreS3:
     """Construct an Object Store S3 instance."""
-    kwargs = {str(key): val for key, val in loader.construct_mapping(node, deep=True).items()}
+    kwargs = {
+        str(key): val for key, val in loader.construct_mapping(node, deep=True).items()
+    }
     return ObjectStoreS3(**kwargs)
 
 
 def akita_constructor(loader: yaml.SafeLoader, node: yaml.nodes.MappingNode) -> Akita:
     """Construct an Akita instance."""
-    kwargs = {str(key): val for key, val in loader.construct_mapping(node, deep=True).items()}
+    kwargs = {
+        str(key): val for key, val in loader.construct_mapping(node, deep=True).items()
+    }
     dependencies = get_akita_dependencies(**kwargs)
     return Akita(*dependencies)
 
@@ -83,7 +87,9 @@ def celery_pipeline_constructor(
     loader: yaml.SafeLoader, node: yaml.nodes.MappingNode
 ) -> CeleryPipeline:
     """Construct a CeleryPipeline instance."""
-    kwargs = {str(key): val for key, val in loader.construct_mapping(node, deep=True).items()}
+    kwargs = {
+        str(key): val for key, val in loader.construct_mapping(node, deep=True).items()
+    }
     return CeleryPipeline(**kwargs)
 
 
@@ -91,13 +97,17 @@ def basic_pipeline_constructor(
     loader: yaml.SafeLoader, node: yaml.nodes.MappingNode
 ) -> BasicPipeline:
     """Construct a BasicPipeline instance."""
-    kwargs = {str(key): val for key, val in loader.construct_mapping(node, deep=True.items()}
+    kwargs = {
+        str(key): val for key, val in loader.construct_mapping(node, deep=True).items()
+    }
     return BasicPipeline(**kwargs)
 
 
 def job_constructor(loader: yaml.SafeLoader, node: yaml.nodes.MappingNode) -> Job:
     """Construct a Job."""
-    kwargs = {str(key): val for key, val in loader.construct_mapping(node, deep=True).items()}
+    kwargs = {
+        str(key): val for key, val in loader.construct_mapping(node, deep=True).items()
+    }
     return Job(**kwargs)
 
 

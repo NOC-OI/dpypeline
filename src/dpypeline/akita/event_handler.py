@@ -46,8 +46,12 @@ class EventHandler(PatternMatchingEventHandler):
         case_sensitive: bool = True,
     ) -> None:
         """
+        Initialize the EventHandler.
+
+        Notes
+        -----
         Call the init method of the `PatternMatchingEventHandler`
-        class and sets the queue.
+        class and set the queue.
 
         Parameters
         ----------
