@@ -102,7 +102,7 @@ class ObjectStoreS3(s3fs.S3FileSystem):
 
         return store_credentials
 
-    def mkdir(self, path: str, create_parents: bool = True, **kwargs) -> None:
+    def create_bucket(self, path: str, create_parents: bool = True, **kwargs) -> None:
         """
         Create a bucket in the object store.
 
