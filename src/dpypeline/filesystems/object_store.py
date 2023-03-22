@@ -102,21 +102,21 @@ class ObjectStoreS3(s3fs.S3FileSystem):
 
         return store_credentials
 
-    def create_bucket(self, path: str, create_parents: bool = True, **kwargs) -> None:
+    def create_bucket(self, bucket: str, create_parents: bool = True, **kwargs) -> None:
         """
         Create a bucket in the object store.
 
         Parameters
         ----------
-        path
+        bucket
             Bucket to create.
         create_parents, optional
             If True, create the parent folders if they don't exist.
         """
         try:
-            return super().mkdir(path, create_parents, **kwargs)
+            return self.mkdir(bucket, create_parents, **kwargs)
         except FileExistsError:
-            logging.info(f"Bucket {path} already exists.")
+            logging.info(f"Bucket '{bucket}' already exists.")
 
     def get_remote_options(self, override: bool = False) -> dict:
         """
