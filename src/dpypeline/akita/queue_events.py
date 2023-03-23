@@ -9,6 +9,18 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+class Sentinel:
+    """A Sentinel object that sinalises that the queue is empty."""
+    def __init__(self, active: bool = False) -> None:
+        self._active = active
+
+    def set_state(self, active: bool) -> bool:
+        """Set the state of the sentinel."""
+        self._active = active
+        return self._active
+
+    def __call__(self, *args: Any, **kwargs: Any) -> bool:
+        return self._active
 
 class EventsQueue(Queue):
     """EventsQueue singleton class."""
@@ -38,6 +50,9 @@ class EventsQueue(Queue):
             os.getenv("CACHE_DIR"), self._processed_events_file_suffix
         )
 
+        self._sentinel = Sentinel()
+
+
     def __new__(cls, maxsize: int = 0) -> EventsQueue:
         """
         Create a new instance of the EventsQueue class using the Singleton pattern.
@@ -65,7 +80,23 @@ class EventsQueue(Queue):
             List of events in the queue.
         """
         return list(self.queue)
-
+    
+    @property
+    def sentinel(self) -> Any:
+        """Return the sentinel."""
+        return self._sentinel
+    
+    def set_sentinel_state(self, active: bool) -> bool:
+        """
+        Set the sentinel state.
+        
+        Parameters
+        ----------
+        active
+            The new state of the sentinel.
+        """
+        return self._sentinel.set_state(active)
+    
     @property
     def processed_events(self) -> list[Any]:
         """
@@ -141,10 +172,10 @@ class EventsQueue(Queue):
         True if the event was added to the queue.
         """
         try:
-            logger.debug(f"Enqueuing event: {event}.")
+            logger.debug(f"Enqueuing event '{event}'.")
             self.put(event, block=False)
             self._save_state(logger_prefix="Enqueueing event: ")
-
+            logger.debug(f"Event '{event}' has been enqueued succesfully.")
             return True
         except Full:
             raise Full("Queue is full.")
