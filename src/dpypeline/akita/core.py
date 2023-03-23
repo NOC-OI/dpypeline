@@ -1,9 +1,11 @@
 """Akita, the watchdog class."""
 import logging
+from threading import Thread
 import time
 from itertools import chain
 from typing import Any, Protocol
 
+logger = logging.getLogger(__name__)
 
 class Queue(Protocol):
     """Queue class protocol."""
@@ -22,6 +24,9 @@ class Queue(Protocol):
         """Return the list of processed events."""
         ...
 
+    def set_sentinel_state(self, active: bool) -> bool:
+        """Set the state of the end-of-queue sentinel."""
+        ...
 
 class DirectoryState(Protocol):
     """DirectoryState class protocol."""
@@ -101,6 +106,10 @@ class Akita:
     _event_handler
         Handler responsible for matching given patterns with file paths associated with
         occurring events.
+    _monitor
+        Whether or not to run the watchdog.
+    _worker
+        Thread that runs the watchdog.
     """
 
     def __init__(
@@ -110,7 +119,8 @@ class Akita:
         event_handler: EventHandler,
         directory_state: DirectoryState,
         observer: Observer,
-        run_init: bool = False,
+        monitor: bool = True,
+        worker: Thread = None,
     ) -> None:
         """
         Initialize the Akita watchdog.
@@ -129,17 +139,18 @@ class Akita:
         observer
             Observer thread that schedules watching directories and dispatches
             calls to event handlers.
-        run_init
-            If `True` runs the watchdog. `False` otherwise.
+        monitor
+            If `True`, the watchdog will monitor the given path.
+        worker
+            Thread that runs the watchdog.
         """
         self._path = path
         self._queue = queue
         self._observer = observer
         self._event_handler = event_handler
         self._directory_state = directory_state
-
-        if run_init:
-            self.run()
+        self._worker = worker
+        self._monitor = monitor
 
     @property
     def queue(self):
@@ -149,9 +160,9 @@ class Akita:
     @queue.deleter
     def queue(self):
         """Delete the queue."""
-        logging.info("-" * 79)
-        logging.info("Deleting in-memory queue.")
-        logging.info("-" * 79)
+        logger.info("-" * 79)
+        logger.info("Deleting in-memory queue.")
+        logger.info("-" * 79)
 
         del self._queue
 
@@ -184,45 +195,44 @@ class Akita:
         curr_states = self._directory_state.current_state
         queue = self._queue.queue_list
         prev_sess_states = self._queue.processed_events
-
         unqueued_events = set(curr_states) - set(
             chain.from_iterable([queue, prev_sess_states])
         )
 
-        logging.info("-" * 79)
+        logger.info("-" * 79)
 
-        logging.info(f"Events in the stored directory state (n={len(stored_states)}):")
+        logger.info(f"Events in the stored directory state (n={len(stored_states)}):")
         for event in stored_states:
-            logging.info(f"{event}")
+            logger.info(f"{event}")
 
-        logging.info(f"Events in the current directory state (n={len(curr_states)}):")
+        logger.info(f"Events in the current directory state (n={len(curr_states)}):")
         for event in curr_states:
-            logging.info(f"{event}")
+            logger.info(f"{event}")
 
-        logging.info(
+        logger.info(
             "Events in the queue when the previous session terminated "
             + f"(n={len(queue)}):"
         )
         for event in queue:
-            logging.info(f"{event}")
+            logger.info(f"{event}")
 
-        logging.info(
+        logger.info(
             "Events processed before the previous session terminated "
             f"(n={len(prev_sess_states)}):"
         )
         for event in prev_sess_states:
-            logging.info(f"{event}")
+            logger.info(f"{event}")
 
-        logging.info(f"Events unenqueued (n={len(unqueued_events)}):")
+        logger.info(f"Events unenqueued (n={len(unqueued_events)}):")
         for event in unqueued_events:
-            logging.info(f"{event}")
+            logger.info(f"{event}")
 
-        logging.info(
+        logger.info(
             f"Found {len(unqueued_events)} files not enqueued "
             + "in the current state of the directory."
         )
 
-        logging.info("-" * 79)
+        logger.info("-" * 79)
 
         return list(unqueued_events)
 
@@ -237,28 +247,67 @@ class Akita:
         for event in not_enqueued_state:
             self._queue.enqueue(event)
 
-    def run(self, enqueue_new_files: bool = True) -> None:
+    def _run_watchdog(self) -> None:
+        """Run the watchdog."""
+        logger.info("Starting the watchdog.")
+        self._observer.schedule(self._event_handler, self._path, recursive=True)
+        self._observer.start()
+
+        try:
+            while self._observer.is_alive():
+                time.sleep(1)
+        finally:
+            self._observer.stop()
+            self._observer.join()
+
+    def _create_worker(self, daemon: bool = False) -> Thread:
+        """
+        Create the worker thread.
+
+        Parameters
+        ----------
+        daemon
+            If `True`, runs the thread as a daemon; otherwise
+            thread is not created as a daemon.
+
+        Returns
+        -------
+            Worker thread that consumes events from the in-memory queue
+            and processes them to produce jobs.
+        """
+        # Set up a worker thread to process database load
+        self._worker = Thread(target=self._run_watchdog, daemon=daemon)
+
+        return self._worker
+    
+    def run(self, monitor: bool = True, enqueue_new_files: bool = True, daemon: bool = False) -> None:
         """
         Run the Akita watchdog.
 
         Parameters
         ----------
+        monitor
+            If `True` monitors runs the watchdog. `False` otherwise.
         enqueue_new_files
-            If True, enqueues events previously unqueued.
+            If `True`, enqueues events previously unqueued.
+        daemon
+            If `True`, runs the thread as a daemon.
         """
         if enqueue_new_files:
             # Add new files found in the directory since the last
             # time the watchdog was run.
             self.enqueue_new_files()
 
-        logging.info("Starting the Akita watchdog.")
-        self._observer.schedule(self._event_handler, self._path, recursive=True)
-        self._observer.start()
+        if self._monitor:
+            self._queue.set_sentinel_state(active=False)
 
-        try:
-            while True:
-                time.sleep(1)
-        except Exception:
-            self._observer.stop()
-        finally:
-            self._observer.join()
+            try:
+                if self._worker is None:
+                    self._create_worker(daemon=daemon)
+
+                self._worker.start()
+            except Exception as excpt:
+                self._worker.join()
+                raise Exception(f"Error while running the watchdog: {excpt}")
+        else:
+            self._queue.set_sentinel_state(active=True)
