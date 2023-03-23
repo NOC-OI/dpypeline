@@ -79,7 +79,7 @@ class EventConsumer:
         self._queue = queue
         self._worker = worker
 
-    def is_sentinel_active(self) -> bool:
+    def _is_sentinel_active(self) -> bool:
         """Return True if the sentinel is active."""
         return self._queue.sentinel()
 
