@@ -9,9 +9,12 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+
 class Sentinel:
     """A Sentinel object that sinalises that the queue is empty."""
+
     def __init__(self, active: bool = False) -> None:
+        """Initialize the Sentinel object."""
         self._active = active
 
     def set_state(self, active: bool) -> bool:
@@ -20,7 +23,9 @@ class Sentinel:
         return self._active
 
     def __call__(self, *args: Any, **kwargs: Any) -> bool:
+        """Return the state of the sentinel."""
         return self._active
+
 
 class EventsQueue(Queue):
     """EventsQueue singleton class."""
@@ -52,7 +57,6 @@ class EventsQueue(Queue):
 
         self._sentinel = Sentinel()
 
-
     def __new__(cls, maxsize: int = 0) -> EventsQueue:
         """
         Create a new instance of the EventsQueue class using the Singleton pattern.
@@ -80,23 +84,23 @@ class EventsQueue(Queue):
             List of events in the queue.
         """
         return list(self.queue)
-    
+
     @property
     def sentinel(self) -> Any:
         """Return the sentinel."""
         return self._sentinel
-    
+
     def set_sentinel_state(self, active: bool) -> bool:
         """
         Set the sentinel state.
-        
+
         Parameters
         ----------
         active
             The new state of the sentinel.
         """
         return self._sentinel.set_state(active)
-    
+
     @property
     def processed_events(self) -> list[Any]:
         """

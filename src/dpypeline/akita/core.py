@@ -1,11 +1,12 @@
 """Akita, the watchdog class."""
 import logging
-from threading import Thread
 import time
 from itertools import chain
+from threading import Thread
 from typing import Any, Protocol
 
 logger = logging.getLogger(__name__)
+
 
 class Queue(Protocol):
     """Queue class protocol."""
@@ -27,6 +28,7 @@ class Queue(Protocol):
     def set_sentinel_state(self, active: bool) -> bool:
         """Set the state of the end-of-queue sentinel."""
         ...
+
 
 class DirectoryState(Protocol):
     """DirectoryState class protocol."""
@@ -78,6 +80,10 @@ class Observer(Protocol):
 
     def schedule(self, event_handler: EventHandler, path: str, recursive: bool) -> None:
         """Schedules watching a path."""
+        ...
+
+    def is_alive(self) -> bool:
+        """Return whether the thread is alive."""
         ...
 
 
@@ -279,8 +285,10 @@ class Akita:
         self._worker = Thread(target=self._run_watchdog, daemon=daemon)
 
         return self._worker
-    
-    def run(self, monitor: bool = True, enqueue_new_files: bool = True, daemon: bool = False) -> None:
+
+    def run(
+        self, monitor: bool = True, enqueue_new_files: bool = True, daemon: bool = False
+    ) -> None:
         """
         Run the Akita watchdog.
 

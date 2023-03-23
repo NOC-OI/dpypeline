@@ -8,7 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 def banner():
-     logger.info(
+    """Log the dpypeline banner."""
+    logger.info(
         r"""
       _                             _  _
      | |                           | |(_)
@@ -22,15 +23,18 @@ def banner():
         extra={"simple": True},
     )
 
+
 def start_banner():
     """Log the dpypeline start banner."""
     banner()
     logger.info(f"version: {__version__}", extra={"simple": True})
 
+
 def exit_banner():
     """Log the dpypeline exit banner."""
     banner()
     logger.info("dpypeline has terminated succesfully! :)", extra={"simple": True})
+
 
 def dpypeline():
     """Run the dpypeline."""
@@ -58,4 +62,3 @@ def dpypeline():
         settings["dask_client"].close()
 
     exit_banner()
-

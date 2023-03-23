@@ -6,6 +6,7 @@ from .core import EventConsumer
 
 logger = logging.getLogger(__name__)
 
+
 class ConsumerSerial(EventConsumer):
     """
     ConsumerSerial that runs on a thread as a daemon process.
@@ -51,4 +52,3 @@ class ConsumerSerial(EventConsumer):
                 break
             else:
                 time.sleep(sleep_time)
-        

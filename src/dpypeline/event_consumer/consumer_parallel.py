@@ -10,6 +10,7 @@ from .core import EventConsumer
 
 logger = logging.getLogger(__name__)
 
+
 class ConsumerParallel(EventConsumer):
     """
     ConsumerParallel that runs on a thread as a daemon process.
@@ -161,7 +162,9 @@ class ConsumerParallel(EventConsumer):
 
     def _process_futures(self) -> None:
         """Process futures as they finish."""
-        completed_futures = as_completed(self._futures, with_results=True, raise_errors=False)
+        completed_futures = as_completed(
+            self._futures, with_results=True, raise_errors=False
+        )
         for future in completed_futures:
             self._process_finished_future(future)
 
@@ -184,7 +187,8 @@ class ConsumerParallel(EventConsumer):
                 # Calculate maximum number of futures given the
                 # number of workers currently running
                 self._max_futures = (
-                    len(self._client.scheduler_info()["workers"]) // self._workers_per_event
+                    len(self._client.scheduler_info()["workers"])
+                    // self._workers_per_event
                 )
 
                 # Create futures if there are events in the queue
@@ -202,4 +206,3 @@ class ConsumerParallel(EventConsumer):
                 break
             else:
                 time.sleep(sleep_time)
-        

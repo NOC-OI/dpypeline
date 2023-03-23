@@ -21,7 +21,9 @@ def dask_client_constructor(loader: yaml.SafeLoader, node: yaml.MappingNode) -> 
     module = importlib.import_module(module_name)
 
     cluster = getattr(module, func_name)
-    kwargs = {str(key): params[key] for key in params if key not in ["cluster", "scale"]}
+    kwargs = {
+        str(key): params[key] for key in params if key not in ["cluster", "scale"]
+    }
     cluster = cluster(**kwargs)
 
     if "scale" in params:
