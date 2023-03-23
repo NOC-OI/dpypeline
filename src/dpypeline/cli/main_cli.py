@@ -8,8 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def banner():
-    """Log the dpypeline banner."""
-    logger.info(
+     logger.info(
         r"""
       _                             _  _
      | |                           | |(_)
@@ -22,8 +21,16 @@ def banner():
 """,
         extra={"simple": True},
     )
+
+def start_banner():
+    """Log the dpypeline start banner."""
+    banner()
     logger.info(f"version: {__version__}", extra={"simple": True})
 
+def exit_banner():
+    """Log the dpypeline exit banner."""
+    banner()
+    logger.info("dpypeline has terminated succesfully! :)", extra={"simple": True})
 
 def dpypeline():
     """Run the dpypeline."""
@@ -32,17 +39,23 @@ def dpypeline():
         level=logging.INFO,
         datefmt="%Y-%m-%d %H:%M:%S",
     )
-    banner()
+    start_banner()
 
     parser = create_parser()
     args = parser.parse_args()
 
-    pipeline_settings = load_yaml(args.input_file, loader=get_loader())
+    settings = load_yaml(args.input_file, loader=get_loader())
 
-    akita = pipeline_settings["akita"]
-    event_consumer = pipeline_settings["event_consumer"]
-    pipeline_settings["pipeline"]
+    akita = settings["akita"]
+    event_consumer = settings["event_consumer"]
+    settings["pipeline"]
 
-    # Run the EventConsumer and Akita (must be in this order)
-    event_consumer.run()
     akita.run()
+    event_consumer.run()
+
+    if "dask_client" in settings:
+        # Close the Dask client if it exists.
+        settings["dask_client"].close()
+
+    exit_banner()
+
