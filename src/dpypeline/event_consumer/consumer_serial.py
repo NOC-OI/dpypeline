@@ -4,6 +4,7 @@ import time
 
 from .core import EventConsumer
 
+logger = logging.getLogger(__name__)
 
 class ConsumerSerial(EventConsumer):
     """
@@ -23,11 +24,11 @@ class ConsumerSerial(EventConsumer):
             Event representing file or directory creation, deletion,
             modification or moving.
         """
-        logging.info(f"Consuming event: {event}")
+        logger.info(f"Consuming event '{event}'...")
         self._job_producer.produce_jobs(event=event)
-        logging.info(f"Event consumed: {event}")
+        logger.info(f"Event '{event}' has been consumed successfully.")
 
-    def _run_worker(self, sleep_time: int = 1) -> None:
+    def _run_event_loop(self, sleep_time: int = 5) -> None:
         """
         Run the worker thread.
 
@@ -41,8 +42,13 @@ class ConsumerSerial(EventConsumer):
         while True:
             if self._queue.get_queue_size():
                 event = self._queue.peek()
-                logging.info("-" * 79)
+                logger.info("-" * 79)
                 self._consume_event(event)
                 self._queue.dequeue()
             else:
+                if self.is_sentinel_active():
+                    logger.info("The queue is empty and got an end-of-queue sentinel")
+                    logger.info("The event consumer is exiting...")
+                    break
                 time.sleep(sleep_time)
+ 
