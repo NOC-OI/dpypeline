@@ -19,6 +19,11 @@ class Queue(Protocol):
         """Return list of events in the queue."""
         ...
 
+    @property
+    def sentinel(self) -> Any:
+        """Return the sentinel value."""
+        ...
+
     def dequeue(self) -> Any:
         """Remove and return an event from the queue."""
         ...
@@ -74,7 +79,11 @@ class EventConsumer:
         self._queue = queue
         self._worker = worker
 
-    def _run_worker(self, *args, **kwargs) -> None:
+    def is_sentinel_active(self) -> bool:
+        """Return True if the sentinel is active."""
+        return self._queue.sentinel()
+
+    def _run_event_loop(self, *args, **kwargs) -> None:
         """
         Run the worker thread.
 
@@ -98,11 +107,11 @@ class EventConsumer:
             and processes them to produce jobs.
         """
         # Set up a worker thread to process database load
-        self._worker = Thread(target=self._run_worker, daemon=daemon)
+        self._worker = Thread(target=self._run_event_loop, daemon=daemon)
 
         return self._worker
 
-    def run(self, daemon: bool = True) -> None:
+    def run(self, daemon: bool = False) -> None:
         """Run the event consumer.
 
         daemon
@@ -114,6 +123,7 @@ class EventConsumer:
                 self._create_worker(daemon=daemon)
 
             self._worker.start()
-
-        except Exception:
+        except Exception as excpt:
+            raise Exception(f"Error while running event consumer: {excpt}")
+        finally:
             self._worker.join()
