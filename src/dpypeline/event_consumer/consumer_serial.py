@@ -45,10 +45,10 @@ class ConsumerSerial(EventConsumer):
                 logger.info("-" * 79)
                 self._consume_event(event)
                 self._queue.dequeue()
+            elif self._is_sentinel_active():
+                logger.info("The queue is empty and got an end-of-queue sentinel")
+                logger.info("The event consumer is exiting...")
+                break
             else:
-                if self.is_sentinel_active():
-                    logger.info("The queue is empty and got an end-of-queue sentinel")
-                    logger.info("The event consumer is exiting...")
-                    break
                 time.sleep(sleep_time)
- 
+        

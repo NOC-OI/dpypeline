@@ -4,10 +4,11 @@ import time
 from collections import OrderedDict
 from typing import Any
 
-from dask.distributed import Client, Future  # , as_completed
+from dask.distributed import Client, Future, as_completed
 
 from .core import EventConsumer
 
+logger = logging.getLogger(__name__)
 
 class ConsumerParallel(EventConsumer):
     """
@@ -80,7 +81,7 @@ class ConsumerParallel(EventConsumer):
         -------
         Future
         """
-        logging.info(f"Submitting future for: {event}")
+        logger.info(f"Submitting future for: {event}")
 
         # Submit the future to the Dask cluster
         future = self._client.submit(self._job_producer.produce_jobs, event)
@@ -111,7 +112,7 @@ class ConsumerParallel(EventConsumer):
             Future that has succeeded.
         """
         event = self._futures[future]
-        logging.info(f"Event consumed: {event}")
+        logger.info(f"Event consumed: {event}")
 
         # Remove event from the queue and purge the future
         self._queue.remove(event)
@@ -127,10 +128,12 @@ class ConsumerParallel(EventConsumer):
             Future that has failed.
         """
         event = self._futures[future]
-        logging.warning(
+        logger.warning(
             f"Event {event} finished with error: "
             + f"{future.result()}. Future will be retried.."
         )
+        # Wait 1 second before retrying the future
+        time.sleep(1)
         future.retry()
 
     def _process_finished_future(self, future: Future) -> None:
@@ -158,15 +161,14 @@ class ConsumerParallel(EventConsumer):
 
     def _process_futures(self) -> None:
         """Process futures as they finish."""
-        # completed_futures =
-        #   as_completed(self._futures, with_results=True, raise_errors=False)
-        # for future in completed_futures:
-        #    self._process_finished_future(future)
-
-        for future in self._futures.copy():
+        completed_futures = as_completed(self._futures, with_results=True, raise_errors=False)
+        for future in completed_futures:
             self._process_finished_future(future)
 
-    def _run_worker(self, sleep_time: int = 5) -> None:
+        # for future in self._futures.copy():
+        #     self._process_finished_future(future)
+
+    def _run_event_loop(self, sleep_time: int = 5) -> None:
         """
         Run the worker thread.
 
@@ -178,18 +180,26 @@ class ConsumerParallel(EventConsumer):
             Sleep time in seconds for which the thread is idle.
         """
         while True:
-            # Calculate maximum number of futures given the
-            # number of workers currently running
-            self._max_futures = (
-                len(self._client.scheduler_info()["workers"]) // self._workers_per_event
-            )
+            if self._queue.get_queue_size():
+                # Calculate maximum number of futures given the
+                # number of workers currently running
+                self._max_futures = (
+                    len(self._client.scheduler_info()["workers"]) // self._workers_per_event
+                )
 
-            # Create futures if there are events in the queue
-            # that have not been 'futurized' yet and if the current number of futures
-            # is less than the maximum number of futures
-            self._create_futures()
+                # Create futures if there are events in the queue
+                # that have not been 'futurized' yet and if the current number of futures
+                # is less than the maximum number of futures
+                self._create_futures()
 
-            # Process the futures when they are finished
-            self._process_futures()
+                # Process the futures when they are finished
+                self._process_futures()
 
-            time.sleep(sleep_time)
+                time.sleep(sleep_time)
+            elif self._is_sentinel_active():
+                logger.info("The queue is empty and got an end-of-queue sentinel")
+                logger.info("The event consumer is exiting...")
+                break
+            else:
+                time.sleep(sleep_time)
+        
