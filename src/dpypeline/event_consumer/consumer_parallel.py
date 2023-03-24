@@ -130,8 +130,8 @@ class ConsumerParallel(EventConsumer):
         """
         event = self._futures[future]
         logger.warning(
-            f"Event {event} finished with error: "
-            + f"{future.result()}. Future will be retried.."
+            f"Event {event} finished with an error: {future.exception()}"
+            + f"Future will be retried.."
         )
         # Wait 1 second before retrying the future
         time.sleep(1)
@@ -162,14 +162,15 @@ class ConsumerParallel(EventConsumer):
 
     def _process_futures(self) -> None:
         """Process futures as they finish."""
-        completed_futures = as_completed(
-            self._futures, with_results=True, raise_errors=False
-        )
-        for future in completed_futures:
-            self._process_finished_future(future)
-
-        # for future in self._futures.copy():
+        # Alternative loop to process futures
+        # completed_futures = as_completed(
+        #     self._futures, with_results=True, raise_errors=False
+        # )
+        # for future, result in completed_futures:
         #     self._process_finished_future(future)
+
+        for future in self._futures.copy():
+            self._process_finished_future(future)
 
     def _run_event_loop(self, sleep_time: int = 5) -> None:
         """
