@@ -1,5 +1,6 @@
 """dpypeline command line interface."""
 import logging
+import sys
 
 from .argument_parser import __version__, create_parser
 from .yaml_loader import get_loader, load_yaml
@@ -42,6 +43,7 @@ def dpypeline():
         format="dpypeline | %(levelname)s | %(asctime)s | %(message)s",
         level=logging.INFO,
         datefmt="%Y-%m-%d %H:%M:%S",
+        stream=sys.stdout,
     )
     start_banner()
 

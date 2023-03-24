@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class Sentinel:
-    """A Sentinel object that sinalises that the queue is empty."""
+    """A Sentinel object to sinalise whether to close the queue when it is empty."""
 
     def __init__(self, active: bool = False) -> None:
         """Initialize the Sentinel object."""
@@ -184,6 +184,15 @@ class EventsQueue(Queue):
         except Full:
             raise Full("Queue is full.")
 
+    def _set_as_processed(self, event: Any) -> None:
+        """Set the event as processed."""
+        # Set as processesed event
+        if self._processed_events is None:
+            self._processed_events = []
+
+        self._processed_events.append(event)
+        self._save_processed_events()
+
     def dequeue(self) -> Any:
         """
         Remove and return an event from the queue.
@@ -200,13 +209,7 @@ class EventsQueue(Queue):
             event = self.get(block=False)
             logger.debug(f"Dequeued event: {event}.")
             self._save_state(logger_prefix="Dequeuing event: ")
-
-            # Set as processesed event
-            if self._processed_events is None:
-                self._processed_events = []
-
-            self._processed_events.append(event)
-            self._save_processed_events()
+            self._set_as_processed(event)
             return event
         except Empty:
             return None
@@ -261,6 +264,7 @@ class EventsQueue(Queue):
             logger.debug(f"Removing event: {event}.")
             self.queue.remove(event)
             self._save_state(logger_prefix="Removing event: ")
+            self._set_as_processed(event)
             return True
         except ValueError as e:
             logger.error(f"{e}")
