@@ -1,7 +1,7 @@
 """Event consumer. Acts as an interface between Akita and the ETL pipeline."""
 from threading import Thread
 from typing import Any, Protocol
-
+import sys
 
 class JobProducer(Protocol):
     """Job producer interface."""
@@ -124,6 +124,7 @@ class EventConsumer:
 
             self._worker.start()
         except Exception as excpt:
-            raise Exception(f"Error while running event consumer: {excpt}")
-        finally:
             self._worker.join()
+            raise RuntimeError(f"Error while running event consumer: {excpt}")
+            
+        self._worker.join()

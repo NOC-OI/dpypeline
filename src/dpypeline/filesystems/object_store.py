@@ -195,8 +195,9 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         assert bucket in self.get_bucket_list(), f'Bucket "{bucket}" does not exist.'
         assert os.path.isfile(path), f'"{path}" is not a file.'
 
-        with self.open(
-            f"{bucket}/{path.rsplit('/', 1)[-1]}", mode="wb", s3=dict(profile="default")
-        ) as fa:
+        dest_path = os.path.join(bucket, path.rsplit('/', 1)[-1])
+
+        with self.open(dest_path, mode="wb", s3=dict(profile="default")) as fa:
             with open(path, mode="rb") as fb:
                 fa.write(fb.read())
+

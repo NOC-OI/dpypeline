@@ -1,6 +1,7 @@
 """Akita, the watchdog class."""
 import logging
 import time
+import sys
 from itertools import chain
 from threading import Thread
 from typing import Any, Protocol
@@ -255,7 +256,7 @@ class Akita:
 
     def _run_watchdog(self) -> None:
         """Run the watchdog."""
-        logger.info("Starting the watchdog.")
+        logger.debug("Starting the watchdog...")
         self._observer.schedule(self._event_handler, self._path, recursive=True)
         self._observer.start()
 
@@ -285,6 +286,51 @@ class Akita:
         self._worker = Thread(target=self._run_watchdog, daemon=daemon)
 
         return self._worker
+    
+
+    def _stop_worker(self, max_attempts = 10) -> None:
+        """
+        Stop the worker thread.
+
+        Parameters
+        ----------
+        max_attempts
+            Maximum number of attempts to stop the worker thread.
+        """
+        while self._worker.is_alive() and max_attempts > 0:
+            logger.debug(f"{max_attempts} attempts remaining to stop the worker thread.")
+            if self._observer.is_alive():
+                logger.debug("Stopping the watchdog...")
+                self._observer.stop()
+                self._observer.join()
+                logger.debug("Watchdog has stopped successfully.")
+
+            logger.debug("Attempting to stop the worker thread...")
+            self._worker.join(timeout=1)
+            max_attempts -= 1
+
+        if max_attempts == 0:
+            raise RuntimeError("Failed to stop the worker thread.")
+        else:
+            logger.debug("Worker thread has stopped successfully.")
+
+    def stop(self, max_attempts = 10) -> None:
+        """
+        Stop the observer and worker thread.
+        
+        Parameters
+        ----------
+        max_attempts
+            Maximum number of attempts to stop the worker thread.
+        """
+
+        if self._worker is not None:
+            logger.info("Stopping Akita...")
+            self._stop_worker(max_attempts)        
+            logger.info("Akita has stopped successfully.")
+        else:
+            logger.info("Attempted to stop akita but no worker thread has been found.")
+
 
     def run(
         self, monitor: bool = True, enqueue_new_files: bool = True, daemon: bool = False
@@ -307,6 +353,7 @@ class Akita:
             self.enqueue_new_files()
 
         if self._monitor:
+            logger.info("Starting Akita in monitor mode...")
             self._queue.set_sentinel_state(active=False)
 
             try:
@@ -316,6 +363,6 @@ class Akita:
                 self._worker.start()
             except Exception as excpt:
                 self._worker.join()
-                raise Exception(f"Error while running the watchdog: {excpt}")
+                raise RuntimeError(f"Error while running the watchdog: {excpt}")
         else:
             self._queue.set_sentinel_state(active=True)
