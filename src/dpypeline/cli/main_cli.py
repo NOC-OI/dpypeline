@@ -1,6 +1,7 @@
 """dpypeline command line interface."""
 import logging
 import sys
+import time
 
 from .argument_parser import __version__, create_parser
 from .yaml_loader import get_loader, load_yaml
@@ -61,6 +62,10 @@ def dpypeline():
 
     if "dask_client" in settings:
         # Close the Dask client if it exists.
+        logger.info("Closing Dask client...")
+        settings["dask_client"].shutdown()
         settings["dask_client"].close()
+        logger.info("Dask client has been closed successfully.")
+        time.sleep(1)
 
     exit_banner()
