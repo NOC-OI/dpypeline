@@ -130,8 +130,8 @@ class ConsumerParallel(EventConsumer):
         """
         event = self._futures[future]
         logger.warning(
-            f"Event {event} finished with an error: {future.exception()}"
-            + "Future will be retried.."
+            f"Event {event} finished with an error: {future.exception()}."
+            + " Future will be retried.."
         )
         # Wait 1 second before retrying the future
         time.sleep(1)
