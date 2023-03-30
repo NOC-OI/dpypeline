@@ -192,10 +192,12 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         bucket
             Name of the bucket to place the file in.
         """
-        assert bucket in self.get_bucket_list(), f'Bucket "{bucket}" does not exist.'
+        assert (
+            bucket.split(os.path.sep, 1)[0] in self.get_bucket_list()
+        ), f'Bucket "{bucket}" does not exist.'
         assert os.path.isfile(path), f'"{path}" is not a file.'
 
-        dest_path = os.path.join(bucket, path.rsplit("/", 1)[-1])
+        dest_path = os.path.join(bucket, path.rsplit(os.path.sep, 1)[-1])
 
         with self.open(dest_path, mode="wb", s3=dict(profile="default")) as fa:
             with open(path, mode="rb") as fb:
