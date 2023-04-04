@@ -181,7 +181,9 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         """
         return self.ls("/")
 
-    def write_file_to_bucket(self, path: str, bucket: str) -> None:
+    def write_file_to_bucket(
+        self, path: str, bucket: str, chunk_size: int = -1
+    ) -> None:
         """
         Write file from the local filesystem to a bucket of the object store.
 
@@ -191,6 +193,9 @@ class ObjectStoreS3(s3fs.S3FileSystem):
             Absolute or relative filepath of the file to be written to the object store.
         bucket
             Name of the bucket to place the file in.
+        chunk_size
+            Size of the chunk (in bytes) to read/write at once.
+            If the chunk size is smaller than 1, the file will be read/written at once.
         """
         assert (
             bucket.split(os.path.sep, 1)[0] in self.get_bucket_list()
@@ -199,6 +204,20 @@ class ObjectStoreS3(s3fs.S3FileSystem):
 
         dest_path = os.path.join(bucket, path.rsplit(os.path.sep, 1)[-1])
 
-        with self.open(dest_path, mode="wb", s3=dict(profile="default")) as fa:
-            with open(path, mode="rb") as fb:
-                fa.write(fb.read())
+        with open(path, mode="rb") as fb:
+            if chunk_size >= 1:
+                # If the chunk size is greater than 1,
+                # we read/write the file in chunks
+                self.open(dest_path, mode="wb", s3=dict(profile="default")).close()
+                chunk = fb.read(chunk_size)
+                while chunk:
+                    with self.open(
+                        dest_path, mode="ab", s3=dict(profile="default")
+                    ) as fa:
+                        fa.write(chunk)
+                        chunk = fb.read(chunk_size)
+            else:
+                # If the chunk size is smaller than 1,
+                # we read/write the file at once
+                with self.open(dest_path, mode="wb", s3=dict(profile="default")) as fa:
+                    fa.write(fb.read())
