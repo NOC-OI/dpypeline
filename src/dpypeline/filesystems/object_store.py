@@ -340,6 +340,9 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         """
         chunks_offsets_lengths = {}
 
+        if chunk_size == -1:
+            chunk_size = nbytes
+
         # Calculate the number of chunks
         nchunks = int(np.ceil(nbytes / chunk_size))
 
