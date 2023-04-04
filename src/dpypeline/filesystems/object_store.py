@@ -234,28 +234,36 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         chunks_offsets_lengths
             Dictionary containing the chunk offsets and lengths.
         """
-
-        # writing chunks in parallel
-        # to an object store is not supported
-        # because s3fs only supports seek methods in read modes
-        #
-        # the code below can be used to write chunks in parallel
-        # for other filesystems
-        """
         import dask
 
-        batches = []
-        for chk in chunks_offsets_lengths.values():
-            result_batch = dask.delayed(self._write_chunk)(
-                path, dest_path, chk["offset"], chk["length"]
-            )
-            batches.append(result_batch)
+        # writing chunks in parallel
+        # to an object store must be done using a multipart upload approach
+        # for more information see
+        # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3/client/create_multipart_upload.html
 
-        dask.compute(batches)
-        """
-        raise NotImplementedError(
-            "The method '_write_file_to_bucket_parallel' is not implemented."
-        )
+        if len(chunks_offsets_lengths) > 1:
+            # multipart upload
+            batches = []
+            multi_part_uploads = []
+            for i, chk in enumerate(chunks_offsets_lengths.values()):
+                dest_path_part = f"{dest_path}_part{i}"
+                result_batch = dask.delayed(self._write_chunk)(
+                    path, dest_path_part, chk["offset"], chk["length"]
+                )
+                batches.append(result_batch)
+                multi_part_uploads.append(dest_path_part)
+
+            dask.compute(batches)
+
+            # Create single S3 file from list of S3 files
+            self.merge(dest_path, multi_part_uploads)
+            # Remove any partial uploads in the bucket associated with the file
+            self.rm(multi_part_uploads)
+        else:
+            chk = list(chunks_offsets_lengths.values())[0]
+            dask.delayed(self._write_chunk)(
+                path, dest_path, chk["offset"], chk["length"]
+            ).compute()
 
     def _write_file_to_bucket_serial(
         self, path: str, dest_path: str, chunks_offsets_lengths: dict
@@ -272,8 +280,20 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         chunks_offsets_lengths
             Dictionary containing the chunk offsets and lengths.
         """
-        # Write the file
-        for chk in chunks_offsets_lengths.values():
+        if len(chunks_offsets_lengths) > 1:
+            # multipart upload
+            multi_part_uploads = []
+            for i, chk in enumerate(chunks_offsets_lengths.values()):
+                dest_path_part = f"{dest_path}_part{i}"
+                self._write_chunk(path, dest_path_part, chk["offset"], chk["length"])
+                multi_part_uploads.append(dest_path_part)
+
+            # Create single S3 file from list of S3 files
+            self.merge(dest_path, multi_part_uploads)
+            # Remove any partial uploads in the bucket associated with the file
+            self.rm(multi_part_uploads)
+        else:
+            chk = list(chunks_offsets_lengths.values())[0]
             self._write_chunk(path, dest_path, chk["offset"], chk["length"])
 
     def _write_chunk(
@@ -299,8 +319,7 @@ class ObjectStoreS3(s3fs.S3FileSystem):
             bytechunk = f.read(chunk_length)
 
         # Write the chunk
-        with self.open(path_write, mode="ab", s3=dict(profile="default")) as f:
-            # f.seek(chunk_offset, 0)
+        with self.open(path_write, mode="wb", s3=dict(profile="default")) as f:
             f.write(bytechunk)
 
     def _create_chunks_offsets_lengths(self, nbytes, chunk_size: int) -> dict:
