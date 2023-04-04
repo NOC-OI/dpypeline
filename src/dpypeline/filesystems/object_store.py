@@ -4,6 +4,7 @@ import logging
 import os
 
 import fsspec
+import numpy as np
 import s3fs
 
 
@@ -182,7 +183,7 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         return self.ls("/")
 
     def write_file_to_bucket(
-        self, path: str, bucket: str, chunk_size: int = -1
+        self, path: str, bucket: str, chunk_size: int = -1, parallel: bool = False
     ) -> None:
         """
         Write file from the local filesystem to a bucket of the object store.
@@ -196,6 +197,8 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         chunk_size
             Size of the chunk (in bytes) to read/write at once.
             If the chunk size is -1, the file will be read/written at once.
+        parallel
+            Flag to enable parallel writing (True) or not (False).
         """
         assert (
             bucket.split(os.path.sep, 1)[0] in self.get_bucket_list()
@@ -204,11 +207,114 @@ class ObjectStoreS3(s3fs.S3FileSystem):
 
         dest_path = os.path.join(bucket, path.rsplit(os.path.sep, 1)[-1])
 
-        with open(path, mode="rb") as fb:
-            # If the chunk size is greater than 1,
-            # we read/write the file in chunks
-            with self.open(dest_path, mode="wb", s3=dict(profile="default")) as fa:
-                bytechunk = fb.read(chunk_size)
-                while bytechunk:
-                    fa.write(bytechunk)
-                    bytechunk = fb.read(chunk_size)
+        # Create dictionary of chunk offsets and lengths
+        file_size = os.path.getsize(path)
+        chks = self._create_chunks_offsets_lengths(file_size, chunk_size)
+
+        if parallel:
+            self._write_file_to_bucket_parallel(path, dest_path, chks)
+        else:
+            self._write_file_to_bucket_serial(path, dest_path, chks)
+
+    def _write_file_to_bucket_parallel(
+        self, path: str, dest_path: str, chunks_offsets_lengths: dict
+    ) -> None:
+        """
+        Write file from the local filesystem to a bucket of the object store in parallel.
+
+        Parameters
+        ----------
+        path
+            Absolute or relative filepath of the file to be written to the object store.
+        dest_path
+            Path of the file in the object store.
+        chunks_offsets_lengths
+            Dictionary containing the chunk offsets and lengths.
+        """
+        import dask
+
+        batches = []
+        for chk in chunks_offsets_lengths.values():
+            result_batch = dask.delayed(self._write_chunk)(
+                path, dest_path, chk["offset"], chk["length"]
+            )
+            batches.append(result_batch)
+
+        dask.compute(batches)
+
+    def _write_file_to_bucket_serial(
+        self, path: str, dest_path: str, chunks_offsets_lengths: dict
+    ) -> None:
+        """
+        Write file from the local filesystem to a bucket of the object store in serial.
+
+        Parameters
+        ----------
+        path
+            Absolute or relative filepath of the file to be written to the object store.
+        dest_path
+            Path of the file in the object store.
+        chunks_offsets_lengths
+            Dictionary containing the chunk offsets and lengths.
+        """
+        # Write the file
+        for chk in chunks_offsets_lengths.values():
+            self._write_chunk(path, dest_path, chk["offset"], chk["length"])
+
+    def _write_chunk(
+        self, path_read, path_write, chunk_offset: int, chunk_length: int
+    ) -> None:
+        """
+        Write a chunk to an open file.
+
+        Parameters
+        ----------
+        path_read
+            File to read from.
+        path_write
+            File to write to.
+        chunk_offset
+            Offset of the chunk (in bytes).
+        chunk_length
+            Length of the chunk (in bytes).
+        """
+        # Read the chunk
+        with open(path_read, mode="rb") as f:
+            f.seek(chunk_offset, 0)
+            bytechunk = f.read(chunk_length)
+
+        # Write the chunk
+        with self.open(path_write, mode="rb+", s3=dict(profile="default")) as f:
+            f.seek(chunk_offset, 0)
+            f.write(bytechunk)
+
+    def _create_chunks_offsets_lengths(self, nbytes, chunk_size: int) -> dict:
+        """
+        Create the chunks offsets and lengths for a file with nbytes given the chunk_size.
+
+        Parameters
+        ----------
+        nbytes
+            Number of bytes of the file.
+        chunk_size
+            Size of the chunk (in bytes).
+
+        Returns
+        -------
+        chunks_offsets_lengths
+            Dictionary containing the chunks offsets and lengths.
+        """
+        chunks_offsets_lengths = {}
+
+        # Calculate the number of chunks
+        nchunks = int(np.ceil(nbytes / chunk_size))
+
+        # Calculate the chunks offsets and length
+        for i in range(nchunks):
+            chk_id = f"chunk_{i}"
+            chunks_offsets_lengths[chk_id] = {
+                "offset": i * chunk_size,
+                "length": chunk_size,
+            }
+
+        return chunks_offsets_lengths
