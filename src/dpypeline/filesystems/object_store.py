@@ -211,6 +211,9 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         file_size = os.path.getsize(path)
         chks = self._create_chunks_offsets_lengths(file_size, chunk_size)
 
+        # Create the empty file
+        self.open(dest_path, mode="wb", s3=dict(profile="default")).close()
+
         if parallel:
             self._write_file_to_bucket_parallel(path, dest_path, chks)
         else:
@@ -231,6 +234,14 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         chunks_offsets_lengths
             Dictionary containing the chunk offsets and lengths.
         """
+
+        # writing chunks in parallel
+        # to an object store is not supported
+        # because s3fs only supports seek methods in read modes
+        #
+        # the code below can be used to write chunks in parallel
+        # for other filesystems
+        """
         import dask
 
         batches = []
@@ -241,6 +252,10 @@ class ObjectStoreS3(s3fs.S3FileSystem):
             batches.append(result_batch)
 
         dask.compute(batches)
+        """
+        raise NotImplementedError(
+            "The method '_write_file_to_bucket_parallel' is not implemented."
+        )
 
     def _write_file_to_bucket_serial(
         self, path: str, dest_path: str, chunks_offsets_lengths: dict
@@ -284,8 +299,8 @@ class ObjectStoreS3(s3fs.S3FileSystem):
             bytechunk = f.read(chunk_length)
 
         # Write the chunk
-        with self.open(path_write, mode="rb+", s3=dict(profile="default")) as f:
-            f.seek(chunk_offset, 0)
+        with self.open(path_write, mode="ab", s3=dict(profile="default")) as f:
+            # f.seek(chunk_offset, 0)
             f.write(bytechunk)
 
     def _create_chunks_offsets_lengths(self, nbytes, chunk_size: int) -> dict:
