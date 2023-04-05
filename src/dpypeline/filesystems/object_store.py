@@ -1,7 +1,9 @@
 """S3 object store class."""
+import io
 import json
 import logging
 import os
+from typing import IO
 
 import fsspec
 import numpy as np
@@ -183,17 +185,25 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         return self.ls("/")
 
     def write_file_to_bucket(
-        self, path: str, bucket: str, chunk_size: int = -1, parallel: bool = False
+        self,
+        path: str | os.PathLike | IO,
+        bucket: str,
+        file_name: str,
+        chunk_size: int = -1,
+        parallel: bool = False,
     ) -> None:
         """
-        Write file from the local filesystem to a bucket of the object store.
+        Write to a bucket of the object store.
 
         Parameters
         ----------
         path
-            Absolute or relative filepath of the file to be written to the object store.
+            Absolute or relative filepath of the file to be written to the object store,
+            or file-like object to be written to the object store.
         bucket
             Name of the bucket to place the file in.
+        file_name
+            Name that will be used to identify the file in the bucket.
         chunk_size
             Size of the chunk (in bytes) to read/write at once.
             If the chunk size is -1, the file will be read/written at once.
@@ -203,98 +213,115 @@ class ObjectStoreS3(s3fs.S3FileSystem):
         assert (
             bucket.split(os.path.sep, 1)[0] in self.get_bucket_list()
         ), f'Bucket "{bucket}" does not exist.'
-        assert os.path.isfile(path), f'"{path}" is not a file.'
 
-        dest_path = os.path.join(bucket, path.rsplit(os.path.sep, 1)[-1])
+        if isinstance(path, str) or isinstance(path, os.PathLike):
+            assert os.path.isfile(path), f'"{path}" is not a file.'
+            file_size = os.path.getsize(path)
+        elif isinstance(path, io.IOBase):
+            file_size = path.seek(0, os.SEEK_END)
+        else:
+            raise ValueError(f'"{path}" is not file-like, path-like or a string.')
 
-        # Create dictionary of chunk offsets and lengths
-        file_size = os.path.getsize(path)
-        chks = self._create_chunks_offsets_lengths(file_size, chunk_size)
-
-        # Create the empty file
+        # create the empty file
+        dest_path = os.path.join(bucket, file_name)
         self.open(dest_path, mode="wb", s3=dict(profile="default")).close()
 
+        # create the chunks offsets and lengths
+        chks = self._create_chunks_offsets_lengths(file_size, chunk_size)
+
+        # write the file to the bucket
+        self._write_to_bucket(path, dest_path, chks, parallel)
+
+    def _write_to_bucket(
+        self,
+        path: str | os.PathLike | IO,
+        dest_path: str,
+        chunks_offsets_lengths: dict,
+        parallel: bool,
+    ) -> None:
+        """
+        Write to a bucket of the object store.
+
+        Parameters
+        ----------
+        path
+            Absolute or relative filepath of the file to be written to the object store,
+            or file-like object to be written to the object store.
+        dest_path
+            Name of the bucket to place the file in.
+        chunks_offsets_lengths
+            Dictionary containing the chunk offsets and lengths
+            of the file to be written to the object store.
+        parallel
+            Flag to enable parallel writing (True) or not (False).
+        """
+        n_chunks = len(chunks_offsets_lengths)
+
+        # Arguments to be fed to the map
+        multi_part_files = [f"{dest_path}.part{i}" for i in range(n_chunks)]
+        chks_offsets = [
+            chunks_offsets_lengths[chk]["offset"] for chk in chunks_offsets_lengths
+        ]
+        chks_lengths = [
+            chunks_offsets_lengths[chk]["length"] for chk in chunks_offsets_lengths
+        ]
+        paths = [path] * n_chunks
+
         if parallel:
-            self._write_file_to_bucket_parallel(path, dest_path, chks)
-        else:
-            self._write_file_to_bucket_serial(path, dest_path, chks)
+            import dask
 
-    def _write_file_to_bucket_parallel(
-        self, path: str, dest_path: str, chunks_offsets_lengths: dict
-    ) -> None:
-        """
-        Write file from the local filesystem to a bucket of the object store in parallel.
-
-        Parameters
-        ----------
-        path
-            Absolute or relative filepath of the file to be written to the object store.
-        dest_path
-            Path of the file in the object store.
-        chunks_offsets_lengths
-            Dictionary containing the chunk offsets and lengths.
-        """
-        import dask
-
-        # writing chunks in parallel
-        # to an object store must be done using a multipart upload approach
-        # for more information see
-        # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3/client/create_multipart_upload.html
-
-        if len(chunks_offsets_lengths) > 1:
-            # multipart upload
-            batches = []
-            multi_part_uploads = []
-            for i, chk in enumerate(chunks_offsets_lengths.values()):
-                dest_path_part = f"{dest_path}_part{i}"
-                result_batch = dask.delayed(self._write_chunk)(
-                    path, dest_path_part, chk["offset"], chk["length"]
+            dask.compute(
+                list(
+                    map(
+                        dask.delayed(self._write_chunk),
+                        paths,
+                        multi_part_files,
+                        chks_offsets,
+                        chks_lengths,
+                    )
                 )
-                batches.append(result_batch)
-                multi_part_uploads.append(dest_path_part)
-
-            dask.compute(batches)
-
-            # Create single S3 file from list of S3 files
-            self.merge(dest_path, multi_part_uploads)
-            # Remove any partial uploads in the bucket associated with the file
-            self.rm(multi_part_uploads)
+            )
         else:
-            chk = list(chunks_offsets_lengths.values())[0]
-            dask.delayed(self._write_chunk)(
-                path, dest_path, chk["offset"], chk["length"]
-            ).compute()
+            list(
+                map(
+                    self._write_chunk,
+                    paths,
+                    multi_part_files,
+                    chks_offsets,
+                    chks_lengths,
+                )
+            )
 
-    def _write_file_to_bucket_serial(
-        self, path: str, dest_path: str, chunks_offsets_lengths: dict
-    ) -> None:
+        if n_chunks > 1:
+            # Remove any partial uploads in the bucket associated with the file
+            # Create single S3 file from list of S3 files
+            self.merge(dest_path, multi_part_files)
+            # Remove any partial uploads in the bucket associated with the file
+            self.rm(multi_part_files)
+
+    def __open(self, path: str | os.PathLike | IO, mode: str = "rb") -> IO:
         """
-        Write file from the local filesystem to a bucket of the object store in serial.
+        Open a file using a bespoke interface.
 
         Parameters
         ----------
         path
-            Absolute or relative filepath of the file to be written to the object store.
-        dest_path
-            Path of the file in the object store.
-        chunks_offsets_lengths
-            Dictionary containing the chunk offsets and lengths.
-        """
-        if len(chunks_offsets_lengths) > 1:
-            # multipart upload
-            multi_part_uploads = []
-            for i, chk in enumerate(chunks_offsets_lengths.values()):
-                dest_path_part = f"{dest_path}_part{i}"
-                self._write_chunk(path, dest_path_part, chk["offset"], chk["length"])
-                multi_part_uploads.append(dest_path_part)
+            Absolute or relative filepath of the file to be opened,
+            or file-like object to be opened.
+        mode
+            File open mode.
 
-            # Create single S3 file from list of S3 files
-            self.merge(dest_path, multi_part_uploads)
-            # Remove any partial uploads in the bucket associated with the file
-            self.rm(multi_part_uploads)
+        Returns
+        -------
+        filelike object
+        """
+        if isinstance(path, str) or isinstance(path, os.PathLike):
+            return open(path, mode)
+        elif isinstance(path, io.IOBase):
+            # filelike object
+            return path
         else:
-            chk = list(chunks_offsets_lengths.values())[0]
-            self._write_chunk(path, dest_path, chk["offset"], chk["length"])
+            raise ValueError(f"Unsupported file type: {type(path)}")
 
     def _write_chunk(
         self, path_read, path_write, chunk_offset: int, chunk_length: int
@@ -314,7 +341,7 @@ class ObjectStoreS3(s3fs.S3FileSystem):
             Length of the chunk (in bytes).
         """
         # Read the chunk
-        with open(path_read, mode="rb") as f:
+        with self.__open(path_read, mode="rb") as f:
             f.seek(chunk_offset, 0)
             bytechunk = f.read(chunk_length)
 
@@ -348,8 +375,7 @@ class ObjectStoreS3(s3fs.S3FileSystem):
 
         # Calculate the chunks offsets and length
         for i in range(nchunks):
-            chk_id = f"chunk_{i}"
-            chunks_offsets_lengths[chk_id] = {
+            chunks_offsets_lengths[i] = {
                 "offset": i * chunk_size,
                 "length": chunk_size,
             }
