@@ -1,11 +1,15 @@
-import pytest
-import tempfile
+"""Utils for the tests."""
 import os
+import tempfile
+from typing import Generator
+
+import pytest
 
 CACHE_DIR_ENV_VAR_NAME = "CACHE_DIR"
 
+
 @pytest.fixture(scope="session")
-def cache_dir() -> str:
+def cache_dir() -> Generator[str, None, None]:
     """Create a temporary cache directory with files and set the environmental variable."""
     # Create the cache directory and set the environmental variable
     cache = tempfile.mkdtemp()
@@ -20,5 +24,5 @@ def cache_dir() -> str:
         for dir in dirs:
             os.rmdir(os.path.join(root, dir))
     os.rmdir(cache)
-    
+
     del os.environ[CACHE_DIR_ENV_VAR_NAME]
