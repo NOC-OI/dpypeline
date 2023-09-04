@@ -7,7 +7,6 @@ from dask.distributed import Client
 from ..akita.core import Akita
 from ..akita.factory import get_akita_dependencies
 from ..etl_pipeline.basic_pipeline import BasicPipeline
-from ..etl_pipeline.celery_pipeline import CeleryPipeline
 from ..etl_pipeline.core import Job, Task
 from ..event_consumer.consumer_parallel import ConsumerParallel
 from ..event_consumer.consumer_serial import ConsumerSerial
@@ -86,15 +85,15 @@ def consumer_parallel_constructor(
     kwargs = {str(key): params[key] for key in params if key not in ["akita"]}
     return ConsumerParallel(queue=params["akita"].queue, **kwargs)
 
-
-def celery_pipeline_constructor(
-    loader: yaml.SafeLoader, node: yaml.nodes.MappingNode
-) -> CeleryPipeline:
-    """Construct a CeleryPipeline instance."""
-    kwargs = {
-        str(key): val for key, val in loader.construct_mapping(node, deep=True).items()
-    }
-    return CeleryPipeline(**kwargs)
+# TODO: uncomment this when celery pipeline is ready
+# def celery_pipeline_constructor(
+#     loader: yaml.SafeLoader, node: yaml.nodes.MappingNode
+# ) -> CeleryPipeline:
+#     """Construct a CeleryPipeline instance."""
+#     kwargs = {
+#         str(key): val for key, val in loader.construct_mapping(node, deep=True).items()
+#     }
+#     return CeleryPipeline(**kwargs)
 
 
 def basic_pipeline_constructor(
@@ -134,7 +133,7 @@ constructors_dict = {
     "!ConsumerSerial": consumer_serial_constructor,
     "!ConsumerParallel": consumer_parallel_constructor,
     "!BasicPipeline": basic_pipeline_constructor,
-    "!CeleryPipeline": celery_pipeline_constructor,
+    # "!CeleryPipeline": celery_pipeline_constructor,
     "!DaskClient": dask_client_constructor,
     "!ObjectStoreS3": object_store_constructor,
 }
