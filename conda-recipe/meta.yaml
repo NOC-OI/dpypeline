@@ -1,0 +1,50 @@
+{% set name = "dpypeline" %}
+{% set version = "0.1.0b2" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/dpypeline-{{ version }}.tar.gz
+  sha256: 4234e093ed1e904f3db17a6e40b3fb1000ecc4c43891b7ee4c7498f28c86ac0a
+
+build:
+  entry_points:
+    - dpypeline = dpypeline.cli.main_cli:dpypeline
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+  number: 0
+
+requirements:
+  host:
+    - python >=3.9
+    - setuptools >=42
+    - wheel
+    - pip
+  run:
+    - python >=3.9
+    - dask-core >=2023.3.0
+    - dask-jobqueue >=0.8.1
+    - s3fs >=2023.3.0
+    - celery ==5.2.7
+    - fsspec >=2023.3.0
+    - watchdog ==2.3.1
+
+test:
+  imports:
+    - dpypeline
+  commands:
+    - pip check
+    - dpypeline --help
+  requires:
+    - pip
+
+about:
+  summary: Program for creating data pipelines triggered by file creation events.
+  license: 'Mit Licence'
+  license_file: LICENCE.md
+
+extra:
+  recipe-maintainers:
+    - JMorado
