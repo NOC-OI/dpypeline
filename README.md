@@ -84,7 +84,19 @@ Examples of Python scripts explaining how to use this package can be found in th
 
 ### Command line interface (CLI)
 
-TODO
+The CLI provided by this package allows you to execute data pipelines defined in YAML files; however, it offers less flexibility compared to using the Python scripts. To run the dpypeline CLI, type, e.g., the following command:
+
+```bash
+dpypeline -i <input_file> > output 2> errors
+```
+
+#### Flags description
+
+
+- `-h` or `--help`: show an help message
+- `-i INPUT_FILE` or `--input INPUT_FILE`: Filepath to the pipeline YAML file (by default `pipelien.yaml`)
+- `-v` or `--version`: show dpypeline's version umber
+
 
 ### Environment variables
 
