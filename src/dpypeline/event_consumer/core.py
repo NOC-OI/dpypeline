@@ -6,7 +6,7 @@ from typing import Any, Protocol
 class JobProducer(Protocol):
     """Job producer interface."""
 
-    def produce_jobs(self, event: Any) -> None:
+    def produce_jobs(self, event: Any) -> Any:
         """Produce jobs triggered by an event."""
         ...
 
