@@ -7,35 +7,51 @@
 
 Program for creating data pipelines triggered by file creation events.
 
-# Version
+## Version
 
 0.1.0-beta.1
 
-# Python enviroment setup
+## Python enviroment setup
 
-Setup the environment using conda (or mamba):
+To utilise this package, it should be installed within a dedicated Conda environment. You can create this environment using the following command:
 
-```bash
+```
 conda create --name <environment_name> python=3.10
+```
+
+To activate the conda environment use:
+```
 conda activate <environment_name>
 ```
 
-Alternatively, use `virtualenv` to setup the environment:
+Alternatively, use `virtualenv` to setup and activate the environment:
 
-```bash
+```
 python -m venv <environment_name>
 source <envionment_name>/bin/activate
 ```
 
-# Installation
+## Installation
 
-Install the `dpypeline` package using pip:
+To install this library, begin by cloning this repository:
 
-```bash
-pip install dpypeline
+```
+git clone git@github.com:NOC-OI/dpyepline.git
 ```
 
-# Unit tests
+After cloning the repository, navigate to the root directory of the package and execute the following command (dpypeline will be installed in editable mode):
+
+```
+pip install -e .
+```
+
+Otherwise, install the package by running:
+
+```
+pip install git+https://github.com/NOC-OI/dpypeline.git@main#egg=dpypeline
+```
+
+## Unit tests
 
 Run tests using `pytest` in the main directory:
 
@@ -43,19 +59,29 @@ Run tests using `pytest` in the main directory:
 pip install pytest
 pytest
 ```
+## Examples
 
-# Environment variables
+### Environment variables
 
 There are a few environment variables that need to be set so that the application can run correctly:
 
 - `CACHE_DIR`: Path to the cache directory.
-- `BROKER_URL`: URL of the rabbitMQ broker to connect to (only required when using the celery-based pipeline).
+
+## Software Workflow Overview
+
+## Pipeline architectures
+
+![Dpypeline diagram](/images/dpypeline_diagram.png)
 
 
-# Pipeline architectures
+### Thread-based pipeline
 
-## Thread-based pipeline
-![Thread-based pipeline architecture](/images/thread_pipeline.png "Thread-based pipeline architecture")
+In the thread-based pipeline, `Akita` enqueues events into an in-memory queue. These events are subsequently consumed by `ConsumerSerial`, which generates jobs for sequential execution within the `ThreadPipeline` (an alias for `BasicPipeline`).
+
+### Parallel pipeline
+
+In the parallel pipeline, `Akita`` enqueues events into an in-memory queue. These events are then consumed by `ConsumerParallel`, which generates futures that are executed concurrently by multiple Dask workers.
+    
 
 ## Filesystems
 
