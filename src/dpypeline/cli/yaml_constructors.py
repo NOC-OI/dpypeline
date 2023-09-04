@@ -85,6 +85,7 @@ def consumer_parallel_constructor(
     kwargs = {str(key): params[key] for key in params if key not in ["akita"]}
     return ConsumerParallel(queue=params["akita"].queue, **kwargs)
 
+
 # TODO: uncomment this when celery pipeline is ready
 # def celery_pipeline_constructor(
 #     loader: yaml.SafeLoader, node: yaml.nodes.MappingNode
