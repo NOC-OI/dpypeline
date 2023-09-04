@@ -81,7 +81,7 @@ In the thread-based pipeline, `Akita` enqueues events into an in-memory queue. T
 ### Parallel pipeline
 
 In the parallel pipeline, `Akita` enqueues events into an in-memory queue. These events are then consumed by `ConsumerParallel`, which generates futures that are executed concurrently by multiple Dask workers.
-    
+
 
 ## Filesystems
 
