@@ -1,4 +1,6 @@
-# Instructions on how to send a frozen dataset to the object store in Zarr format
+# Example 3
+
+## Instructions on how to send a frozen dataset to the object store in Zarr format
 
 1.  Create a workspace for the data pipeline
 
@@ -20,8 +22,8 @@
     structure:
 
     ```yaml
-    # Input file to generate a template for dpypeline 
-    # Automatically created by dpypelinetools 0.1.0-beta.1 
+    # Input file to generate a template for dpypeline
+    # Automatically created by dpypelinetools 0.1.0-beta.1
     create_template:
       files: '#TODO'
       multiple_file_template: '#TODO'
@@ -180,7 +182,7 @@
         - soprecip
         - e3t
       concat_dim: time_counter
-      chunks: 
+      chunks:
         time_counter: 1
         deptht: 5
         x: 577
@@ -225,7 +227,7 @@
 
     **NOTE!!!** If during this process you get erros such as:
 
-        ValueError: coordinate 'time_instant' not present in all datasets.   
+        ValueError: coordinate 'time_instant' not present in all datasets.
 
     this indicates that the listed coordinates must be removed from the
     \"coords\" list in the template.yaml file.\
@@ -288,7 +290,7 @@
         dataset: *template
 
       - &regions !Function
-        function: dpypelinetools.utils.load_yaml 
+        function: dpypelinetools.utils.load_yaml
         yaml_file: template_region_dict.yaml
 
       - &bucket_mapper !Method
@@ -323,7 +325,7 @@
           - !Task
        function: dpypelinetools.tasks.pipeline_tasks.to_zarr
        store: *bucket_mapper
-       mode: "r+" 
+       mode: "r+"
        region_dict: *regions
 
     # Pipeline configuration
@@ -337,14 +339,14 @@
       &cluster_client !DaskClient
       cluster: dask_jobqueue.SLURMCluster
       name: dask-cluster
-      scale: 
+      scale:
         jobs: 8
       processes: 16
       cores: 16
       queue: par-single
       memory: "128 GB"
       walltime: "48:00:00"
-      job_script_prologue: 
+      job_script_prologue:
         - micromamba activate dpypeline
 
     # Event consumer configuration
@@ -358,8 +360,26 @@
 
     In this example, only functions from the module
     `dpypelinetools.tasks.pipeline_tasks` were used in the tasks. However, any Python function can be virtually used as a task in the
-    pipeline. 
-    
+    pipeline.
+
     Note, though, that you might have to include in `PYTHONPATH`` any
     modules that do not belong to `dpypeline` or `dpypelinetools` and that
     contain functions you would like to use as tasks.
+
+## Credentials to access the object store (.json file)
+
+From inside JASMIN:
+
+    {
+        "token": <Token generated using the Caringo Portal>,
+        "secret": <Secret generated using the Caringo Portal>,
+        "endpoint_url": "https://noc-msm-o.s3.jc.rl.ac.uk"
+    }
+
+External access, from outside JASMIN:
+
+    {
+        "token": <Token generated using the Caringo portal>,
+        "secret": <Secret generated using the Caringo portal>,
+        "endpoint_url": "https://noc-msm-o.s3-ext.jc.rl.ac.uk"
+    }
