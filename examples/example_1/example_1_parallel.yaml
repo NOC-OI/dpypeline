@@ -1,0 +1,51 @@
+akita:
+  &akita !Akita
+  path: "2023/"
+  patterns: "*.csv"
+  ignore_patterns: null
+  ignore_directories: true
+  case_sensitive: true
+  glob_kwargs: null
+  monitor: false
+
+# Pipeline jobs configuration
+jobs:
+  - &job_convert !Job
+    name: "convert_from_fahrenheit_to_celsius"
+    tasks:
+      - !Task
+        function: example_1_tasks.read_csv
+      - !Task
+        function: example_1_tasks.convert_fahrenheit_to_celsius
+        col_temp: "TEMP"
+      - !Task
+        function: example_1_tasks.write_csv
+        prefix: "celsius_2023/"
+
+# Pipeline configuration
+pipeline:
+  &pipeline !ThreadPipeline
+  jobs:
+    - *job_convert
+
+# Event consumer configuration
+event_consumer:
+  !ConsumerSerial
+  akita: *akita
+  job_producer: *pipeline
+
+# Dask client/cluster configuration
+dask_client:
+  &cluster_client !DaskClient
+  cluster: dask.distributed.LocalCluster
+  n_workers: 32
+  threads_per_worker: 1
+
+
+# Event consumer configuration
+event_consumer:
+  !ConsumerParallel
+  akita: *akita
+  job_producer: *pipeline
+  cluster_client: *cluster_client
+  workers_per_event: 1
