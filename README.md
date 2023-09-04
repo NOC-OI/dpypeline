@@ -33,22 +33,39 @@ source <envionment_name>/bin/activate
 
 ## Installation
 
-To install this library, begin by cloning this repository:
+1. Clone the repository:
 
 ```
 git clone git@github.com:NOC-OI/dpyepline.git
 ```
 
-After cloning the repository, navigate to the root directory of the package and execute the following command (dpypeline will be installed in editable mode):
+2. Navigate to the package directory:
+
+After cloning the repository, navigate to the root directory of the package.
+
+3. Install in editable mode:
+
+To install `dpypeline` in editable mode, execute the following comman from the root directory:
 
 ```
 pip install -e .
 ```
 
-Otherwise, install the package by running:
+This command will install the library in editable mode, allowing you to make changes to the code if needed.
+
+4. Alternative installation methods:
+
+- Install from the GitHub repository directly:
+
 
 ```
 pip install git+https://github.com/NOC-OI/dpypeline.git@main#egg=dpypeline
+```
+
+- Install from the PyPI repository:
+
+```
+pip install dpypeline
 ```
 
 ## Unit tests
@@ -60,6 +77,14 @@ pip install pytest
 pytest
 ```
 ## Examples
+
+### Python scripts
+
+Examples of Python scripts explaining how to use this package can be found in the examples directory.
+
+### Command line interface (CLI)
+
+TODO
 
 ### Environment variables
 
