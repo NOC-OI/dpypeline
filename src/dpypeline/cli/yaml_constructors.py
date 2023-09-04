@@ -7,6 +7,7 @@ from dask.distributed import Client
 from ..akita.core import Akita
 from ..akita.factory import get_akita_dependencies
 from ..etl_pipeline.basic_pipeline import BasicPipeline
+from ..etl_pipeline.thread_pipeline import ThreadPipeline
 from ..etl_pipeline.core import Job, Task
 from ..event_consumer.consumer_parallel import ConsumerParallel
 from ..event_consumer.consumer_serial import ConsumerSerial
@@ -106,6 +107,14 @@ def basic_pipeline_constructor(
     }
     return BasicPipeline(**kwargs)
 
+def thread_pipeline_constructor(
+    loader: yaml.SafeLoader, node: yaml.nodes.MappingNode
+) -> ThreadPipeline:
+    """Construct a ThreadPipeline instance."""
+    kwargs = {
+        str(key): val for key, val in loader.construct_mapping(node, deep=True).items()
+    }
+    return ThreadPipeline(**kwargs)
 
 def job_constructor(loader: yaml.SafeLoader, node: yaml.nodes.MappingNode) -> Job:
     """Construct a Job."""
@@ -122,6 +131,7 @@ def task_constructor(loader: yaml.SafeLoader, node: yaml.nodes.MappingNode) -> T
 
     params = loader.construct_mapping(node, deep=True)
     module_name, func_name = params["function"].rsplit(".", 1)
+    print(module_name)
     module = importlib.import_module(module_name)
 
     return Task(function=getattr(module, func_name), kwargs=kwargs)
@@ -134,6 +144,7 @@ constructors_dict = {
     "!ConsumerSerial": consumer_serial_constructor,
     "!ConsumerParallel": consumer_parallel_constructor,
     "!BasicPipeline": basic_pipeline_constructor,
+    "!ThreadPipeline": thread_pipeline_constructor,
     # "!CeleryPipeline": celery_pipeline_constructor,
     "!DaskClient": dask_client_constructor,
     "!ObjectStoreS3": object_store_constructor,
