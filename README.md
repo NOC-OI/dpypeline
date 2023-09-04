@@ -9,7 +9,7 @@ Program for creating data pipelines triggered by file creation events.
 
 ## Version
 
-0.1.0-beta.2
+0.1.0-beta.3
 
 ## Python enviroment setup
 
