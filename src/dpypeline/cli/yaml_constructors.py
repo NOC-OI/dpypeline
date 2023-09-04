@@ -7,8 +7,8 @@ from dask.distributed import Client
 from ..akita.core import Akita
 from ..akita.factory import get_akita_dependencies
 from ..etl_pipeline.basic_pipeline import BasicPipeline
-from ..etl_pipeline.thread_pipeline import ThreadPipeline
 from ..etl_pipeline.core import Job, Task
+from ..etl_pipeline.thread_pipeline import ThreadPipeline
 from ..event_consumer.consumer_parallel import ConsumerParallel
 from ..event_consumer.consumer_serial import ConsumerSerial
 from ..filesystems.object_store import ObjectStoreS3
@@ -107,6 +107,7 @@ def basic_pipeline_constructor(
     }
     return BasicPipeline(**kwargs)
 
+
 def thread_pipeline_constructor(
     loader: yaml.SafeLoader, node: yaml.nodes.MappingNode
 ) -> ThreadPipeline:
@@ -115,6 +116,7 @@ def thread_pipeline_constructor(
         str(key): val for key, val in loader.construct_mapping(node, deep=True).items()
     }
     return ThreadPipeline(**kwargs)
+
 
 def job_constructor(loader: yaml.SafeLoader, node: yaml.nodes.MappingNode) -> Job:
     """Construct a Job."""
