@@ -8,7 +8,7 @@ import pytest
 CACHE_DIR_ENV_VAR_NAME = "CACHE_DIR"
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def cache_dir() -> Generator[str, None, None]:
     """Create a temporary cache directory with files and set the environmental variable."""
     # Create the cache directory and set the environmental variable

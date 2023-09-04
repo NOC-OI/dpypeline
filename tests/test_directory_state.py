@@ -34,7 +34,6 @@ def temp_directory_with_files() -> Generator[str, None, None]:
     os.rmdir(temp_dir)
 
 
-@pytest.mark.usefixtures("cache_dir")
 def test_get_current_directory_state(
     temp_directory_with_files: str,
     cache_dir: str,
@@ -83,7 +82,6 @@ def test_get_current_directory_state(
     assert directory_state._stored_state == [], f"{directory_state.stored_state} != []"
 
 
-@pytest.mark.usefixtures("cache_dir")
 def test_save_load_state(
     temp_directory_with_files: str,
     cache_dir: str,
